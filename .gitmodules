@@ -1,3 +1,6 @@
 [submodule "GDExtension/godot-cpp"]
 	path = GDExtension/godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
+[submodule "godot"]
+	path = godot
+	url = https://github.com/maganadev/godot
