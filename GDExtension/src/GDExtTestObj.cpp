@@ -1,31 +1,31 @@
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
-#include "SceneGameplayManager.hpp"
+#include "GDExtTestObj.hpp"
 #include "TanoshiiTJAGameplayScene/GameplayGlobals.hpp"
 #include "TanoshiiTJAGameplayScene/OtogeTime.hpp"
 #include "UtilsCode/TextEncoding.hpp"
 
-void SceneGameplayManager::_bind_methods()
+void GDExtTestObj::_bind_methods()
 {
     //
 }
 
-SceneGameplayManager::SceneGameplayManager()
+GDExtTestObj::GDExtTestObj()
 {
     //
 }
 
-SceneGameplayManager::~SceneGameplayManager()
+GDExtTestObj::~GDExtTestObj()
 {
     //
 }
 
-void SceneGameplayManager::_ready()
+void GDExtTestObj::_ready()
 {
     //
 }
 
-void SceneGameplayManager::_process(double delta)
+void GDExtTestObj::_process(double delta)
 {
     //
 }
