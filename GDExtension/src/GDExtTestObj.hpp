@@ -15,6 +15,8 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
+#include "RhythmAudio.hpp"
+#include "RhythmInput.hpp"
 using namespace ::godot;
 
 class GDExtTestObj : public Sprite2D
@@ -23,6 +25,10 @@ class GDExtTestObj : public Sprite2D
 
 protected:
     static void _bind_methods();
+
+private:
+    static std::optional<RhythmAudio> audioEngine;
+    static std::optional<RhythmInput> inputEngine;
 
 public:
     // Godot object functions
