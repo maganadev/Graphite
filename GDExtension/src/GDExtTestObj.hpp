@@ -27,8 +27,9 @@ protected:
     static void _bind_methods();
 
 private:
-    static std::optional<RhythmAudio> audioEngine;
-    static std::optional<RhythmInput> inputEngine;
+    std::optional<RhythmAudio> audioEngine;
+    std::optional<RhythmInput> inputEngine;
+    uint64_t audioFileHandle;
 
 public:
     // Godot object functions
