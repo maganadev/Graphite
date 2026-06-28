@@ -4,3 +4,9 @@
 [submodule "godot"]
 	path = godot
 	url = https://github.com/maganadev/godot
+[submodule "RhythmAudio"]
+	path = RhythmAudio
+	url = https://github.com/maganadev/RhythmAudio.git
+[submodule "RhythmInput"]
+	path = RhythmInput
+	url = https://github.com/maganadev/RhythmInput.git
