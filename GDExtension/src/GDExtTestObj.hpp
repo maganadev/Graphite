@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
+
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -11,8 +12,9 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
-#include "RhythmAudio.hpp"
-#include "RhythmInput.hpp"
+#include "RhythmAudioEngine.hpp"
+#include "RhythmInputEngine.hpp"
+
 using namespace ::godot;
 
 class GDExtTestObj : public Sprite2D
@@ -23,8 +25,8 @@ protected:
     static void _bind_methods();
 
 private:
-    std::optional<RhythmAudio> audioEngine;
-    std::optional<RhythmInput> inputEngine;
+    std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
+    std::optional<RhythmInput::RhythmInputEngine> inputEngine;
     uint64_t audioFileHandle;
 
 public:

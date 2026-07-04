@@ -25,8 +25,8 @@ void GDExtTestObj::_ready()
     godot::UtilityFunctions::print("Hello from C++!");
     godot::UtilityFunctions::print("Launching RhythmAudio");
 
-    RhythmAudioSettings settings{};
-    settings.backendMode = AudioBackendMode::WASAPIShared;
+    RhythmAudio::RhythmAudioSettings settings{};
+    settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIShared;
     audioEngine.emplace(settings);
 
     // Create actual sound file
@@ -40,16 +40,16 @@ void GDExtTestObj::_ready()
 
     godot::UtilityFunctions::print("Launching RhythmInput");
 
-    std::vector<RhythmInputAction> gameActions;
-    std::vector<RhythmInputBinding> gameBindings;
+    std::vector<RhythmInput::RhythmInputAction> gameActions;
+    std::vector<RhythmInput::RhythmInputBinding> gameBindings;
 
-    RhythmInputAction wKeybind{};
+    RhythmInput::RhythmInputAction wKeybind{};
     wKeybind.name = "wKeybind";
     wKeybind.callbackOnPress = nullptr;
     wKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(wKeybind);
 
-    RhythmInputBinding wBinding;
+    RhythmInput::RhythmInputBinding wBinding;
     wBinding.button = "w";
     wBinding.action = "wKeybind";
     gameBindings.push_back(wBinding);
