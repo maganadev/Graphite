@@ -1,6 +1,6 @@
 [configuration]
 
-entry_symbol = "GraphiteGDExtensionInit"
+entry_symbol = "libGraphiteGDExtensionInit"
 compatibility_minimum = "4.1"
 reloadable = false
 
