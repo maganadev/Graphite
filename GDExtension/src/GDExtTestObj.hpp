@@ -3,10 +3,6 @@
 
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
-#include "AsyncInputSystem/AsyncInputSystem.hpp"
-#include "AsyncInputSystem/KeybindedAction.hpp"
-#include "AudioSystem/AudioSystem.hpp"
-#include "TanoshiiTJAGameplayScene/ChartData.hpp"
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
