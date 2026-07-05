@@ -6,7 +6,7 @@ from methods import print_error
 
 
 libname = "GraphiteGDExtension"
-projectdir = "project"
+projectdir = "../GodotProject"
 
 localEnv = Environment(tools=["default"], PLATFORM="")
 
@@ -73,7 +73,7 @@ library = env.SharedLibrary(
     source=sources,
 )
 
-copy = env.Install("{}/bin/{}/".format(projectdir, env["platform"]), library)
+copy = env.Install("{}/{}/".format(projectdir, env["platform"]), library)
 
 default_args = [library, copy]
 Default(*default_args)
