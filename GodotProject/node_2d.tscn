@@ -1,5 +1,18 @@
-[gd_scene format=3 uid="uid://uicufbg7biiv"]
+[gd_scene load_steps=4 format=3 uid="uid://uicufbg7biiv"]
+
+[ext_resource type="Shader" uid="uid://d3ma4lusweii3" path="res://Background.gdshader" id="1_wtcfe"]
+[ext_resource type="Texture2D" uid="uid://ceh0rgbt4r2bp" path="res://icon.svg" id="2_0e48y"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0e48y"]
+shader = ExtResource("1_wtcfe")
 
 [node name="Node2D" type="Node2D"]
 
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_0e48y")
+offset_right = 1920.0
+offset_bottom = 1080.0
+
 [node name="GDExtTestObj" type="GDExtTestObj" parent="."]
+position = Vector2(496, 394)
+texture = ExtResource("2_0e48y")
