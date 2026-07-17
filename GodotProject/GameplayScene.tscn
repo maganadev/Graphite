@@ -6,10 +6,10 @@
 shader = ExtResource("1_im3oa")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_im3oa"]
-corner_radius_top_left = 99
-corner_radius_top_right = 99
-corner_radius_bottom_right = 99
-corner_radius_bottom_left = 99
+corner_radius_top_left = 1024
+corner_radius_top_right = 1024
+corner_radius_bottom_right = 1024
+corner_radius_bottom_left = 1024
 corner_detail = 16
 
 [node name="GameplayScene" type="Node2D"]
@@ -26,8 +26,8 @@ offset_bottom = 484.0
 color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 
 [node name="Panel" type="Panel" parent="."]
-offset_left = 208.0
-offset_top = 292.0
-offset_right = 368.0
-offset_bottom = 456.0
+offset_left = 568.0
+offset_top = 336.0
+offset_right = 668.0
+offset_bottom = 436.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_im3oa")
