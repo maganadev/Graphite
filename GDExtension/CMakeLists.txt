@@ -59,6 +59,8 @@ target_sources(${LIBNAME}
     src/GameManager.hpp
     src/GameplaySceneManager.cpp
     src/GameplaySceneManager.hpp
+    src/SettingsFile.cpp
+    src/SettingsFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/AudioProcessing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/LFProtectObj.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/NumericLimits.cpp

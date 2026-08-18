@@ -1,4 +1,5 @@
 #include "GameManager.hpp"
+#include "SettingsFile.hpp"
 
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
@@ -22,10 +23,24 @@ void GameManager::_ready()
 {
     RhythmAudio::RhythmAudioSettings settings{};
 
-//TODO: Load input settings from JSON
-//TODO: Load audio settings from JSON
+    SettingsFile audioSettingsFile("audio_settings.json");
+    audioSettingsFile.load();
 
-    settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIShared;
+    std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "WASAPIShared");
+    if (backendMode == "WASAPIShared")       settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIShared;
+    else if (backendMode == "WASAPIExclusive") settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIExclusive;
+    else if (backendMode == "JACK")           settings.backendMode = RhythmAudio::AudioBackendMode::JACK;
+    else if (backendMode == "ALSA")           settings.backendMode = RhythmAudio::AudioBackendMode::ALSA;
+
+    settings.WASAPIShared_sampleRate       = audioSettingsFile.jsonObj.value("WASAPIShared_sampleRate", 0U);
+    settings.WASAPIShared_bufferSizeInSamples = audioSettingsFile.jsonObj.value("WASAPIShared_bufferSizeInSamples", 0U);
+    settings.WASAPIExclusive_sampleRate    = audioSettingsFile.jsonObj.value("WASAPIExclusive_sampleRate", 0U);
+    settings.WASAPIExclusive_bufferSizeInSamples = audioSettingsFile.jsonObj.value("WASAPIExclusive_bufferSizeInSamples", 0U);
+    settings.ALSA_sampleRate               = audioSettingsFile.jsonObj.value("ALSA_sampleRate", 0U);
+    settings.ALSA_bufferSizeInSamples      = audioSettingsFile.jsonObj.value("ALSA_bufferSizeInSamples", 0U);
+    settings.JACK_sampleRate               = audioSettingsFile.jsonObj.value("JACK_sampleRate", 0U);
+    settings.JACK_bufferSizeInSamples      = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 0U);
+
     audioEngine.emplace(settings);
 
     std::vector<RhythmInput::RhythmInputAction> gameActions;
@@ -54,6 +69,20 @@ void GameManager::_ready()
     DrumCenterRightKeybind.callbackOnPress = nullptr;
     DrumCenterRightKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(DrumCenterRightKeybind);
+
+    SettingsFile inputSettingsFile("input_settings.json");
+    inputSettingsFile.load();
+
+    if (inputSettingsFile.jsonObj.contains("bindings"))
+    {
+        for (auto& bindingJson : inputSettingsFile.jsonObj["bindings"])
+        {
+            RhythmInput::RhythmInputBinding binding{};
+            binding.button = bindingJson.value("button", "");
+            binding.action = bindingJson.value("action", "");
+            gameBindings.push_back(binding);
+        }
+    }
 
     inputEngine.emplace(gameActions, gameBindings);
 }

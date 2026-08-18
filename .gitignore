@@ -3,3 +3,4 @@
 **.o
 .godot/
 .nomedia
+GDExtension/UtilsCode/json.hpp
