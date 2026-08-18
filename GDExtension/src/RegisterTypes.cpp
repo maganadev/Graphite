@@ -1,6 +1,7 @@
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
 #include "RegisterTypes.hpp"
+#include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -14,6 +15,7 @@ void initialize_module(ModuleInitializationLevel p_level)
         return;
     }
 
+    GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
 }
 

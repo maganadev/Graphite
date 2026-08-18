@@ -53,10 +53,41 @@ add_library(${LIBNAME} SHARED)
 
 target_sources(${LIBNAME}
     PRIVATE
-    src/register_types.cpp
-    src/register_types.h
-    src/example_class.cpp
-    src/example_class.h
+    src/RegisterTypes.cpp
+    src/RegisterTypes.hpp
+    src/GameManager.cpp
+    src/GameManager.hpp
+    src/GameplaySceneManager.cpp
+    src/GameplaySceneManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/AudioProcessing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/LFProtectObj.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/NumericLimits.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/QueueMPMCMutex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/QueueMPSCMutex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/QueueSPMCMutex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/QueueSPSC.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/QueueStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/RhythmAudioEngine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/RhythmAudioEnumsAndData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/RhythmAudioTimingAssistant.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/ScopeGuard.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/SlotMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/Snapshots.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/TimeConversion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/TimeProviderInterface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/TimeProviderOS.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/TimeProviderPuppet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/TimingOSSingletons.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/DeferredPrint.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/QueueSPSC.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/RhythmInputEngine.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/RhythmInputEnumsAndData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/Snapshots.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/TimeConversion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/TimeProviderInterface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/TimeProviderOS.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/TimeProviderPuppet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput/TimingOSSingletons.cpp
 )
 
 # Fetch a list of the xml files to use for documentation and add to our target
@@ -71,8 +102,22 @@ endif()
 
 target_link_libraries(${LIBNAME} PRIVATE godot-cpp)
 
-# Require at least C++17 for this target
-set_property(TARGET ${LIBNAME} PROPERTY CXX_STANDARD 17)
+# Require at least C++20 for this target
+set_property(TARGET ${LIBNAME} PROPERTY CXX_STANDARD 20)
+
+target_include_directories(${LIBNAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio
+    ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput
+)
+
+# Find and link portaudio, vorbis, samplerate
+find_package(PkgConfig)
+if(PkgConfig_FOUND)
+    pkg_check_modules(PortAudio IMPORTED_TARGET portaudio-2.0)
+    if(PortAudio_FOUND)
+        target_link_libraries(${LIBNAME} PRIVATE PkgConfig::PortAudio)
+    endif()
+endif()
 
 set_target_properties(${LIBNAME}
     PROPERTIES
