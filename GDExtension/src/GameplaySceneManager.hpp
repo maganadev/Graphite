@@ -1,9 +1,6 @@
-#ifndef GDExtTestObj_hpp
-#define GDExtTestObj_hpp
-
-#include <Windows.h>
-#define DO_NOT_REORDER_ABOVE
-
+#ifndef GameplaySceneManager_hpp
+#define GameplaySceneManager_hpp
+    
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -12,27 +9,20 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
-#include "RhythmAudioEngine.hpp"
-#include "RhythmInputEngine.hpp"
 
 using namespace ::godot;
 
-class GDExtTestObj : public Sprite2D
+class GameplaySceneManager : public Sprite2D
 {
-    GDCLASS(GDExtTestObj, Sprite2D)
+    GDCLASS(GameplaySceneManager, Sprite2D)
 
 protected:
     static void _bind_methods();
 
-private:
-    std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
-    std::optional<RhythmInput::RhythmInputEngine> inputEngine;
-    uint64_t audioFileHandle;
-
 public:
     // Godot object functions
-    GDExtTestObj();
-    ~GDExtTestObj();
+    GameplaySceneManager();
+    ~GameplaySceneManager();
     void _ready() override;
     void _process(double delta) override;
 };
