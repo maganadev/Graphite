@@ -31,9 +31,6 @@ public:
     ~GameManager();
     void _ready() override;
     void _process(double delta) override;
-
-    std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
-    std::optional<RhythmInput::RhythmInputEngine> inputEngine;
 };
 
 #endif

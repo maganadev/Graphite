@@ -11,13 +11,10 @@
 #include <godot_cpp/classes/sprite2d.hpp>
 
 #include <fstream>
-#include <optional>
 
-#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
-#include "../UtilsCode/json.hpp"
+#include "Globals.hpp"
 
 using namespace ::godot;
-using namespace ::nlohmann;
 using namespace ::std;
 
 class GameplaySceneManager : public Sprite2D
@@ -28,11 +25,13 @@ protected:
     static void _bind_methods();
 
 public:
-    // Godot object functions
     GameplaySceneManager();
     ~GameplaySceneManager();
     void _ready() override;
     void _process(double delta) override;
+
+private:
+    uint64_t audioTrackHandle{0};
 };
 
 #endif
