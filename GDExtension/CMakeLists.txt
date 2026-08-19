@@ -59,6 +59,8 @@ target_sources(${LIBNAME}
     src/GameManager.hpp
     src/GameplaySceneManager.cpp
     src/GameplaySceneManager.hpp
+    src/RedNote.cpp
+    src/RedNote.hpp
     src/SettingsFile.cpp
     src/SettingsFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/AudioProcessing.cpp

@@ -3,6 +3,7 @@
 #include "RegisterTypes.hpp"
 #include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
+#include "RedNote.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
@@ -17,6 +18,7 @@ void initialize_module(ModuleInitializationLevel p_level)
 
     GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
+    GDREGISTER_RUNTIME_CLASS(RedNote);
 }
 
 void uninitialize_module(ModuleInitializationLevel p_level)

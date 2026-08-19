@@ -56,6 +56,33 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    // Spawn RedNotes for each note event in the course
+    redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
+    if (redNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load RedNote scene");
+        return;
+    }
+
+    for (const auto& event : currentCourse->events)
+    {
+        if (event.type != "red" && event.type != "blue")
+        {
+            continue;
+        }
+
+        Node* instance = redNoteScene->instantiate();
+        RedNote* note = Object::cast_to<RedNote>(instance);
+        if (note)
+        {
+            note->setEvent(event);
+            add_child(note);
+        }
+    }
+
+    UtilityFunctions::print(
+        "Spawned RedNotes for course: ", currentCourse->name.c_str());
+
     // Load the wave file
     std::string wavePath = Globals::songJson.value("wave", "");
     if (wavePath.empty())
@@ -81,4 +108,14 @@ void GameplaySceneManager::_ready()
 void GameplaySceneManager::_process(double delta)
 {
     //
+}
+
+void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)
+{
+    redNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_red_note_scene() const
+{
+    return redNoteScene;
 }

@@ -1,6 +1,6 @@
 #ifndef GameplaySceneManager_hpp
 #define GameplaySceneManager_hpp
-    
+
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include "Globals.hpp"
+#include "RedNote.hpp"
 
 using namespace ::godot;
 using namespace ::std;
@@ -30,8 +31,12 @@ public:
     void _ready() override;
     void _process(double delta) override;
 
+    void set_red_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_red_note_scene() const;
+
 private:
     uint64_t audioTrackHandle{0};
+    Ref<PackedScene> redNoteScene;
 };
 
 #endif
