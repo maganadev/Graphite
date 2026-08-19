@@ -10,11 +10,15 @@
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
 
+#include <fstream>
 #include <optional>
 
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include "../UtilsCode/json.hpp"
 
 using namespace ::godot;
+using namespace ::nlohmann;
+using namespace ::std;
 
 class GameplaySceneManager : public Sprite2D
 {
@@ -29,8 +33,6 @@ public:
     ~GameplaySceneManager();
     void _ready() override;
     void _process(double delta) override;
-
-    std::optional<RhythmInput::RhythmInputEngine> inputEngine;
 };
 
 #endif
