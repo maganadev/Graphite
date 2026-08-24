@@ -9,3 +9,5 @@ Song.json
 Song.ogg
 *.ogg.import
 *.ogg
+audio_settings.json
+input_settings.json
