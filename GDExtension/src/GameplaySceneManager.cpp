@@ -59,6 +59,9 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    visualOffsetPicoseconds = currentCourse->offset_picoseconds;
+    UtilityFunctions::print("Visual offset: ", std::to_string(visualOffsetPicoseconds).c_str(), " ps");
+
     // Spawn notes for each note event in the course
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
     if (redNoteScene.is_null())
@@ -100,7 +103,7 @@ void GameplaySceneManager::_ready()
         }
     }
 
-    UtilityFunctions::print("Spawned RedNotes for course: ", currentCourse->name.c_str());
+    UtilityFunctions::print("Spawned notes for course: ", currentCourse->name.c_str());
 
     std::string wavePath = Globals::songJson.value("wave", "");
     if (wavePath.empty())
@@ -145,7 +148,7 @@ void GameplaySceneManager::_process(double delta)
             RedNote* note = Object::cast_to<RedNote>(get_child(i));
             if (note)
             {
-                note->updatePosition(trackPositionPs, scrollSpeed, laneY);
+                note->updatePosition(trackPositionPs, scrollSpeed, laneY, visualOffsetPicoseconds);
             }
         }
     }

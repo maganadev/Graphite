@@ -1,6 +1,7 @@
 #ifndef TJACourse_hpp
 #define TJACourse_hpp
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -27,6 +28,7 @@ public:
     int level;
     std::string bpm;
     std::string offset;
+    int64_t offset_picoseconds{0};
     std::vector<TJAEvent> events;
 
     static TJACourse FromJson(const json& j)
@@ -35,7 +37,8 @@ public:
         course.name = j["name"];
         course.level = j["level"];
         course.bpm = j["bpm"];
-        course.offset = j["offset"];
+        course.offset = j.value("offset", "0/1");
+        course.offset_picoseconds = j.value("offset_picoseconds", static_cast<int64_t>(0));
         if (j.contains("events"))
         {
             for (const auto& e : j["events"])
