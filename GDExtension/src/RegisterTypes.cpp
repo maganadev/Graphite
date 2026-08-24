@@ -1,6 +1,7 @@
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
 #include "RegisterTypes.hpp"
+#include "DebugLauncherSceneManager.hpp"
 #include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
 #include "RedNote.hpp"
@@ -16,6 +17,7 @@ void initialize_module(ModuleInitializationLevel p_level)
         return;
     }
 
+    GDREGISTER_RUNTIME_CLASS(DebugLauncherSceneManager);
     GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
     GDREGISTER_RUNTIME_CLASS(RedNote);
