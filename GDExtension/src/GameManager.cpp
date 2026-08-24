@@ -60,7 +60,24 @@ void GameManager::_ready()
     settings.JACK_bufferSizeInSamples = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 1024U);
 
     Globals::audioEngine.emplace(settings);
+}
 
+void GameManager::_process(double delta)
+{
+    frameCounter++;
+    if (frameCounter == 400)
+    {
+        initializeInputEngine();
+    }
+
+    if (Globals::inputEngine.has_value())
+    {
+        Globals::inputEngine->parseEventsSinceLastFrame();
+    }
+}
+
+void GameManager::initializeInputEngine()
+{
     std::vector<RhythmInput::RhythmInputAction> gameActions;
     std::vector<RhythmInput::RhythmInputBinding> gameBindings;
 
@@ -119,10 +136,4 @@ void GameManager::_ready()
     }
 
     Globals::inputEngine.emplace(gameActions, gameBindings);
-}
-
-void GameManager::_process(double delta)
-{
-    // Parse events
-    Globals::inputEngine->parseEventsSinceLastFrame();
 }

@@ -10,6 +10,15 @@
 
 using json = nlohmann::json;
 
+namespace GameActionIndices
+{
+    constexpr size_t DrumRimLeft = 0;
+    constexpr size_t DrumRimRight = 1;
+    constexpr size_t DrumCenterLeft = 2;
+    constexpr size_t DrumCenterRight = 3;
+    constexpr size_t Enter = 4;
+}
+
 class Globals
 {
 public:

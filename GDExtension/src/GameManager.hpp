@@ -31,6 +31,10 @@ public:
     ~GameManager();
     void _ready() override;
     void _process(double delta) override;
+
+private:
+    uint64_t frameCounter = 0;
+    void initializeInputEngine();
 };
 
 #endif
