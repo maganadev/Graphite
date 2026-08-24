@@ -119,7 +119,7 @@ void GameplaySceneManager::_ready()
     }
 
     // Load the wave file
-    if (!Globals::audioEngine->createAudioTrackBlocking(wavePath, -28, audioTrackHandle))
+    if (!Globals::audioEngine->createAudioTrackBlocking(wavePath, -6, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
         return;
@@ -141,14 +141,15 @@ void GameplaySceneManager::_process(double delta)
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (Globals::audioEngine.has_value() && Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (Globals::audioEngine.has_value() &&
+        Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (int i = 0; i < get_child_count(); i++)
         {
             RedNote* note = Object::cast_to<RedNote>(get_child(i));
             if (note)
             {
-                note->updatePosition(trackPositionPs, scrollSpeed, laneY, visualOffsetPicoseconds);
+                note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
             }
         }
     }

@@ -25,9 +25,9 @@ const TJAEvent& RedNote::getEvent() const
     return m_event;
 }
 
-void RedNote::updatePosition(int64_t songPositionPicoseconds, double scrollSpeed, double laneY, int64_t visualOffsetPicoseconds)
+void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
 {
     const int64_t effectiveNoteTimePs = m_event.time_picoseconds - visualOffsetPicoseconds;
     const int64_t timeUntilNote = effectiveNoteTimePs - songPositionPicoseconds;
-    set_position(Vector2(scrollSpeed * (static_cast<double>(timeUntilNote) / 1.0e12), laneY));
+    set_position(Vector2(HITZONE_CENTER_X + SCROLL_SPEED * (static_cast<double>(timeUntilNote) / 1.0e12), LANE_Y));
 }

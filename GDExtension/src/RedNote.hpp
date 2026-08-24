@@ -3,8 +3,8 @@
 
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
-#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 
 #include "TJACourse.hpp"
 
@@ -13,6 +13,10 @@ using namespace ::godot;
 class RedNote : public Node2D
 {
     GDCLASS(RedNote, Node2D)
+
+    static constexpr double SCROLL_SPEED = 1600.0;
+    static constexpr double LANE_Y = 386.0;
+    static constexpr double HITZONE_CENTER_X = 618.0;
 
 protected:
     static void _bind_methods();
@@ -23,7 +27,7 @@ public:
 
     void setEvent(const TJAEvent& event);
     const TJAEvent& getEvent() const;
-    void updatePosition(int64_t songPositionPicoseconds, double scrollSpeed, double laneY, int64_t visualOffsetPicoseconds);
+    void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
 
 private:
     TJAEvent m_event;

@@ -40,8 +40,6 @@ private:
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
-    double scrollSpeed{800.0};
-    double laneY{386.0};
     int64_t visualOffsetPicoseconds{0};
 };
 
