@@ -5,7 +5,10 @@
 
 void GameplaySceneManager::_bind_methods()
 {
-    //
+    ClassDB::bind_method(D_METHOD("set_red_note_scene", "scene"), &GameplaySceneManager::set_red_note_scene);
+    ClassDB::bind_method(D_METHOD("get_red_note_scene"), &GameplaySceneManager::get_red_note_scene);
+    ClassDB::bind_method(D_METHOD("set_blue_note_scene", "scene"), &GameplaySceneManager::set_blue_note_scene);
+    ClassDB::bind_method(D_METHOD("get_blue_note_scene"), &GameplaySceneManager::get_blue_note_scene);
 }
 
 GameplaySceneManager::GameplaySceneManager()
@@ -56,7 +59,7 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    // Spawn RedNotes for each note event in the course
+    // Spawn notes for each note event in the course
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
     if (redNoteScene.is_null())
     {
@@ -64,14 +67,30 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    blueNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BlueNote.tscn");
+    if (blueNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BlueNote scene");
+        return;
+    }
+
     for (const auto& event : currentCourse->events)
     {
-        if (event.type != "red" && event.type != "blue")
+        Ref<PackedScene> noteScene;
+        if (event.type == "red")
+        {
+            noteScene = redNoteScene;
+        }
+        else if (event.type == "blue")
+        {
+            noteScene = blueNoteScene;
+        }
+        else
         {
             continue;
         }
 
-        Node* instance = redNoteScene->instantiate();
+        Node* instance = noteScene->instantiate();
         RedNote* note = Object::cast_to<RedNote>(instance);
         if (note)
         {
@@ -140,4 +159,14 @@ void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)
 Ref<PackedScene> GameplaySceneManager::get_red_note_scene() const
 {
     return redNoteScene;
+}
+
+void GameplaySceneManager::set_blue_note_scene(Ref<PackedScene> scene)
+{
+    blueNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_blue_note_scene() const
+{
+    return blueNoteScene;
 }

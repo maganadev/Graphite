@@ -33,10 +33,13 @@ public:
 
     void set_red_note_scene(Ref<PackedScene> scene);
     Ref<PackedScene> get_red_note_scene() const;
+    void set_blue_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_blue_note_scene() const;
 
 private:
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
+    Ref<PackedScene> blueNoteScene;
     double scrollSpeed{800.0};
     double laneY{386.0};
 };
