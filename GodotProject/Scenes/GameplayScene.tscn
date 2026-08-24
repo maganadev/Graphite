@@ -15,17 +15,20 @@ corner_detail = 16
 [node name="GameplayScene" type="Node2D"]
 
 [node name="Background" type="ColorRect" parent="."]
+z_index = 0
 material = SubResource("ShaderMaterial_mckg6")
 offset_right = 1920.0
 offset_bottom = 1080.0
 
 [node name="P1Lane" type="ColorRect" parent="."]
+z_index = 1
 offset_top = 288.0
 offset_right = 1920.0
 offset_bottom = 484.0
 color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Hitzone" type="Panel" parent="."]
+z_index = 2
 offset_left = 568.0
 offset_top = 336.0
 offset_right = 668.0
