@@ -17,6 +17,7 @@ namespace GameActionIndices
     constexpr size_t DrumCenterLeft = 2;
     constexpr size_t DrumCenterRight = 3;
     constexpr size_t Enter = 4;
+    constexpr size_t Back = 5;
 }
 
 class Globals

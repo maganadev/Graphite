@@ -111,6 +111,12 @@ void GameManager::initializeInputEngine()
     EnterKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(EnterKeybind);
 
+    RhythmInput::RhythmInputAction BackKeybind{};
+    BackKeybind.name = "Back";
+    BackKeybind.callbackOnPress = nullptr;
+    BackKeybind.callbackOnRelease = nullptr;
+    gameActions.push_back(BackKeybind);
+
     SettingsFile inputSettingsFile("input_settings.json");
     inputSettingsFile.load();
 
@@ -122,6 +128,7 @@ void GameManager::initializeInputEngine()
         defaultBindings.push_back({{"button", "n"}, {"action", "DrumCenterRight"}});
         defaultBindings.push_back({{"button", "m"}, {"action", "DrumRimRight"}});
         defaultBindings.push_back({{"button", "enter"}, {"action", "Enter"}});
+        defaultBindings.push_back({{"button", "escape"}, {"action", "Back"}});
         inputSettingsFile.jsonObj["bindings"] = defaultBindings;
     }
 

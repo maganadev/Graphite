@@ -1,6 +1,7 @@
 #include "GameplaySceneManager.hpp"
 #include "TJACourse.hpp"
 #include "TimingOSSingletons.hpp"
+#include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 void GameplaySceneManager::_bind_methods()
@@ -137,6 +138,22 @@ void GameplaySceneManager::_ready()
 
 void GameplaySceneManager::_process(double delta)
 {
+    if (Globals::inputEngine.has_value())
+    {
+        auto& actions = RhythmInput::RhythmInputEngine::gameActions;
+        UtilityFunctions::print("Back action times pressed: ", std::to_string(actions[GameActionIndices::Back].timesPressedSinceLastFrame).c_str());
+        if (actions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
+        {
+            UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
+            get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
+            return;
+        }
+    }
+    else
+    {
+        UtilityFunctions::print("Input engine not available");
+    }
+
     uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
 
     int64_t trackPositionPs;
