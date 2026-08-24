@@ -82,13 +82,20 @@ void GameplaySceneManager::_ready()
 
     UtilityFunctions::print("Spawned RedNotes for course: ", currentCourse->name.c_str());
 
-    // Load the wave file
     std::string wavePath = Globals::songJson.value("wave", "");
     if (wavePath.empty())
     {
         UtilityFunctions::print("No wave file specified in song JSON");
         return;
     }
+
+    if (!Globals::audioEngine.has_value())
+    {
+        UtilityFunctions::print("Audio engine not initialized yet (is GameManager earlier in the scene tree?)");
+        return;
+    }
+
+    // Load the wave file
     if (!Globals::audioEngine->createAudioTrackBlocking(wavePath, 0.25, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
@@ -111,7 +118,7 @@ void GameplaySceneManager::_process(double delta)
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (Globals::audioEngine.has_value() && Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (int i = 0; i < get_child_count(); i++)
         {
