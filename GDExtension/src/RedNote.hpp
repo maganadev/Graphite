@@ -23,6 +23,7 @@ public:
 
     void setEvent(const TJAEvent& event);
     const TJAEvent& getEvent() const;
+    void updatePosition(int64_t songPositionPicoseconds, double scrollSpeed, double laneY);
 
 private:
     TJAEvent m_event;

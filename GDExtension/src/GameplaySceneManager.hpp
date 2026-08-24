@@ -37,6 +37,8 @@ public:
 private:
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
+    double scrollSpeed{800.0};
+    double laneY{386.0};
 };
 
 #endif

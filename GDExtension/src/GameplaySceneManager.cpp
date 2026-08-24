@@ -1,7 +1,7 @@
 #include "GameplaySceneManager.hpp"
 #include "TJACourse.hpp"
-
-#include <godot_cpp/classes/utility_functions.hpp>
+#include "TimingOSSingletons.hpp"
+#include <godot_cpp/variant/utility_functions.hpp>
 
 void GameplaySceneManager::_bind_methods()
 {
@@ -80,8 +80,7 @@ void GameplaySceneManager::_ready()
         }
     }
 
-    UtilityFunctions::print(
-        "Spawned RedNotes for course: ", currentCourse->name.c_str());
+    UtilityFunctions::print("Spawned RedNotes for course: ", currentCourse->name.c_str());
 
     // Load the wave file
     std::string wavePath = Globals::songJson.value("wave", "");
@@ -98,6 +97,7 @@ void GameplaySceneManager::_ready()
 
     // Play the audio track
     Globals::audioEngine->playAudioTrack(audioTrackHandle);
+    Globals::audioEngine->setTimedAudioTrack(audioTrackHandle);
 
     UtilityFunctions::print(
         "Loaded song: ", Globals::songJson.value("title", "unknown").c_str(),
@@ -107,7 +107,21 @@ void GameplaySceneManager::_ready()
 
 void GameplaySceneManager::_process(double delta)
 {
-    //
+    uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
+
+    int64_t trackPositionPs;
+    uint64_t outHandle;
+    if (Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    {
+        for (int i = 0; i < get_child_count(); i++)
+        {
+            RedNote* note = Object::cast_to<RedNote>(get_child(i));
+            if (note)
+            {
+                note->updatePosition(trackPositionPs, scrollSpeed, laneY);
+            }
+        }
+    }
 }
 
 void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)

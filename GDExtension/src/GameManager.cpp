@@ -1,4 +1,5 @@
 #include "GameManager.hpp"
+#include "Globals.hpp"
 #include "SettingsFile.hpp"
 
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
@@ -41,7 +42,7 @@ void GameManager::_ready()
     settings.JACK_sampleRate               = audioSettingsFile.jsonObj.value("JACK_sampleRate", 0U);
     settings.JACK_bufferSizeInSamples      = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 0U);
 
-    audioEngine.emplace(settings);
+    Globals::audioEngine.emplace(settings);
 
     std::vector<RhythmInput::RhythmInputAction> gameActions;
     std::vector<RhythmInput::RhythmInputBinding> gameBindings;
@@ -84,11 +85,11 @@ void GameManager::_ready()
         }
     }
 
-    inputEngine.emplace(gameActions, gameBindings);
+    Globals::inputEngine.emplace(gameActions, gameBindings);
 }
 
 void GameManager::_process(double delta)
 {
     // Parse events
-    inputEngine->parseEventsSinceLastFrame();
+    Globals::inputEngine->parseEventsSinceLastFrame();
 }
