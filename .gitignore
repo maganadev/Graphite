@@ -7,3 +7,5 @@ json.hpp
 Song.tja
 Song.json
 Song.ogg
+*.ogg.import
+*.ogg

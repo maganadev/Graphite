@@ -31,3 +31,7 @@ offset_top = 336.0
 offset_right = 668.0
 offset_bottom = 436.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_im3oa")
+
+[node name="GameplaySceneManager" type="GameplaySceneManager" parent="."]
+
+[node name="GameManager" type="GameManager" parent="."]
