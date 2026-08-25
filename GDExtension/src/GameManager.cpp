@@ -68,8 +68,11 @@ void GameManager::_ready()
 
     GameManager::audioEngine.emplace(settings);
 
-    GameManager::audioEngine->createAudioTrackBlocking(
-        "res://GameplayBlueRyouHitsound.ogg", -24, GameManager::blueRyouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36,
+                                                       GameManager::blueRyouHitsoundHandle);
+
+    UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ",
+                            std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 }
 
 void GameManager::_exit_tree()
@@ -103,36 +106,36 @@ void GameManager::initializeInputEngine()
     RhythmInput::RhythmInputAction DrumRimLeftKeybind{};
     DrumRimLeftKeybind.name = "DrumRimLeft";
     DrumRimLeftKeybind.callbackOnPress = InputThreadFunctions::DrumRimLeft;
-    DrumRimLeftKeybind.callbackOnRelease = InputThreadFunctions::DrumRimLeft;
+    DrumRimLeftKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(DrumRimLeftKeybind);
 
     RhythmInput::RhythmInputAction DrumRimRightKeybind{};
     DrumRimRightKeybind.name = "DrumRimRight";
     DrumRimRightKeybind.callbackOnPress = InputThreadFunctions::DrumRimRight;
-    DrumRimRightKeybind.callbackOnRelease = InputThreadFunctions::DrumRimRight;
+    DrumRimRightKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(DrumRimRightKeybind);
 
     RhythmInput::RhythmInputAction DrumCenterLeftKeybind{};
     DrumCenterLeftKeybind.name = "DrumCenterLeft";
     DrumCenterLeftKeybind.callbackOnPress = InputThreadFunctions::DrumCenterLeft;
-    DrumCenterLeftKeybind.callbackOnRelease = InputThreadFunctions::DrumCenterLeft;
+    DrumCenterLeftKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(DrumCenterLeftKeybind);
 
     RhythmInput::RhythmInputAction DrumCenterRightKeybind{};
     DrumCenterRightKeybind.name = "DrumCenterRight";
     DrumCenterRightKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
-    DrumCenterRightKeybind.callbackOnRelease = InputThreadFunctions::DrumCenterRight;
+    DrumCenterRightKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(DrumCenterRightKeybind);
 
     RhythmInput::RhythmInputAction EnterKeybind{};
     EnterKeybind.name = "Enter";
-    EnterKeybind.callbackOnPress = nullptr;
+    EnterKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
     EnterKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(EnterKeybind);
 
     RhythmInput::RhythmInputAction BackKeybind{};
     BackKeybind.name = "Back";
-    BackKeybind.callbackOnPress = nullptr;
+    BackKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
     BackKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(BackKeybind);
 
