@@ -11,6 +11,15 @@ std::string GameManager::songName;
 std::string GameManager::courseDifficulty;
 json GameManager::songJson;
 uint64_t GameManager::blueRyouHitsoundHandle{0};
+uint64_t GameManager::blueKaHitsoundHandle{0};
+uint64_t GameManager::blueFukaHitsoundHandle{0};
+uint64_t GameManager::blueChouHitsoundHandle{0};
+uint64_t GameManager::blueAdLibHitsoundHandle{0};
+uint64_t GameManager::redRyouHitsoundHandle{0};
+uint64_t GameManager::redKaHitsoundHandle{0};
+uint64_t GameManager::redFukaHitsoundHandle{0};
+uint64_t GameManager::redChouHitsoundHandle{0};
+uint64_t GameManager::redAdLibHitsoundHandle{0};
 
 void GameManager::_bind_methods()
 {
@@ -70,6 +79,24 @@ void GameManager::_ready()
 
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36,
                                                        GameManager::blueRyouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36,
+                                                       GameManager::blueKaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36,
+                                                       GameManager::blueFukaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36,
+                                                       GameManager::blueChouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36,
+                                                       GameManager::blueAdLibHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36,
+                                                       GameManager::redRyouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36,
+                                                       GameManager::redKaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36,
+                                                       GameManager::redFukaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36,
+                                                       GameManager::redChouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36,
+                                                       GameManager::redAdLibHitsoundHandle);
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ",
                             std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
@@ -77,11 +104,23 @@ void GameManager::_ready()
 
 void GameManager::_exit_tree()
 {
-    if (GameManager::blueRyouHitsoundHandle != 0)
-    {
-        GameManager::audioEngine->freeAudioTrackBlocking(GameManager::blueRyouHitsoundHandle);
-        GameManager::blueRyouHitsoundHandle = 0;
-    }
+    auto freeTrack = [](uint64_t& handle) {
+        if (handle != 0)
+        {
+            GameManager::audioEngine->freeAudioTrackBlocking(handle);
+            handle = 0;
+        }
+    };
+    freeTrack(GameManager::blueRyouHitsoundHandle);
+    freeTrack(GameManager::blueKaHitsoundHandle);
+    freeTrack(GameManager::blueFukaHitsoundHandle);
+    freeTrack(GameManager::blueChouHitsoundHandle);
+    freeTrack(GameManager::blueAdLibHitsoundHandle);
+    freeTrack(GameManager::redRyouHitsoundHandle);
+    freeTrack(GameManager::redKaHitsoundHandle);
+    freeTrack(GameManager::redFukaHitsoundHandle);
+    freeTrack(GameManager::redChouHitsoundHandle);
+    freeTrack(GameManager::redAdLibHitsoundHandle);
 }
 
 void GameManager::_process(double delta)
@@ -129,13 +168,13 @@ void GameManager::initializeInputEngine()
 
     RhythmInput::RhythmInputAction EnterKeybind{};
     EnterKeybind.name = "Enter";
-    EnterKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
+    EnterKeybind.callbackOnPress = nullptr;
     EnterKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(EnterKeybind);
 
     RhythmInput::RhythmInputAction BackKeybind{};
     BackKeybind.name = "Back";
-    BackKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
+    BackKeybind.callbackOnPress = nullptr;
     BackKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(BackKeybind);
 

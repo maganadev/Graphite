@@ -52,6 +52,15 @@ public:
     static std::string courseDifficulty;
     static json songJson;
     static uint64_t blueRyouHitsoundHandle;
+    static uint64_t blueKaHitsoundHandle;
+    static uint64_t blueFukaHitsoundHandle;
+    static uint64_t blueChouHitsoundHandle;
+    static uint64_t blueAdLibHitsoundHandle;
+    static uint64_t redRyouHitsoundHandle;
+    static uint64_t redKaHitsoundHandle;
+    static uint64_t redFukaHitsoundHandle;
+    static uint64_t redChouHitsoundHandle;
+    static uint64_t redAdLibHitsoundHandle;
 
 private:
     uint64_t frameCounter = 0;
