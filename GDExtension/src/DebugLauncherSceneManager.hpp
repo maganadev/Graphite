@@ -3,7 +3,7 @@
 
 #include <godot_cpp/classes/sprite2d.hpp>
 
-#include "Globals.hpp"
+#include "GameManager.hpp"
 
 using namespace ::godot;
 

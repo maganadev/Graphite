@@ -12,7 +12,7 @@
 
 #include <fstream>
 
-#include "Globals.hpp"
+#include "GameManager.hpp"
 #include "RedNote.hpp"
 
 using namespace ::godot;

@@ -1,9 +1,14 @@
 #include "GameManager.hpp"
-#include "Globals.hpp"
 #include "SettingsFile.hpp"
 
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+
+std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine;
+std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine;
+std::string GameManager::songName;
+std::string GameManager::courseDifficulty;
+json GameManager::songJson;
 
 void GameManager::_bind_methods()
 {
@@ -59,7 +64,7 @@ void GameManager::_ready()
     settings.JACK_sampleRate = audioSettingsFile.jsonObj.value("JACK_sampleRate", 48000U);
     settings.JACK_bufferSizeInSamples = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 1024U);
 
-    Globals::audioEngine.emplace(settings);
+    GameManager::audioEngine.emplace(settings);
 }
 
 void GameManager::_process(double delta)
@@ -70,9 +75,9 @@ void GameManager::_process(double delta)
         initializeInputEngine();
     }
 
-    if (Globals::inputEngine.has_value())
+    if (GameManager::inputEngine.has_value())
     {
-        Globals::inputEngine->parseEventsSinceLastFrame();
+        GameManager::inputEngine->parseEventsSinceLastFrame();
     }
 }
 
@@ -142,5 +147,5 @@ void GameManager::initializeInputEngine()
         gameBindings.push_back(binding);
     }
 
-    Globals::inputEngine.emplace(gameActions, gameBindings);
+    GameManager::inputEngine.emplace(gameActions, gameBindings);
 }

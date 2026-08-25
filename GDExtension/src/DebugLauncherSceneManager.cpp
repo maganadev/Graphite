@@ -24,13 +24,12 @@ void DebugLauncherSceneManager::_ready()
 
 void DebugLauncherSceneManager::_process(double delta)
 {
-    if (!Globals::inputEngine.has_value())
+    if (!GameManager::inputEngine.has_value())
     {
         return;
     }
 
-    auto& actions = RhythmInput::RhythmInputEngine::gameActions;
-    if (actions[GameActionIndices::Enter].timesPressedSinceLastFrame > 0)
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Enter].timesPressedSinceLastFrame > 0)
     {
         godot::UtilityFunctions::print("Enter action detected, loading GameplayScene");
         get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");

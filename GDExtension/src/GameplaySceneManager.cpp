@@ -26,19 +26,19 @@ void GameplaySceneManager::_ready()
 {
     // Set the song name
     // Set the course
-    Globals::songName = "Song.json";
-    Globals::courseDifficulty = "Oni";
+    GameManager::songName = "Song.json";
+    GameManager::courseDifficulty = "Oni";
 
     // Open the song
-    std::ifstream ifs(Globals::songName);
+    std::ifstream ifs(GameManager::songName);
     if (!ifs.is_open())
     {
-        UtilityFunctions::print("Failed to open song file: ", Globals::songName.c_str());
+        UtilityFunctions::print("Failed to open song file: ", GameManager::songName.c_str());
         return;
     }
-    Globals::songJson = json::parse(ifs);
+    GameManager::songJson = json::parse(ifs);
     std::vector<TJACourse> courses;
-    for (const auto& c : Globals::songJson["courses"])
+    for (const auto& c : GameManager::songJson["courses"])
     {
         courses.push_back(TJACourse::FromJson(c));
     }
@@ -47,7 +47,7 @@ void GameplaySceneManager::_ready()
     TJACourse* currentCourse = nullptr;
     for (auto& c : courses)
     {
-        if (c.name == Globals::courseDifficulty)
+        if (c.name == GameManager::courseDifficulty)
         {
             currentCourse = &c;
             break;
@@ -56,7 +56,7 @@ void GameplaySceneManager::_ready()
 
     if (!currentCourse)
     {
-        UtilityFunctions::print("Course not found: ", Globals::courseDifficulty.c_str());
+        UtilityFunctions::print("Course not found: ", GameManager::courseDifficulty.c_str());
         return;
     }
 
@@ -106,53 +106,51 @@ void GameplaySceneManager::_ready()
 
     UtilityFunctions::print("Spawned notes for course: ", currentCourse->name.c_str());
 
-    std::string wavePath = Globals::songJson.value("wave", "");
+    std::string wavePath = GameManager::songJson.value("wave", "");
     if (wavePath.empty())
     {
         UtilityFunctions::print("No wave file specified in song JSON");
         return;
     }
 
-    if (!Globals::audioEngine.has_value())
+    if (!GameManager::audioEngine.has_value())
     {
         UtilityFunctions::print("Audio engine not initialized yet (is GameManager earlier in the scene tree?)");
         return;
     }
 
     // Load the wave file
-    if (!Globals::audioEngine->createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
+    if (!GameManager::audioEngine->createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
         return;
     }
 
     // Play the audio track
-    Globals::audioEngine->playAudioTrack(audioTrackHandle);
-    Globals::audioEngine->setTimedAudioTrack(audioTrackHandle);
+    GameManager::audioEngine->playAudioTrack(audioTrackHandle);
+    GameManager::audioEngine->setTimedAudioTrack(audioTrackHandle);
 
     UtilityFunctions::print(
-        "Loaded song: ", Globals::songJson.value("title", "unknown").c_str(),
+        "Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(),
         " | Course: ", currentCourse->name.c_str(), " | Level: ", std::to_string(currentCourse->level).c_str(),
         " | Events: ", std::to_string(currentCourse->events.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
 
 void GameplaySceneManager::_exit_tree()
 {
-    if (Globals::audioEngine.has_value() && audioTrackHandle != 0)
+    if (GameManager::audioEngine.has_value() && audioTrackHandle != 0)
     {
-        Globals::audioEngine->stopAudioTrack(audioTrackHandle);
-        Globals::audioEngine->freeAudioTrackBlocking(audioTrackHandle);
+        GameManager::audioEngine->stopAudioTrack(audioTrackHandle);
+        GameManager::audioEngine->freeAudioTrackBlocking(audioTrackHandle);
         audioTrackHandle = 0;
     }
 }
 
 void GameplaySceneManager::_process(double delta)
 {
-    if (Globals::inputEngine.has_value())
+    if (GameManager::inputEngine.has_value())
     {
-        auto& actions = RhythmInput::RhythmInputEngine::gameActions;
-        UtilityFunctions::print("Back action times pressed: ", std::to_string(actions[GameActionIndices::Back].timesPressedSinceLastFrame).c_str());
-        if (actions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
+        if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
         {
             UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
             get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
@@ -168,8 +166,8 @@ void GameplaySceneManager::_process(double delta)
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (Globals::audioEngine.has_value() &&
-        Globals::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (GameManager::audioEngine.has_value() &&
+        GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (int i = 0; i < get_child_count(); i++)
         {
