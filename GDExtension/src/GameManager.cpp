@@ -1,4 +1,5 @@
 #include "GameManager.hpp"
+#include "InputThreadFunctions.hpp"
 #include "SettingsFile.hpp"
 
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
@@ -88,26 +89,26 @@ void GameManager::initializeInputEngine()
 
     RhythmInput::RhythmInputAction DrumRimLeftKeybind{};
     DrumRimLeftKeybind.name = "DrumRimLeft";
-    DrumRimLeftKeybind.callbackOnPress = nullptr;
-    DrumRimLeftKeybind.callbackOnRelease = nullptr;
+    DrumRimLeftKeybind.callbackOnPress = InputThreadFunctions::DrumRimLeft;
+    DrumRimLeftKeybind.callbackOnRelease = InputThreadFunctions::DrumRimLeft;
     gameActions.push_back(DrumRimLeftKeybind);
 
     RhythmInput::RhythmInputAction DrumRimRightKeybind{};
     DrumRimRightKeybind.name = "DrumRimRight";
-    DrumRimRightKeybind.callbackOnPress = nullptr;
-    DrumRimRightKeybind.callbackOnRelease = nullptr;
+    DrumRimRightKeybind.callbackOnPress = InputThreadFunctions::DrumRimRight;
+    DrumRimRightKeybind.callbackOnRelease = InputThreadFunctions::DrumRimRight;
     gameActions.push_back(DrumRimRightKeybind);
 
     RhythmInput::RhythmInputAction DrumCenterLeftKeybind{};
     DrumCenterLeftKeybind.name = "DrumCenterLeft";
-    DrumCenterLeftKeybind.callbackOnPress = nullptr;
-    DrumCenterLeftKeybind.callbackOnRelease = nullptr;
+    DrumCenterLeftKeybind.callbackOnPress = InputThreadFunctions::DrumCenterLeft;
+    DrumCenterLeftKeybind.callbackOnRelease = InputThreadFunctions::DrumCenterLeft;
     gameActions.push_back(DrumCenterLeftKeybind);
 
     RhythmInput::RhythmInputAction DrumCenterRightKeybind{};
     DrumCenterRightKeybind.name = "DrumCenterRight";
-    DrumCenterRightKeybind.callbackOnPress = nullptr;
-    DrumCenterRightKeybind.callbackOnRelease = nullptr;
+    DrumCenterRightKeybind.callbackOnPress = InputThreadFunctions::DrumCenterRight;
+    DrumCenterRightKeybind.callbackOnRelease = InputThreadFunctions::DrumCenterRight;
     gameActions.push_back(DrumCenterRightKeybind);
 
     RhythmInput::RhythmInputAction EnterKeybind{};
