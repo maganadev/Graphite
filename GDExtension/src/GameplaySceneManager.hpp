@@ -29,6 +29,7 @@ public:
     GameplaySceneManager();
     ~GameplaySceneManager();
     void _ready() override;
+    void _exit_tree() override;
     void _process(double delta) override;
 
     void set_red_note_scene(Ref<PackedScene> scene);

@@ -136,6 +136,16 @@ void GameplaySceneManager::_ready()
         " | Events: ", std::to_string(currentCourse->events.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
 
+void GameplaySceneManager::_exit_tree()
+{
+    if (Globals::audioEngine.has_value() && audioTrackHandle != 0)
+    {
+        Globals::audioEngine->stopAudioTrack(audioTrackHandle);
+        Globals::audioEngine->freeAudioTrackBlocking(audioTrackHandle);
+        audioTrackHandle = 0;
+    }
+}
+
 void GameplaySceneManager::_process(double delta)
 {
     if (Globals::inputEngine.has_value())
