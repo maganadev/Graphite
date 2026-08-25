@@ -43,6 +43,7 @@ public:
     GameManager();
     ~GameManager();
     void _ready() override;
+    void _exit_tree() override;
     void _process(double delta) override;
 
     static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
@@ -50,6 +51,7 @@ public:
     static std::string songName;
     static std::string courseDifficulty;
     static json songJson;
+    static uint64_t blueRyouHitsoundHandle;
 
 private:
     uint64_t frameCounter = 0;

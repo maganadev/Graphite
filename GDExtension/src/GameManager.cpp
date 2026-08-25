@@ -10,6 +10,7 @@ std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine;
 std::string GameManager::songName;
 std::string GameManager::courseDifficulty;
 json GameManager::songJson;
+uint64_t GameManager::blueRyouHitsoundHandle{0};
 
 void GameManager::_bind_methods()
 {
@@ -66,6 +67,18 @@ void GameManager::_ready()
     settings.JACK_bufferSizeInSamples = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 1024U);
 
     GameManager::audioEngine.emplace(settings);
+
+    GameManager::audioEngine->createAudioTrackBlocking(
+        "res://GameplayBlueRyouHitsound.ogg", -24, GameManager::blueRyouHitsoundHandle);
+}
+
+void GameManager::_exit_tree()
+{
+    if (GameManager::blueRyouHitsoundHandle != 0)
+    {
+        GameManager::audioEngine->freeAudioTrackBlocking(GameManager::blueRyouHitsoundHandle);
+        GameManager::blueRyouHitsoundHandle = 0;
+    }
 }
 
 void GameManager::_process(double delta)

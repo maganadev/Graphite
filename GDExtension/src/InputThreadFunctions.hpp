@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
+
 class InputThreadFunctions
 {
 public:
