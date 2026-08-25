@@ -63,7 +63,7 @@ public:
     static uint64_t redAdLibHitsoundHandle;
 
 private:
-    uint64_t frameCounter = 0;
+    bool processFunctionRan = false;
     void initializeInputEngine();
 };
 

@@ -125,10 +125,11 @@ void GameManager::_exit_tree()
 
 void GameManager::_process(double delta)
 {
-    frameCounter++;
-    if (frameCounter == 400)
+    // One-time initialization of the input engine
+    if (!processFunctionRan)
     {
         initializeInputEngine();
+        processFunctionRan = true;
     }
 
     if (GameManager::inputEngine.has_value())
