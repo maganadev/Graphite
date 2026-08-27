@@ -100,6 +100,22 @@ void GameManager::_ready()
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ",
                             std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
+
+    if (GameManager::audioEngine.has_value())
+    {
+        RhythmAudio::RhythmAudioStats stats{};
+        GameManager::audioEngine->getEngineStats(stats);
+        UtilityFunctions::print("--- Engine Stats ---");
+        UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+        UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+        UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+        UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+        UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+        UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+        UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+        UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+        UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
+    }
 }
 
 void GameManager::_exit_tree()
@@ -135,6 +151,26 @@ void GameManager::_process(double delta)
     if (GameManager::inputEngine.has_value())
     {
         GameManager::inputEngine->parseEventsSinceLastFrame();
+    }
+
+    frameCount++;
+    if (frameCount % 400 == 0)
+    {
+        if (GameManager::audioEngine.has_value())
+        {
+            RhythmAudio::RhythmAudioStats stats{};
+            GameManager::audioEngine->getEngineStats(stats);
+            UtilityFunctions::print("--- Engine Stats (frame ", std::to_string(frameCount).c_str(), ") ---");
+            UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+            UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+            UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+            UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+            UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+            UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+            UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+            UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+            UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
+        }
     }
 }
 

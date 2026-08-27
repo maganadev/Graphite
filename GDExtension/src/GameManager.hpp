@@ -64,6 +64,7 @@ public:
 
 private:
     bool processFunctionRan = false;
+    uint64_t frameCount = 0;
     void initializeInputEngine();
 };
 
