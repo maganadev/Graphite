@@ -86,9 +86,6 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    // Ensure the judgement system is initialised
-    JudgementThread::resetCompletionStates();
-
     for (const auto& event : m_course.events)
     {
         Ref<PackedScene> noteScene;
@@ -114,9 +111,6 @@ void GameplaySceneManager::_ready()
             note->set_z_index(3);
             add_child(note);
             m_course.spawnedNotes.push_back(note);
-
-            // Register with the judgement system
-            JudgementThread::registerNote(event.time_picoseconds, noteType);
         }
     }
 
@@ -174,15 +168,15 @@ void GameplaySceneManager::_process(double delta)
         }
     }
 
-    // Process judged notes from the judgment thread
-    for (size_t i = 0; i < m_course.spawnedNotes.size(); i++)
-    {
-        RedNote* note = m_course.spawnedNotes[i];
-        if (!note->isJudged() && i < JudgementThread::noteTargetCount() && JudgementThread::getNoteTarget(i).judged)
-        {
-            note->setJudged(JudgementThread::getNoteTarget(i).grading);
-        }
-    }
+    // // Process judged notes from the judgment thread
+    // for (size_t i = 0; i < m_course.spawnedNotes.size(); i++)
+    // {
+    //     RedNote* note = m_course.spawnedNotes[i];
+    //     if (!note->isJudged() && i < JudgementThread::noteTargetCount() && JudgementThread::getNoteTarget(i).judged)
+    //     {
+    //         note->setJudged(JudgementThread::getNoteTarget(i).grading);
+    //     }
+    // }
 }
 
 void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)
