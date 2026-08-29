@@ -42,16 +42,24 @@ void GameManager::_ready()
     SettingsFile audioSettingsFile("audio_settings.json");
     audioSettingsFile.load();
     audioSettingsFile.ensureContainsString("backendMode", "");
+    audioSettingsFile.ensureContainsString("audioMonoStereo", "stereo");
     audioSettingsFile.ensureContainsInteger("ASIO_sampleRate", 0);
     audioSettingsFile.ensureContainsInteger("ASIO_bufferSizeInSamples", 0);
+    audioSettingsFile.ensureContainsString("ASIO_cardToUse", "");
+    audioSettingsFile.ensureContainsInteger("ASIO_leftChannel", 0);
+    audioSettingsFile.ensureContainsInteger("ASIO_rightChannel", 1);
     audioSettingsFile.save();
     std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
     if (backendMode == "ASIO")
     {
         settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
     }
+    settings.audioMonoStereo = audioSettingsFile.jsonObj.value("audioMonoStereo", "stereo");
     settings.ASIO_sampleRate = audioSettingsFile.jsonObj.value("ASIO_sampleRate", 0);
     settings.ASIO_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ASIO_bufferSizeInSamples", 0);
+    settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
+    settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
+    settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
     GameManager::audioEngine.emplace(settings);
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
