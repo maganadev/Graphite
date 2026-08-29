@@ -1,9 +1,9 @@
 #include "GameManager.hpp"
-#include "InputThreadFunctions.hpp"
-#include "SettingsFile.hpp"
-
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include "InputThreadFunctions.hpp"
+#include "JudgementThread.hpp"
+#include "SettingsFile.hpp"
 
 RhythmAudio::RhythmAudioEngine* GameManager::audioEngine{nullptr};
 RhythmInput::RhythmInputEngine* GameManager::inputEngine{nullptr};
@@ -20,26 +20,17 @@ uint64_t GameManager::redKaHitsoundHandle{0};
 uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
-QueueSPSC<InputTimingMessage, 1024> GameManager::JudgementThreadMessageQueue{};
-std::counting_semaphore<1> GameManager::JudgementThreadSemaphore{0};
-std::thread GameManager::inputTimingThread{};
-std::atomic<bool> GameManager::requestInputTimingThreadShutdown{false};
-RhythmJudgementSystem* GameManager::judgementSystem{nullptr};
-CircularQueue<JudgedNoteMessage, 1024> GameManager::judgedNoteQueue{};
 
 void GameManager::_bind_methods()
 {
-    //
 }
 
 GameManager::GameManager()
 {
-    //
 }
 
 GameManager::~GameManager()
 {
-    //
 }
 
 void GameManager::_ready()
@@ -80,15 +71,7 @@ void GameManager::_ready()
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
-    // Create the judgement system
-    if (judgementSystem == nullptr)
-    {
-        judgementSystem = new RhythmJudgementSystem();
-    }
-
-    // Start the input timing thread
-    requestInputTimingThreadShutdown.store(false, std::memory_order_release);
-    inputTimingThread = std::thread(&GameManager::JudgementThreadBehavior);
+    JudgementThread::start();
 
     RhythmAudio::RhythmAudioStats stats{};
     GameManager::audioEngine->getEngineStats(stats);
@@ -125,24 +108,11 @@ void GameManager::_exit_tree()
     freeTrack(GameManager::redChouHitsoundHandle);
     freeTrack(GameManager::redAdLibHitsoundHandle);
 
-    // Shutdown the input timing thread
-    if (inputTimingThread.joinable())
-    {
-        requestInputTimingThreadShutdown.store(true, std::memory_order_release);
-        JudgementThreadSemaphore.release();
-        inputTimingThread.join();
-    }
-
-    if (judgementSystem)
-    {
-        delete judgementSystem;
-        judgementSystem = nullptr;
-    }
+    JudgementThread::stop();
 }
 
 void GameManager::_process(double delta)
 {
-    // One-time initialization of the input engine
     if (!processFunctionRan)
     {
         initializeInputEngine();
@@ -150,23 +120,6 @@ void GameManager::_process(double delta)
     }
 
     GameManager::inputEngine->parseEventsSinceLastFrame();
-
-    frameCount++;
-    if (frameCount % 400 == 0)
-    {
-        RhythmAudio::RhythmAudioStats stats{};
-        GameManager::audioEngine->getEngineStats(stats);
-        UtilityFunctions::print("--- Engine Stats (frame ", std::to_string(frameCount).c_str(), ") ---");
-        UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
-        UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
-        UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
-        UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
-        UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
-        UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
-        UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
-        UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
-        UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
-    }
 }
 
 void GameManager::initializeInputEngine()
@@ -236,87 +189,4 @@ void GameManager::initializeInputEngine()
     }
 
     GameManager::inputEngine = new RhythmInput::RhythmInputEngine(gameActions, gameBindings);
-}
-
-void GameManager::JudgementThreadBehavior()
-{
-    while (requestInputTimingThreadShutdown.load(std::memory_order_acquire) == false)
-    {
-        JudgementThreadSemaphore.acquire();
-
-        InputTimingMessage msg{};
-        while (JudgementThreadMessageQueue.try_dequeue(msg))
-        {
-            if (judgementSystem == nullptr)
-            {
-                continue;
-            }
-
-            // Convert CPU picosecond timestamp to song position
-            int64_t songPositionPs;
-            uint64_t outHandle;
-            if (!audioEngine->getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
-            {
-                continue;
-            }
-
-            // Judge the note
-            int64_t offTimeAmount = 0;
-            NoteGradings grading = NoteGradings::Ungraded;
-            size_t judgedNoteIndex = 0;
-            bool hit = judgementSystem->getNoteAssociatedWithButtonPress(msg.button, songPositionPs, offTimeAmount, grading, judgedNoteIndex);
-
-            // Determine which hitsound to play and send judgment to main thread
-            bool isRed = (msg.button == DrumButtons::DrumRedLeft || msg.button == DrumButtons::DrumRedRight);
-
-            if (hit)
-            {
-                // Send judged note message to main thread
-                JudgedNoteMessage judgedMsg{};
-                judgedMsg.noteIndex = judgedNoteIndex;
-                judgedMsg.grading = grading;
-                bool success = false;
-                judgedNoteQueue.push(judgedMsg, success);
-
-                // Play the correct hitsound based on grading
-                uint64_t hitsoundHandle = 0;
-                switch (grading)
-                {
-                case NoteGradings::Early_Chou:
-                case NoteGradings::CompletlelyPerfect:
-                case NoteGradings::Late_Chou:
-                    hitsoundHandle = isRed ? redChouHitsoundHandle : blueChouHitsoundHandle;
-                    break;
-                case NoteGradings::Early_Ryou:
-                case NoteGradings::Late_Ryou:
-                    hitsoundHandle = isRed ? redRyouHitsoundHandle : blueRyouHitsoundHandle;
-                    break;
-                case NoteGradings::Early_Ka:
-                case NoteGradings::Late_Ka:
-                    hitsoundHandle = isRed ? redKaHitsoundHandle : blueKaHitsoundHandle;
-                    break;
-                case NoteGradings::Early_Fuka:
-                case NoteGradings::Late_Fuka:
-                    hitsoundHandle = isRed ? redFukaHitsoundHandle : blueFukaHitsoundHandle;
-                    break;
-                default:
-                    hitsoundHandle = isRed ? redAdLibHitsoundHandle : blueAdLibHitsoundHandle;
-                    break;
-                }
-                if (hitsoundHandle != 0)
-                {
-                    audioEngine->playAudioTrack(hitsoundHandle);
-                }
-            }
-            else
-            {
-                // Play ad-lib sound (miss)
-                uint64_t hitsoundHandle = isRed ? redAdLibHitsoundHandle : blueAdLibHitsoundHandle;
-                if (hitsoundHandle != 0)
-                {
-                    audioEngine->playAudioTrack(hitsoundHandle);
-                }
-            }
-        }
-    }
 }

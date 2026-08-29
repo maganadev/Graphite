@@ -1,8 +1,12 @@
 #ifndef GameplaySceneManager_hpp
 #define GameplaySceneManager_hpp
 
+#include "GameManager.hpp"
+#include "JudgementThread.hpp"
+#include "RedNote.hpp"
+#include "RhythmEnums.hpp"
+#include "TJACourse.hpp"
 #include <fstream>
-
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -11,12 +15,6 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
-
-#include "GameManager.hpp"
-#include "RedNote.hpp"
-#include "RhythmEnums.hpp"
-#include "RhythmJudgementSystem.hpp"
-#include "TJACourse.hpp"
 
 using namespace ::godot;
 using namespace ::std;

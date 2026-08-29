@@ -1,12 +1,9 @@
 #ifndef GameManager_hpp
 #define GameManager_hpp
 
-#include <atomic>
-#include <semaphore>
-#include <string>
-#include <thread>
-#include <vector>
-
+#include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
+#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include "../srcThirdParty/json.hpp"
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -15,13 +12,8 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
-
-#include "../../RhythmAudio/RhythmAudio/QueueSPSC.hpp"
-#include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
-#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
-#include "../srcThirdParty/json.hpp"
-#include "RhythmEnums.hpp"
-#include "RhythmJudgementSystem.hpp"
+#include <string>
+#include <vector>
 
 using json = nlohmann::json;
 using namespace ::godot;
@@ -36,18 +28,6 @@ namespace GameActionIndices
     constexpr size_t Back = 5;
 } // namespace GameActionIndices
 
-struct InputTimingMessage
-{
-    uint64_t timestamp;
-    DrumButtons button;
-};
-
-struct JudgedNoteMessage
-{
-    size_t noteIndex;
-    NoteGradings grading;
-};
-
 class GameManager : public Sprite2D
 {
     GDCLASS(GameManager, Sprite2D)
@@ -56,7 +36,6 @@ protected:
     static void _bind_methods();
 
 public:
-    // Godot object functions
     GameManager();
     ~GameManager();
     void _ready() override;
@@ -79,18 +58,8 @@ public:
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
 
-    static QueueSPSC<InputTimingMessage, 1024> JudgementThreadMessageQueue;
-    static std::counting_semaphore<1> JudgementThreadSemaphore;
-    static std::thread inputTimingThread;
-    static std::atomic<bool> requestInputTimingThreadShutdown;
-    static void JudgementThreadBehavior();
-
-    static RhythmJudgementSystem* judgementSystem;
-    static CircularQueue<JudgedNoteMessage, 1024> judgedNoteQueue;
-
 private:
     bool processFunctionRan = false;
-    uint64_t frameCount = 0;
     void initializeInputEngine();
 };
 

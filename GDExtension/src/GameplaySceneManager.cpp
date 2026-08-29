@@ -86,15 +86,8 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    // Ensure the judgement system exists
-    if (GameManager::judgementSystem == nullptr)
-    {
-        GameManager::judgementSystem = new RhythmJudgementSystem();
-    }
-    else
-    {
-        GameManager::judgementSystem->resetCompletionStates();
-    }
+    // Ensure the judgement system is initialised
+    JudgementThread::resetCompletionStates();
 
     for (const auto& event : m_course.events)
     {
@@ -123,7 +116,7 @@ void GameplaySceneManager::_ready()
             m_course.spawnedNotes.push_back(note);
 
             // Register with the judgement system
-            GameManager::judgementSystem->registerNote(event.time_picoseconds, noteType);
+            JudgementThread::registerNote(event.time_picoseconds, noteType);
         }
     }
 
@@ -182,18 +175,12 @@ void GameplaySceneManager::_process(double delta)
     }
 
     // Process judged notes from the judgment thread
-    JudgedNoteMessage judgedMsg;
-    bool success = false;
-    while (true)
+    for (size_t i = 0; i < m_course.spawnedNotes.size(); i++)
     {
-        GameManager::judgedNoteQueue.pop(judgedMsg, success);
-        if (!success)
+        RedNote* note = m_course.spawnedNotes[i];
+        if (!note->isJudged() && i < JudgementThread::noteTargetCount() && JudgementThread::getNoteTarget(i).judged)
         {
-            break;
-        }
-        if (judgedMsg.noteIndex < m_course.spawnedNotes.size())
-        {
-            m_course.spawnedNotes[judgedMsg.noteIndex]->setJudged(judgedMsg.grading);
+            note->setJudged(JudgementThread::getNoteTarget(i).grading);
         }
     }
 }
