@@ -22,6 +22,19 @@ GameplaySceneManager::~GameplaySceneManager()
     //
 }
 
+NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
+{
+    if (type == "red")
+        return NoteTypes::RedNoteSmall;
+    if (type == "blue")
+        return NoteTypes::BlueNoteSmall;
+    if (type == "redBig")
+        return NoteTypes::RedNoteLarge;
+    if (type == "blueBig")
+        return NoteTypes::BlueNoteLarge;
+    return NoteTypes::RedNoteSmall;
+}
+
 void GameplaySceneManager::_ready()
 {
     // Set the song name
@@ -73,14 +86,25 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    // Ensure the judgement system exists
+    if (GameManager::judgementSystem == nullptr)
+    {
+        GameManager::judgementSystem = new RhythmJudgementSystem();
+    }
+    else
+    {
+        GameManager::judgementSystem->resetCompletionStates();
+    }
+
     for (const auto& event : m_course.events)
     {
         Ref<PackedScene> noteScene;
-        if (event.type == "red")
+        NoteTypes noteType = noteTypeForEvent(event.type);
+        if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
         {
             noteScene = redNoteScene;
         }
-        else if (event.type == "blue")
+        else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
         {
             noteScene = blueNoteScene;
         }
@@ -97,6 +121,9 @@ void GameplaySceneManager::_ready()
             note->set_z_index(3);
             add_child(note);
             m_course.spawnedNotes.push_back(note);
+
+            // Register with the judgement system
+            GameManager::judgementSystem->registerNote(event.time_picoseconds, noteType);
         }
     }
 
@@ -151,6 +178,22 @@ void GameplaySceneManager::_process(double delta)
         for (RedNote* note : m_course.spawnedNotes)
         {
             note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
+        }
+    }
+
+    // Process judged notes from the judgment thread
+    JudgedNoteMessage judgedMsg;
+    bool success = false;
+    while (true)
+    {
+        GameManager::judgedNoteQueue.pop(judgedMsg, success);
+        if (!success)
+        {
+            break;
+        }
+        if (judgedMsg.noteIndex < m_course.spawnedNotes.size())
+        {
+            m_course.spawnedNotes[judgedMsg.noteIndex]->setJudged(judgedMsg.grading);
         }
     }
 }

@@ -20,10 +20,12 @@ uint64_t GameManager::redKaHitsoundHandle{0};
 uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
-QueueSPSC<InputTimingMessage, 1024> GameManager::inputTimingMessageQueue{};
-std::counting_semaphore<1> GameManager::inputTimingSemaphore{0};
+QueueSPSC<InputTimingMessage, 1024> GameManager::JudgementThreadMessageQueue{};
+std::counting_semaphore<1> GameManager::JudgementThreadSemaphore{0};
 std::thread GameManager::inputTimingThread{};
 std::atomic<bool> GameManager::requestInputTimingThreadShutdown{false};
+RhythmJudgementSystem* GameManager::judgementSystem{nullptr};
+CircularQueue<JudgedNoteMessage, 1024> GameManager::judgedNoteQueue{};
 
 void GameManager::_bind_methods()
 {
@@ -78,9 +80,15 @@ void GameManager::_ready()
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
+    // Create the judgement system
+    if (judgementSystem == nullptr)
+    {
+        judgementSystem = new RhythmJudgementSystem();
+    }
+
     // Start the input timing thread
     requestInputTimingThreadShutdown.store(false, std::memory_order_release);
-    inputTimingThread = std::thread(&GameManager::inputTimingThreadEntry);
+    inputTimingThread = std::thread(&GameManager::JudgementThreadBehavior);
 
     RhythmAudio::RhythmAudioStats stats{};
     GameManager::audioEngine->getEngineStats(stats);
@@ -121,8 +129,14 @@ void GameManager::_exit_tree()
     if (inputTimingThread.joinable())
     {
         requestInputTimingThreadShutdown.store(true, std::memory_order_release);
-        inputTimingSemaphore.release();
+        JudgementThreadSemaphore.release();
         inputTimingThread.join();
+    }
+
+    if (judgementSystem)
+    {
+        delete judgementSystem;
+        judgementSystem = nullptr;
     }
 }
 
@@ -224,16 +238,85 @@ void GameManager::initializeInputEngine()
     GameManager::inputEngine = new RhythmInput::RhythmInputEngine(gameActions, gameBindings);
 }
 
-void GameManager::inputTimingThreadEntry()
+void GameManager::JudgementThreadBehavior()
 {
     while (requestInputTimingThreadShutdown.load(std::memory_order_acquire) == false)
     {
-        inputTimingSemaphore.acquire();
+        JudgementThreadSemaphore.acquire();
 
         InputTimingMessage msg{};
-        while (inputTimingMessageQueue.try_dequeue(msg))
+        while (JudgementThreadMessageQueue.try_dequeue(msg))
         {
-            audioEngine->playAudioTrack(msg.audioTrackHandle);
+            if (judgementSystem == nullptr)
+            {
+                continue;
+            }
+
+            // Convert CPU picosecond timestamp to song position
+            int64_t songPositionPs;
+            uint64_t outHandle;
+            if (!audioEngine->getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
+            {
+                continue;
+            }
+
+            // Judge the note
+            int64_t offTimeAmount = 0;
+            NoteGradings grading = NoteGradings::Ungraded;
+            size_t judgedNoteIndex = 0;
+            bool hit = judgementSystem->getNoteAssociatedWithButtonPress(msg.button, songPositionPs, offTimeAmount, grading, judgedNoteIndex);
+
+            // Determine which hitsound to play and send judgment to main thread
+            bool isRed = (msg.button == DrumButtons::DrumRedLeft || msg.button == DrumButtons::DrumRedRight);
+
+            if (hit)
+            {
+                // Send judged note message to main thread
+                JudgedNoteMessage judgedMsg{};
+                judgedMsg.noteIndex = judgedNoteIndex;
+                judgedMsg.grading = grading;
+                bool success = false;
+                judgedNoteQueue.push(judgedMsg, success);
+
+                // Play the correct hitsound based on grading
+                uint64_t hitsoundHandle = 0;
+                switch (grading)
+                {
+                case NoteGradings::Early_Chou:
+                case NoteGradings::CompletlelyPerfect:
+                case NoteGradings::Late_Chou:
+                    hitsoundHandle = isRed ? redChouHitsoundHandle : blueChouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ryou:
+                case NoteGradings::Late_Ryou:
+                    hitsoundHandle = isRed ? redRyouHitsoundHandle : blueRyouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ka:
+                case NoteGradings::Late_Ka:
+                    hitsoundHandle = isRed ? redKaHitsoundHandle : blueKaHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Fuka:
+                case NoteGradings::Late_Fuka:
+                    hitsoundHandle = isRed ? redFukaHitsoundHandle : blueFukaHitsoundHandle;
+                    break;
+                default:
+                    hitsoundHandle = isRed ? redAdLibHitsoundHandle : blueAdLibHitsoundHandle;
+                    break;
+                }
+                if (hitsoundHandle != 0)
+                {
+                    audioEngine->playAudioTrack(hitsoundHandle);
+                }
+            }
+            else
+            {
+                // Play ad-lib sound (miss)
+                uint64_t hitsoundHandle = isRed ? redAdLibHitsoundHandle : blueAdLibHitsoundHandle;
+                if (hitsoundHandle != 0)
+                {
+                    audioEngine->playAudioTrack(hitsoundHandle);
+                }
+            }
         }
     }
 }

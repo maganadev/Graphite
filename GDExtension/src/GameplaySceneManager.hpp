@@ -1,6 +1,8 @@
 #ifndef GameplaySceneManager_hpp
 #define GameplaySceneManager_hpp
 
+#include <fstream>
+
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -10,10 +12,10 @@
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
 
-#include <fstream>
-
 #include "GameManager.hpp"
 #include "RedNote.hpp"
+#include "RhythmEnums.hpp"
+#include "RhythmJudgementSystem.hpp"
 #include "TJACourse.hpp"
 
 using namespace ::godot;
@@ -44,6 +46,7 @@ private:
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
     int64_t visualOffsetPicoseconds{0};
+    NoteTypes noteTypeForEvent(const std::string& type) const;
 };
 
 #endif

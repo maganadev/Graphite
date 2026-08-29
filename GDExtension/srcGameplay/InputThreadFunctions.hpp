@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
+#include "RhythmEnums.hpp"
 
 class InputThreadFunctions
 {
