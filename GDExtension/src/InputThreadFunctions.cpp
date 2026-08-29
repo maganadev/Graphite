@@ -3,32 +3,36 @@
 
 void InputThreadFunctions::DrumRimLeft(uint64_t timestamp)
 {
-    if (GameManager::audioEngine.has_value())
-    {
-        GameManager::audioEngine->playAudioTrack(GameManager::blueAdLibHitsoundHandle);
-    }
+    InputTimingMessage msg{};
+    msg.timestamp = timestamp;
+    msg.audioTrackHandle = GameManager::blueAdLibHitsoundHandle;
+    GameManager::inputTimingMessageQueue.try_enqueue(msg);
+    GameManager::inputTimingSemaphore.release();
 }
 
 void InputThreadFunctions::DrumCenterLeft(uint64_t timestamp)
 {
-    if (GameManager::audioEngine.has_value())
-    {
-        GameManager::audioEngine->playAudioTrack(GameManager::redAdLibHitsoundHandle);
-    }
+    InputTimingMessage msg{};
+    msg.timestamp = timestamp;
+    msg.audioTrackHandle = GameManager::redAdLibHitsoundHandle;
+    GameManager::inputTimingMessageQueue.try_enqueue(msg);
+    GameManager::inputTimingSemaphore.release();
 }
 
 void InputThreadFunctions::DrumCenterRight(uint64_t timestamp)
 {
-    if (GameManager::audioEngine.has_value())
-    {
-        GameManager::audioEngine->playAudioTrack(GameManager::redAdLibHitsoundHandle);
-    }
+    InputTimingMessage msg{};
+    msg.timestamp = timestamp;
+    msg.audioTrackHandle = GameManager::redAdLibHitsoundHandle;
+    GameManager::inputTimingMessageQueue.try_enqueue(msg);
+    GameManager::inputTimingSemaphore.release();
 }
 
 void InputThreadFunctions::DrumRimRight(uint64_t timestamp)
 {
-    if (GameManager::audioEngine.has_value())
-    {
-        GameManager::audioEngine->playAudioTrack(GameManager::blueAdLibHitsoundHandle);
-    }
+    InputTimingMessage msg{};
+    msg.timestamp = timestamp;
+    msg.audioTrackHandle = GameManager::blueAdLibHitsoundHandle;
+    GameManager::inputTimingMessageQueue.try_enqueue(msg);
+    GameManager::inputTimingSemaphore.release();
 }

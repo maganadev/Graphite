@@ -1,6 +1,6 @@
 #ifndef GameManager_hpp
 #define GameManager_hpp
-    
+
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -10,13 +10,15 @@
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
 
-#include <optional>
-#include <string>
-#include <vector>
-
+#include "../../RhythmAudio/RhythmAudio/QueueSPSC.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 #include "../UtilsCode/json.hpp"
+#include <atomic>
+#include <semaphore>
+#include <string>
+#include <thread>
+#include <vector>
 
 using json = nlohmann::json;
 using namespace ::godot;
@@ -29,7 +31,13 @@ namespace GameActionIndices
     constexpr size_t DrumCenterRight = 3;
     constexpr size_t Enter = 4;
     constexpr size_t Back = 5;
-}
+} // namespace GameActionIndices
+
+struct InputTimingMessage
+{
+    uint64_t timestamp;
+    uint64_t audioTrackHandle;
+};
 
 class GameManager : public Sprite2D
 {
@@ -46,8 +54,8 @@ public:
     void _exit_tree() override;
     void _process(double delta) override;
 
-    static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
-    static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
+    static RhythmAudio::RhythmAudioEngine* audioEngine;
+    static RhythmInput::RhythmInputEngine* inputEngine;
     static std::string songName;
     static std::string courseDifficulty;
     static json songJson;
@@ -61,6 +69,12 @@ public:
     static uint64_t redFukaHitsoundHandle;
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
+
+    static QueueSPSC<InputTimingMessage, 1024> inputTimingMessageQueue;
+    static std::counting_semaphore<1> inputTimingSemaphore;
+    static std::thread inputTimingThread;
+    static std::atomic<bool> requestInputTimingThreadShutdown;
+    static void inputTimingThreadEntry();
 
 private:
     bool processFunctionRan = false;

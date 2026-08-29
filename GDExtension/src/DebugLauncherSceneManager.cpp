@@ -24,11 +24,6 @@ void DebugLauncherSceneManager::_ready()
 
 void DebugLauncherSceneManager::_process(double delta)
 {
-    if (!GameManager::inputEngine.has_value())
-    {
-        return;
-    }
-
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Enter].timesPressedSinceLastFrame > 0)
     {
         godot::UtilityFunctions::print("Enter action detected, loading GameplayScene");

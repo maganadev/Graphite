@@ -113,12 +113,6 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    if (!GameManager::audioEngine.has_value())
-    {
-        UtilityFunctions::print("Audio engine not initialized yet (is GameManager earlier in the scene tree?)");
-        return;
-    }
-
     // Load the wave file
     if (!GameManager::audioEngine->createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
     {
@@ -130,15 +124,12 @@ void GameplaySceneManager::_ready()
     GameManager::audioEngine->playAudioTrack(audioTrackHandle);
     GameManager::audioEngine->setTimedAudioTrack(audioTrackHandle);
 
-    UtilityFunctions::print(
-        "Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(),
-        " | Course: ", currentCourse->name.c_str(), " | Level: ", std::to_string(currentCourse->level).c_str(),
-        " | Events: ", std::to_string(currentCourse->events.size()).c_str(), " | Wave: ", wavePath.c_str());
+    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", currentCourse->name.c_str(), " | Level: ", std::to_string(currentCourse->level).c_str(), " | Events: ", std::to_string(currentCourse->events.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
 
 void GameplaySceneManager::_exit_tree()
 {
-    if (GameManager::audioEngine.has_value() && audioTrackHandle != 0)
+    if (audioTrackHandle != 0)
     {
         GameManager::audioEngine->stopAudioTrack(audioTrackHandle);
         GameManager::audioEngine->freeAudioTrackBlocking(audioTrackHandle);
@@ -148,26 +139,18 @@ void GameplaySceneManager::_exit_tree()
 
 void GameplaySceneManager::_process(double delta)
 {
-    if (GameManager::inputEngine.has_value())
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
-        if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
-        {
-            UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
-            get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
-            return;
-        }
-    }
-    else
-    {
-        UtilityFunctions::print("Input engine not available");
+        UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
+        get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
+        return;
     }
 
     uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (GameManager::audioEngine.has_value() &&
-        GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (int i = 0; i < get_child_count(); i++)
         {

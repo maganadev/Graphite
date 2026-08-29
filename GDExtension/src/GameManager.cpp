@@ -5,8 +5,8 @@
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 
-std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine;
-std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine;
+RhythmAudio::RhythmAudioEngine* GameManager::audioEngine{nullptr};
+RhythmInput::RhythmInputEngine* GameManager::inputEngine{nullptr};
 std::string GameManager::songName;
 std::string GameManager::courseDifficulty;
 json GameManager::songJson;
@@ -20,6 +20,10 @@ uint64_t GameManager::redKaHitsoundHandle{0};
 uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
+QueueSPSC<InputTimingMessage, 1024> GameManager::inputTimingMessageQueue{};
+std::counting_semaphore<1> GameManager::inputTimingSemaphore{0};
+std::thread GameManager::inputTimingThread{};
+std::atomic<bool> GameManager::requestInputTimingThreadShutdown{false};
 
 void GameManager::_bind_methods()
 {
@@ -60,7 +64,7 @@ void GameManager::_ready()
     settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
     settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
     settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
-    GameManager::audioEngine.emplace(settings);
+    GameManager::audioEngine = new RhythmAudio::RhythmAudioEngine(settings);
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
     GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
@@ -74,21 +78,22 @@ void GameManager::_ready()
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
-    if (GameManager::audioEngine.has_value())
-    {
-        RhythmAudio::RhythmAudioStats stats{};
-        GameManager::audioEngine->getEngineStats(stats);
-        UtilityFunctions::print("--- Engine Stats ---");
-        UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
-        UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
-        UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
-        UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
-        UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
-        UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
-        UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
-        UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
-        UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
-    }
+    // Start the input timing thread
+    requestInputTimingThreadShutdown.store(false, std::memory_order_release);
+    inputTimingThread = std::thread(&GameManager::inputTimingThreadEntry);
+
+    RhythmAudio::RhythmAudioStats stats{};
+    GameManager::audioEngine->getEngineStats(stats);
+    UtilityFunctions::print("--- Engine Stats ---");
+    UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+    UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+    UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+    UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+    UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+    UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+    UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+    UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+    UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
 }
 
 void GameManager::_exit_tree()
@@ -111,6 +116,14 @@ void GameManager::_exit_tree()
     freeTrack(GameManager::redFukaHitsoundHandle);
     freeTrack(GameManager::redChouHitsoundHandle);
     freeTrack(GameManager::redAdLibHitsoundHandle);
+
+    // Shutdown the input timing thread
+    if (inputTimingThread.joinable())
+    {
+        requestInputTimingThreadShutdown.store(true, std::memory_order_release);
+        inputTimingSemaphore.release();
+        inputTimingThread.join();
+    }
 }
 
 void GameManager::_process(double delta)
@@ -122,29 +135,23 @@ void GameManager::_process(double delta)
         processFunctionRan = true;
     }
 
-    if (GameManager::inputEngine.has_value())
-    {
-        GameManager::inputEngine->parseEventsSinceLastFrame();
-    }
+    GameManager::inputEngine->parseEventsSinceLastFrame();
 
     frameCount++;
     if (frameCount % 400 == 0)
     {
-        if (GameManager::audioEngine.has_value())
-        {
-            RhythmAudio::RhythmAudioStats stats{};
-            GameManager::audioEngine->getEngineStats(stats);
-            UtilityFunctions::print("--- Engine Stats (frame ", std::to_string(frameCount).c_str(), ") ---");
-            UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
-            UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
-            UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
-            UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
-            UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
-            UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
-            UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
-            UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
-            UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
-        }
+        RhythmAudio::RhythmAudioStats stats{};
+        GameManager::audioEngine->getEngineStats(stats);
+        UtilityFunctions::print("--- Engine Stats (frame ", std::to_string(frameCount).c_str(), ") ---");
+        UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+        UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+        UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+        UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+        UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+        UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+        UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+        UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+        UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
     }
 }
 
@@ -214,5 +221,19 @@ void GameManager::initializeInputEngine()
         gameBindings.push_back(binding);
     }
 
-    GameManager::inputEngine.emplace(gameActions, gameBindings);
+    GameManager::inputEngine = new RhythmInput::RhythmInputEngine(gameActions, gameBindings);
+}
+
+void GameManager::inputTimingThreadEntry()
+{
+    while (requestInputTimingThreadShutdown.load(std::memory_order_acquire) == false)
+    {
+        inputTimingSemaphore.acquire();
+
+        InputTimingMessage msg{};
+        while (inputTimingMessageQueue.try_dequeue(msg))
+        {
+            audioEngine->playAudioTrack(msg.audioTrackHandle);
+        }
+    }
 }
