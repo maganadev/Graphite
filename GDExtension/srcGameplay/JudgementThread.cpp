@@ -3,10 +3,46 @@
 
 CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> JudgementThread::lanes[LANE_COUNT];
 QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
-QueueSPSC<JudgedNoteMessage, 1024> JudgementThread::judgedNoteQueue{};
 std::counting_semaphore<1> JudgementThread::semaphore{0};
 std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
+
+int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
+{
+    if (auto* note = std::get_if<RedNote*>(&noteVariant))
+        return (*note)->getEvent().time_picoseconds;
+    if (auto* note = std::get_if<BlueNote*>(&noteVariant))
+        return (*note)->getEvent().time_picoseconds;
+    if (auto* note = std::get_if<YellowNote*>(&noteVariant))
+        return (*note)->getEvent().time_picoseconds;
+    if (auto* note = std::get_if<GreenNote*>(&noteVariant))
+        return (*note)->getEvent().time_picoseconds;
+    return 0;
+}
+
+void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant, NoteGradings grading)
+{
+    if (auto* note = std::get_if<RedNote*>(&noteVariant))
+    {
+        (*note)->setJudged(grading);
+        return;
+    }
+    if (auto* note = std::get_if<BlueNote*>(&noteVariant))
+    {
+        (*note)->setJudged(grading);
+        return;
+    }
+    if (auto* note = std::get_if<YellowNote*>(&noteVariant))
+    {
+        (*note)->setJudged(grading);
+        return;
+    }
+    if (auto* note = std::get_if<GreenNote*>(&noteVariant))
+    {
+        (*note)->setJudged(grading);
+        return;
+    }
+}
 
 NoteGradings JudgementThread::getGradingForOfftime(int64_t timeDelta)
 {
@@ -65,6 +101,34 @@ bool JudgementThread::isRunning()
     return thread.joinable() && !requestShutdown.load(std::memory_order_acquire);
 }
 
+void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading)
+{
+    lane.pointToFirstUncompleted();
+
+    auto* noteVariant = lane.getNextUncompleted();
+    while (noteVariant != nullptr)
+    {
+        int64_t noteTime = getNoteTime(*noteVariant);
+        int64_t timeDelta = songPositionPs - noteTime;
+        NoteGradings grading = getGradingForOfftime(timeDelta);
+
+        if (grading == NoteGradings::Early_OutOfRange)
+        {
+            break;
+        }
+
+        if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
+        {
+            setNoteJudged(*noteVariant, grading);
+            lane.markMostRecentAsCompleted();
+            outGrading = grading;
+            return;
+        }
+
+        noteVariant = lane.getNextUncompleted();
+    }
+}
+
 void JudgementThread::threadBehavior()
 {
     while (requestShutdown.load(std::memory_order_acquire) == false)
@@ -82,8 +146,28 @@ void JudgementThread::threadBehavior()
                 continue;
             }
 
-            // Run through all the notes for the lane corresponding to the button pressed and find a match if it exists
-            // If we get a rating of EARLY_OUT_OF_RANGE, stop early
+            // Determine which lane this button press maps to
+            size_t laneIndex = 0;
+            switch (msg.button)
+            {
+            case DrumButtons::DrumRedLeft:
+            case DrumButtons::DrumRedRight:
+                laneIndex = static_cast<size_t>(Lanes::Red);
+                break;
+            case DrumButtons::DrumBlueLeft:
+            case DrumButtons::DrumBlueRight:
+                laneIndex = static_cast<size_t>(Lanes::Blue);
+                break;
+            }
+
+            auto& lane = lanes[laneIndex];
+            NoteGradings outGrading = NoteGradings::Ungraded;
+            gradeNoteIfNoteExists(lane, songPositionPs, outGrading);
+
+            if (outGrading != NoteGradings::Ungraded)
+            {
+                // Play sound based on lane and grading
+            }
         }
     }
 }
