@@ -39,67 +39,32 @@ GameManager::~GameManager()
 void GameManager::_ready()
 {
     RhythmAudio::RhythmAudioSettings settings{};
-
     SettingsFile audioSettingsFile("audio_settings.json");
     audioSettingsFile.load();
-
-    audioSettingsFile.ensureContainsString("backendMode", "WASAPIShared");
-    audioSettingsFile.ensureContainsInteger("WASAPIShared_sampleRate", 48000);
-    audioSettingsFile.ensureContainsInteger("WASAPIShared_bufferSizeInSamples", 1024);
-    audioSettingsFile.ensureContainsInteger("WASAPIExclusive_sampleRate", 48000);
-    audioSettingsFile.ensureContainsInteger("WASAPIExclusive_bufferSizeInSamples", 256);
-    audioSettingsFile.ensureContainsInteger("ALSA_sampleRate", 48000);
-    audioSettingsFile.ensureContainsInteger("ALSA_bufferSizeInSamples", 1024);
-    audioSettingsFile.ensureContainsInteger("JACK_sampleRate", 48000);
-    audioSettingsFile.ensureContainsInteger("JACK_bufferSizeInSamples", 1024);
+    audioSettingsFile.ensureContainsString("backendMode", "");
+    audioSettingsFile.ensureContainsInteger("ASIO_sampleRate", 0);
+    audioSettingsFile.ensureContainsInteger("ASIO_bufferSizeInSamples", 0);
     audioSettingsFile.save();
-
-    std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "WASAPIShared");
-    if (backendMode == "WASAPIShared")
-        settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIShared;
-    else if (backendMode == "WASAPIExclusive")
-        settings.backendMode = RhythmAudio::AudioBackendMode::WASAPIExclusive;
-    else if (backendMode == "JACK")
-        settings.backendMode = RhythmAudio::AudioBackendMode::JACK;
-    else if (backendMode == "ALSA")
-        settings.backendMode = RhythmAudio::AudioBackendMode::ALSA;
-
-    settings.WASAPIShared_sampleRate = audioSettingsFile.jsonObj.value("WASAPIShared_sampleRate", 48000U);
-    settings.WASAPIShared_bufferSizeInSamples =
-        audioSettingsFile.jsonObj.value("WASAPIShared_bufferSizeInSamples", 1024U);
-    settings.WASAPIExclusive_sampleRate = audioSettingsFile.jsonObj.value("WASAPIExclusive_sampleRate", 48000U);
-    settings.WASAPIExclusive_bufferSizeInSamples =
-        audioSettingsFile.jsonObj.value("WASAPIExclusive_bufferSizeInSamples", 256U);
-    settings.ALSA_sampleRate = audioSettingsFile.jsonObj.value("ALSA_sampleRate", 48000U);
-    settings.ALSA_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ALSA_bufferSizeInSamples", 1024U);
-    settings.JACK_sampleRate = audioSettingsFile.jsonObj.value("JACK_sampleRate", 48000U);
-    settings.JACK_bufferSizeInSamples = audioSettingsFile.jsonObj.value("JACK_bufferSizeInSamples", 1024U);
-
+    std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
+    if (backendMode == "ASIO")
+    {
+        settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
+    }
+    settings.ASIO_sampleRate = audioSettingsFile.jsonObj.value("ASIO_sampleRate", 0);
+    settings.ASIO_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ASIO_bufferSizeInSamples", 0);
     GameManager::audioEngine.emplace(settings);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
+    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
 
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36,
-                                                       GameManager::blueRyouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36,
-                                                       GameManager::blueKaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36,
-                                                       GameManager::blueFukaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36,
-                                                       GameManager::blueChouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36,
-                                                       GameManager::blueAdLibHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36,
-                                                       GameManager::redRyouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36,
-                                                       GameManager::redKaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36,
-                                                       GameManager::redFukaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36,
-                                                       GameManager::redChouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36,
-                                                       GameManager::redAdLibHitsoundHandle);
-
-    UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ",
-                            std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
+    UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
     if (GameManager::audioEngine.has_value())
     {
@@ -120,7 +85,8 @@ void GameManager::_ready()
 
 void GameManager::_exit_tree()
 {
-    auto freeTrack = [](uint64_t& handle) {
+    auto freeTrack = [](uint64_t& handle)
+    {
         if (handle != 0)
         {
             GameManager::audioEngine->freeAudioTrackBlocking(handle);
