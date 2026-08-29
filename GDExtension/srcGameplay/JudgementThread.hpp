@@ -38,9 +38,7 @@ public:
     static constexpr size_t LANE_COUNT = 2;
 
     static NoteGradings getGradingForOfftime(int64_t timeDelta);
-    static std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>* gradeNoteIfNoteExists(
-        CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane,
-        int64_t songPositionPs);
+    void gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading);
 
     // Thread lifecycle
     static void start();

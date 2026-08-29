@@ -164,9 +164,64 @@ void JudgementThread::threadBehavior()
             NoteGradings outGrading = NoteGradings::Ungraded;
             gradeNoteIfNoteExists(lane, songPositionPs, outGrading);
 
-            if (outGrading != NoteGradings::Ungraded)
+            const bool isRed = (laneIndex == static_cast<size_t>(Lanes::Red));
+            uint64_t hitsoundHandle = 0;
+            if (isRed)
             {
-                // Play sound based on lane and grading
+                switch (outGrading)
+                {
+                case NoteGradings::Early_Chou:
+                case NoteGradings::Late_Chou:
+                case NoteGradings::CompletlelyPerfect:
+                    hitsoundHandle = GameManager::redChouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ryou:
+                case NoteGradings::Late_Ryou:
+                    hitsoundHandle = GameManager::redRyouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ka:
+                case NoteGradings::Late_Ka:
+                    hitsoundHandle = GameManager::redKaHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Fuka:
+                case NoteGradings::Late_Fuka:
+                    hitsoundHandle = GameManager::redFukaHitsoundHandle;
+                    break;
+                default:
+                    hitsoundHandle = GameManager::redAdLibHitsoundHandle;
+                    break;
+                }
+            }
+            else
+            {
+                switch (outGrading)
+                {
+                case NoteGradings::Early_Chou:
+                case NoteGradings::Late_Chou:
+                case NoteGradings::CompletlelyPerfect:
+                    hitsoundHandle = GameManager::blueChouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ryou:
+                case NoteGradings::Late_Ryou:
+                    hitsoundHandle = GameManager::blueRyouHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Ka:
+                case NoteGradings::Late_Ka:
+                    hitsoundHandle = GameManager::blueKaHitsoundHandle;
+                    break;
+                case NoteGradings::Early_Fuka:
+                case NoteGradings::Late_Fuka:
+                    hitsoundHandle = GameManager::blueFukaHitsoundHandle;
+                    break;
+                default:
+                    hitsoundHandle = GameManager::blueAdLibHitsoundHandle;
+                    break;
+                }
+            }
+
+            if (hitsoundHandle != 0)
+            {
+                GameManager::audioEngine->playAudioTrack(hitsoundHandle);
             }
         }
     }
