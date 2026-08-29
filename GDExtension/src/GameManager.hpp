@@ -13,7 +13,7 @@
 #include "../../RhythmAudio/RhythmAudio/QueueSPSC.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
-#include "../UtilsCode/json.hpp"
+#include "../srcThirdParty/json.hpp"
 #include <atomic>
 #include <semaphore>
 #include <string>

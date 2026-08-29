@@ -5,7 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "../UtilsCode/json.hpp"
+#include "../srcThirdParty/json.hpp"
+
+class RedNote;
 
 using json = nlohmann::json;
 
@@ -30,6 +32,7 @@ public:
     std::string offset;
     int64_t offset_picoseconds{0};
     std::vector<TJAEvent> events;
+    std::vector<RedNote*> spawnedNotes;
 
     static TJACourse FromJson(const json& j)
     {

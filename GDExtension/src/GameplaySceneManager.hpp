@@ -14,6 +14,7 @@
 
 #include "GameManager.hpp"
 #include "RedNote.hpp"
+#include "TJACourse.hpp"
 
 using namespace ::godot;
 using namespace ::std;
@@ -38,6 +39,7 @@ public:
     Ref<PackedScene> get_blue_note_scene() const;
 
 private:
+    TJACourse m_course;
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;

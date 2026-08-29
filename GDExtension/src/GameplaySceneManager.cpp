@@ -38,19 +38,13 @@ void GameplaySceneManager::_ready()
     }
     GameManager::songJson = json::parse(ifs);
     std::vector<TJACourse> courses;
+    TJACourse* currentCourse = nullptr;
     for (const auto& c : GameManager::songJson["courses"])
     {
-        courses.push_back(TJACourse::FromJson(c));
-    }
-
-    // Find the matching course
-    TJACourse* currentCourse = nullptr;
-    for (auto& c : courses)
-    {
-        if (c.name == GameManager::courseDifficulty)
+        auto& course = courses.emplace_back(TJACourse::FromJson(c));
+        if (course.name == GameManager::courseDifficulty)
         {
-            currentCourse = &c;
-            break;
+            currentCourse = &course;
         }
     }
 
@@ -60,7 +54,8 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    visualOffsetPicoseconds = currentCourse->offset_picoseconds;
+    m_course = *currentCourse;
+    visualOffsetPicoseconds = m_course.offset_picoseconds;
     UtilityFunctions::print("Visual offset: ", std::to_string(visualOffsetPicoseconds).c_str(), " ps");
 
     // Spawn notes for each note event in the course
@@ -78,7 +73,7 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    for (const auto& event : currentCourse->events)
+    for (const auto& event : m_course.events)
     {
         Ref<PackedScene> noteScene;
         if (event.type == "red")
@@ -101,10 +96,11 @@ void GameplaySceneManager::_ready()
             note->setEvent(event);
             note->set_z_index(3);
             add_child(note);
+            m_course.spawnedNotes.push_back(note);
         }
     }
 
-    UtilityFunctions::print("Spawned notes for course: ", currentCourse->name.c_str());
+    UtilityFunctions::print("Spawned notes for course: ", m_course.name.c_str());
 
     std::string wavePath = GameManager::songJson.value("wave", "");
     if (wavePath.empty())
@@ -124,7 +120,7 @@ void GameplaySceneManager::_ready()
     GameManager::audioEngine->playAudioTrack(audioTrackHandle);
     GameManager::audioEngine->setTimedAudioTrack(audioTrackHandle);
 
-    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", currentCourse->name.c_str(), " | Level: ", std::to_string(currentCourse->level).c_str(), " | Events: ", std::to_string(currentCourse->events.size()).c_str(), " | Wave: ", wavePath.c_str());
+    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", m_course.name.c_str(), " | Level: ", std::to_string(m_course.level).c_str(), " | Events: ", std::to_string(m_course.events.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
 
 void GameplaySceneManager::_exit_tree()
@@ -152,13 +148,9 @@ void GameplaySceneManager::_process(double delta)
     uint64_t outHandle;
     if (GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
-        for (int i = 0; i < get_child_count(); i++)
+        for (RedNote* note : m_course.spawnedNotes)
         {
-            RedNote* note = Object::cast_to<RedNote>(get_child(i));
-            if (note)
-            {
-                note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
-            }
+            note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
         }
     }
 }

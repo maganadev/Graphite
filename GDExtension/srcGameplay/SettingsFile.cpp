@@ -1,4 +1,5 @@
 #include "SettingsFile.hpp"
+#include <cstdint>
 
 SettingsFile::SettingsFile(std::string pFilepath)
 {

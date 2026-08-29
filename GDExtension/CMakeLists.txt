@@ -59,10 +59,16 @@ target_sources(${LIBNAME}
     src/GameManager.hpp
     src/GameplaySceneManager.cpp
     src/GameplaySceneManager.hpp
-    src/RedNote.cpp
-    src/RedNote.hpp
-    src/SettingsFile.cpp
-    src/SettingsFile.hpp
+    srcGameplay/RedNote.cpp
+    srcGameplay/RedNote.hpp
+    srcGameplay/SettingsFile.cpp
+    srcGameplay/SettingsFile.hpp
+    srcGameplay/TJACourse.cpp
+    srcGameplay/TJACourse.hpp
+    srcGameplay/InputThreadFunctions.cpp
+    srcGameplay/InputThreadFunctions.hpp
+    srcGameplay/CompletionList.cpp
+    srcGameplay/CompletionList.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/AudioProcessing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/LFProtectObj.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio/NumericLimits.cpp
@@ -110,6 +116,7 @@ target_link_libraries(${LIBNAME} PRIVATE godot-cpp)
 set_property(TARGET ${LIBNAME} PROPERTY CXX_STANDARD 20)
 
 target_include_directories(${LIBNAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/RhythmAudio
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput
 )

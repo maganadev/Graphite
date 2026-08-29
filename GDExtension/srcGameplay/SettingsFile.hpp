@@ -1,19 +1,23 @@
 #ifndef SettingsFile_hpp
 #define SettingsFile_hpp
 
-#include "../UtilsCode/json.hpp"
+#include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <string>
+
+#include "../srcThirdParty/json.hpp"
+
 using namespace ::nlohmann;
 using namespace ::std;
 
 class SettingsFile
 {
-  private:
+private:
     std::string filepath = "";
     uint64_t loadTimeHash = 0;
 
-  public:
+public:
     json jsonObj{};
 
     SettingsFile(std::string pFilepath);

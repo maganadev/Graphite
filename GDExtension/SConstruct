@@ -40,10 +40,13 @@ env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 rhythmAudioDir = os.path.abspath("../RhythmAudio/RhythmAudio")
 rhythmInputDir = os.path.abspath("../RhythmInput/RhythmInput")
 
-env.Append(CPPPATH=["src/", rhythmAudioDir, rhythmInputDir])
+gameplayDir = os.path.abspath("srcGameplay")
+
+env.Append(CPPPATH=["src/", rhythmAudioDir, rhythmInputDir, gameplayDir])
 env.Append(CXXFLAGS=["-std=c++20"])
 
 sources = Glob("src/*.cpp")
+sources += Glob(os.path.join(gameplayDir, "*.cpp"))
 sources += Glob(os.path.join(rhythmAudioDir, "*.cpp"))
 rhythmAudioBasenames = {os.path.basename(str(s)) for s in sources}
 rhythmInputSources = Glob(os.path.join(rhythmInputDir, "*.cpp"))
