@@ -2,12 +2,17 @@
 #define JudgementThread_hpp
 
 #include "../../RhythmAudio/RhythmAudio/QueueSPSC.hpp"
+#include "BlueNote.hpp"
 #include "CompletionList.hpp"
+#include "GreenNote.hpp"
+#include "RedNote.hpp"
 #include "RhythmEnums.hpp"
+#include "YellowNote.hpp"
 #include <atomic>
 #include <cstdint>
 #include <semaphore>
 #include <thread>
+#include <variant>
 #include <vector>
 
 enum class Lanes : size_t
@@ -46,7 +51,7 @@ public:
     static std::thread thread;
 
 private:
-    static CompletionList<size_t> lanes[LANE_COUNT];
+    static CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> lanes[LANE_COUNT];
     static std::atomic<bool> requestShutdown;
     static void threadBehavior();
 };

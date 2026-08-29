@@ -1,7 +1,7 @@
 #include "JudgementThread.hpp"
 #include "GameManager.hpp"
 
-CompletionList<size_t> JudgementThread::lanes[LANE_COUNT];
+CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> JudgementThread::lanes[LANE_COUNT];
 QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
 QueueSPSC<JudgedNoteMessage, 1024> JudgementThread::judgedNoteQueue{};
 std::counting_semaphore<1> JudgementThread::semaphore{0};

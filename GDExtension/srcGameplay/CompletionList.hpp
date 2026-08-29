@@ -1,5 +1,6 @@
 #ifndef CompletionList_hpp
 #define CompletionList_hpp
+
 #include <cstdint>
 #include <vector>
 
@@ -113,4 +114,5 @@ public:
         previous = NONE;
     }
 };
+
 #endif
