@@ -42,8 +42,10 @@ NoteGradings BlueNote::getGrading() const
 
 void BlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
 {
-    (void)songPositionPicoseconds;
-    (void)visualOffsetPicoseconds;
+    double x = 0.0;
+    double y = 0.0;
+    getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
+    set_position(godot::Vector2(x, y));
 }
 
 void BlueNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const
