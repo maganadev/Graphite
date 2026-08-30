@@ -15,20 +15,17 @@ YellowNotePrefab::~YellowNotePrefab()
     //
 }
 
-void YellowNotePrefab::setNote(const Note& note)
+void YellowNotePrefab::_ready()
 {
-    m_note.setNote(note);
+    //
 }
 
-const Note& YellowNotePrefab::getNote() const
+void YellowNotePrefab::_exit_tree()
 {
-    return m_note.getNote();
+    //
 }
 
-void YellowNotePrefab::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
+void YellowNotePrefab::_process(double delta)
 {
-    double x = 0.0;
-    double y = 0.0;
-    m_note.getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
-    set_position(Vector2(x, y));
+    //
 }

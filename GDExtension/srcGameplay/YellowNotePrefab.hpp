@@ -1,18 +1,21 @@
 #ifndef YellowNotePrefab_hpp
 #define YellowNotePrefab_hpp
 
-#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/animation_player.hpp>
+#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
-
-#include "YellowNote.hpp"
+#include <godot_cpp/classes/sprite2d.hpp>
 
 using namespace ::godot;
+using namespace ::std;
 
-class YellowNotePrefab : public Node2D
+class YellowNotePrefab : public Sprite2D
 {
-    GDCLASS(YellowNotePrefab, Node2D)
+    GDCLASS(YellowNotePrefab, Sprite2D)
 
 protected:
     static void _bind_methods();
@@ -20,14 +23,9 @@ protected:
 public:
     YellowNotePrefab();
     ~YellowNotePrefab();
-
-    void setNote(const Note& note);
-    const Note& getNote() const;
-
-    void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
-
-private:
-    YellowNote m_note;
+    void _ready() override;
+    void _exit_tree() override;
+    void _process(double delta) override;
 };
 
 #endif

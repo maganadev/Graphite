@@ -15,20 +15,17 @@ GreenNotePrefab::~GreenNotePrefab()
     //
 }
 
-void GreenNotePrefab::setNote(const Note& note)
+void GreenNotePrefab::_ready()
 {
-    m_note.setNote(note);
+    //
 }
 
-const Note& GreenNotePrefab::getNote() const
+void GreenNotePrefab::_exit_tree()
 {
-    return m_note.getNote();
+    //
 }
 
-void GreenNotePrefab::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
+void GreenNotePrefab::_process(double delta)
 {
-    double x = 0.0;
-    double y = 0.0;
-    m_note.getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
-    set_position(Vector2(x, y));
+    //
 }
