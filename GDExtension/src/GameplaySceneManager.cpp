@@ -131,15 +131,15 @@ void GameplaySceneManager::_ready()
     }
 
     // Load the wave file
-    if (!GameManager::audioEngine->createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
+    if (!GameManager::audioEngine.value().createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
         return;
     }
 
     // Play the audio track
-    GameManager::audioEngine->playAudioTrack(audioTrackHandle);
-    GameManager::audioEngine->setTimedAudioTrack(audioTrackHandle);
+    GameManager::audioEngine.value().playAudioTrack(audioTrackHandle);
+    GameManager::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
 
     UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", m_course.name.c_str(), " | Level: ", std::to_string(m_course.level).c_str(), " | Events: ", std::to_string(m_course.notes.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
@@ -152,8 +152,8 @@ void GameplaySceneManager::_exit_tree()
     }
     if (audioTrackHandle != 0)
     {
-        GameManager::audioEngine->stopAudioTrack(audioTrackHandle);
-        GameManager::audioEngine->freeAudioTrackBlocking(audioTrackHandle);
+        GameManager::audioEngine.value().stopAudioTrack(audioTrackHandle);
+        GameManager::audioEngine.value().freeAudioTrackBlocking(audioTrackHandle);
         audioTrackHandle = 0;
     }
 }
@@ -171,7 +171,7 @@ void GameplaySceneManager::_process(double delta)
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (GameManager::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (RedNote* note : m_course.redNotes)
         {

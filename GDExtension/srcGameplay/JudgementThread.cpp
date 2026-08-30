@@ -140,7 +140,7 @@ void JudgementThread::threadBehavior()
             // Convert CPU picosecond timestamp to song position
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
-            if (!GameManager::audioEngine->getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
+            if (!GameManager::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
             {
                 continue;
             }
@@ -226,7 +226,7 @@ void JudgementThread::threadBehavior()
 
             if (hitsoundHandle != 0)
             {
-                GameManager::audioEngine->playAudioTrack(hitsoundHandle);
+                GameManager::audioEngine.value().playAudioTrack(hitsoundHandle);
             }
         }
     }

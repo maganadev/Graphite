@@ -12,6 +12,7 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -44,8 +45,8 @@ public:
     void _exit_tree() override;
     void _process(double delta) override;
 
-    static RhythmAudio::RhythmAudioEngine* audioEngine;
-    static RhythmInput::RhythmInputEngine* inputEngine;
+    static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
+    static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
     static std::string songName;
     static std::string courseDifficulty;
     static json songJson;

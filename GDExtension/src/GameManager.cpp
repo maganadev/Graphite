@@ -6,8 +6,8 @@
 #include "SettingsFile.hpp"
 #include "Course.hpp"
 
-RhythmAudio::RhythmAudioEngine* GameManager::audioEngine{nullptr};
-RhythmInput::RhythmInputEngine* GameManager::inputEngine{nullptr};
+std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine{std::nullopt};
+std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine{std::nullopt};
 std::string GameManager::songName;
 std::string GameManager::courseDifficulty;
 json GameManager::songJson;
@@ -37,80 +37,85 @@ GameManager::~GameManager()
 
 void GameManager::_ready()
 {
-    RhythmAudio::RhythmAudioSettings settings{};
-    SettingsFile audioSettingsFile("audio_settings.json");
-    audioSettingsFile.load();
-    audioSettingsFile.ensureContainsString("backendMode", "");
-    audioSettingsFile.ensureContainsString("audioMonoStereo", "stereo");
-    audioSettingsFile.ensureContainsInteger("ASIO_sampleRate", 0);
-    audioSettingsFile.ensureContainsInteger("ASIO_bufferSizeInSamples", 0);
-    audioSettingsFile.ensureContainsString("ASIO_cardToUse", "");
-    audioSettingsFile.ensureContainsInteger("ASIO_leftChannel", 0);
-    audioSettingsFile.ensureContainsInteger("ASIO_rightChannel", 1);
-    audioSettingsFile.save();
-    std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
-    if (backendMode == "ASIO")
-    {
-        settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
-    }
-    settings.audioMonoStereo = audioSettingsFile.jsonObj.value("audioMonoStereo", "stereo");
-    settings.ASIO_sampleRate = audioSettingsFile.jsonObj.value("ASIO_sampleRate", 0);
-    settings.ASIO_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ASIO_bufferSizeInSamples", 0);
-    settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
-    settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
-    settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
-    GameManager::audioEngine = new RhythmAudio::RhythmAudioEngine(settings);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
-    GameManager::audioEngine->createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
+    // RhythmAudio::RhythmAudioSettings settings{};
+    // SettingsFile audioSettingsFile("audio_settings.json");
+    // audioSettingsFile.load();
+    // audioSettingsFile.ensureContainsString("backendMode", "");
+    // audioSettingsFile.ensureContainsString("audioMonoStereo", "stereo");
+    // audioSettingsFile.ensureContainsInteger("ASIO_sampleRate", 0);
+    // audioSettingsFile.ensureContainsInteger("ASIO_bufferSizeInSamples", 0);
+    // audioSettingsFile.ensureContainsString("ASIO_cardToUse", "");
+    // audioSettingsFile.ensureContainsInteger("ASIO_leftChannel", 0);
+    // audioSettingsFile.ensureContainsInteger("ASIO_rightChannel", 1);
+    // audioSettingsFile.save();
+    // std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
+    // if (backendMode == "ASIO")
+    // {
+    //     settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
+    // }
+    // settings.audioMonoStereo = audioSettingsFile.jsonObj.value("audioMonoStereo", "stereo");
+    // settings.ASIO_sampleRate = audioSettingsFile.jsonObj.value("ASIO_sampleRate", 0);
+    // settings.ASIO_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ASIO_bufferSizeInSamples", 0);
+    // settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
+    // settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
+    // settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
+    // GameManager::audioEngine.emplace(settings);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
+    // GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
 
-    UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
+    // UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
-    JudgementThread::start();
+    // JudgementThread::start();
 
-    RhythmAudio::RhythmAudioStats stats{};
-    GameManager::audioEngine->getEngineStats(stats);
-    UtilityFunctions::print("--- Engine Stats ---");
-    UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
-    UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
-    UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
-    UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
-    UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
-    UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
-    UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
-    UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
-    UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
+    // RhythmAudio::RhythmAudioStats stats{};
+    // GameManager::audioEngine.value().getEngineStats(stats);
+    // UtilityFunctions::print("--- Engine Stats ---");
+    // UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+    // UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+    // UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+    // UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+    // UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+    // UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+    // UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+    // UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+    // UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
 }
 
 void GameManager::_exit_tree()
 {
-    auto freeTrack = [](uint64_t& handle)
-    {
-        if (handle != 0)
-        {
-            GameManager::audioEngine->freeAudioTrackBlocking(handle);
-            handle = 0;
-        }
-    };
-    freeTrack(GameManager::blueRyouHitsoundHandle);
-    freeTrack(GameManager::blueKaHitsoundHandle);
-    freeTrack(GameManager::blueFukaHitsoundHandle);
-    freeTrack(GameManager::blueChouHitsoundHandle);
-    freeTrack(GameManager::blueAdLibHitsoundHandle);
-    freeTrack(GameManager::redRyouHitsoundHandle);
-    freeTrack(GameManager::redKaHitsoundHandle);
-    freeTrack(GameManager::redFukaHitsoundHandle);
-    freeTrack(GameManager::redChouHitsoundHandle);
-    freeTrack(GameManager::redAdLibHitsoundHandle);
+    // if (!GameManager::audioEngine.has_value())
+    // {
+    //     JudgementThread::stop();
+    //     return;
+    // }
+    // auto freeTrack = [](uint64_t& handle)
+    // {
+    //     if (handle != 0)
+    //     {
+    //         GameManager::audioEngine.value().freeAudioTrackBlocking(handle);
+    //         handle = 0;
+    //     }
+    // };
+    // freeTrack(GameManager::blueRyouHitsoundHandle);
+    // freeTrack(GameManager::blueKaHitsoundHandle);
+    // freeTrack(GameManager::blueFukaHitsoundHandle);
+    // freeTrack(GameManager::blueChouHitsoundHandle);
+    // freeTrack(GameManager::blueAdLibHitsoundHandle);
+    // freeTrack(GameManager::redRyouHitsoundHandle);
+    // freeTrack(GameManager::redKaHitsoundHandle);
+    // freeTrack(GameManager::redFukaHitsoundHandle);
+    // freeTrack(GameManager::redChouHitsoundHandle);
+    // freeTrack(GameManager::redAdLibHitsoundHandle);
 
-    JudgementThread::stop();
+    // JudgementThread::stop();
 }
 
 void GameManager::_process(double delta)
@@ -121,7 +126,7 @@ void GameManager::_process(double delta)
         processFunctionRan = true;
     }
 
-    GameManager::inputEngine->parseEventsSinceLastFrame();
+    GameManager::inputEngine.value().parseEventsSinceLastFrame();
 }
 
 void GameManager::initializeInputEngine()
@@ -190,5 +195,5 @@ void GameManager::initializeInputEngine()
         gameBindings.push_back(binding);
     }
 
-    GameManager::inputEngine = new RhythmInput::RhythmInputEngine(gameActions, gameBindings);
+    GameManager::inputEngine.emplace(gameActions, gameBindings);
 }

@@ -15,20 +15,17 @@ RedNotePrefab::~RedNotePrefab()
     //
 }
 
-void RedNotePrefab::setNote(const Note& note)
+void RedNotePrefab::_ready()
 {
-    m_note.setNote(note);
+    //
 }
 
-const Note& RedNotePrefab::getNote() const
+void RedNotePrefab::_exit_tree()
 {
-    return m_note.getNote();
+    //
 }
 
-void RedNotePrefab::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
+void RedNotePrefab::_process(double delta)
 {
-    double x = 0.0;
-    double y = 0.0;
-    m_note.getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
-    set_position(Vector2(x, y));
+    //
 }
