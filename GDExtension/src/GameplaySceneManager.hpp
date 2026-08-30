@@ -5,7 +5,7 @@
 #include "JudgementThread.hpp"
 #include "RedNote.hpp"
 #include "RhythmEnums.hpp"
-#include "TJACourse.hpp"
+#include "Course.hpp"
 #include <fstream>
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
@@ -39,7 +39,7 @@ public:
     Ref<PackedScene> get_blue_note_scene() const;
 
 private:
-    TJACourse m_course;
+    Course m_course;
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;

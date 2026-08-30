@@ -28,7 +28,7 @@ namespace GameActionIndices
     constexpr size_t Back = 5;
 } // namespace GameActionIndices
 
-class TJACourse;
+class Course;
 
 class GameManager : public Sprite2D
 {
@@ -59,7 +59,7 @@ public:
     static uint64_t redFukaHitsoundHandle;
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
-    static TJACourse* currentCourse;
+    static Course* currentCourse;
 
 private:
     bool processFunctionRan = false;

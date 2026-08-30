@@ -1,7 +1,7 @@
 #include "GameplaySceneManager.hpp"
 #include "BlueNote.hpp"
 #include "RedNote.hpp"
-#include "TJACourse.hpp"
+#include "Course.hpp"
 #include "TimingOSSingletons.hpp"
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -52,11 +52,11 @@ void GameplaySceneManager::_ready()
         return;
     }
     GameManager::songJson = json::parse(ifs);
-    std::vector<TJACourse> courses;
-    TJACourse* currentCourse = nullptr;
+    std::vector<Course> courses;
+    Course* currentCourse = nullptr;
     for (const auto& c : GameManager::songJson["courses"])
     {
-        auto& course = courses.emplace_back(TJACourse::FromJson(c));
+        auto& course = courses.emplace_back(Course::FromJson(c));
         if (course.name == GameManager::courseDifficulty)
         {
             currentCourse = &course;

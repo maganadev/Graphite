@@ -63,8 +63,8 @@ target_sources(${LIBNAME}
     srcGameplay/RedNote.hpp
     srcGameplay/SettingsFile.cpp
     srcGameplay/SettingsFile.hpp
-    srcGameplay/TJACourse.cpp
-    srcGameplay/TJACourse.hpp
+    srcGameplay/Course.cpp
+    srcGameplay/Course.hpp
     srcGameplay/InputThreadFunctions.cpp
     srcGameplay/InputThreadFunctions.hpp
     srcGameplay/CompletionList.cpp
