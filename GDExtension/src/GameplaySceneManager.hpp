@@ -1,11 +1,10 @@
 #ifndef GameplaySceneManager_hpp
 #define GameplaySceneManager_hpp
 
+#include "Course.hpp"
 #include "GameManager.hpp"
 #include "JudgementThread.hpp"
-#include "RedNote.hpp"
 #include "RhythmEnums.hpp"
-#include "Course.hpp"
 #include <fstream>
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>

@@ -1,7 +1,8 @@
 #include "GameplaySceneManager.hpp"
 #include "BlueNote.hpp"
-#include "RedNote.hpp"
 #include "Course.hpp"
+#include "RedNote.hpp"
+#include "RedNotePrefab.hpp"
 #include "TimingOSSingletons.hpp"
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -95,12 +96,14 @@ void GameplaySceneManager::_ready()
         if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
         {
             Node* instance = redNoteScene->instantiate();
-            RedNote* note = Object::cast_to<RedNote>(instance);
-            if (note)
+            RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
+            if (prefab)
             {
+                RedNote* note = new RedNote();
                 note->setNote(noteEvent);
-                note->set_z_index(3);
-                add_child(note);
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
                 m_course.redNotes.push_back(note);
             }
         }
@@ -150,6 +153,11 @@ void GameplaySceneManager::_exit_tree()
     {
         GameManager::currentCourse = nullptr;
     }
+    for (RedNote* note : m_course.redNotes)
+    {
+        delete note;
+    }
+    m_course.redNotes.clear();
     if (audioTrackHandle != 0)
     {
         GameManager::audioEngine.value().stopAudioTrack(audioTrackHandle);
