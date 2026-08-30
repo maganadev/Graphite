@@ -9,13 +9,13 @@ std::atomic<bool> JudgementThread::requestShutdown{false};
 int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
 {
     if (auto* note = std::get_if<RedNote*>(&noteVariant))
-        return (*note)->getEvent().time_picoseconds;
+        return (*note)->getNote().time_picoseconds;
     if (auto* note = std::get_if<BlueNote*>(&noteVariant))
-        return (*note)->getEvent().time_picoseconds;
+        return (*note)->getNote().time_picoseconds;
     if (auto* note = std::get_if<YellowNote*>(&noteVariant))
-        return (*note)->getEvent().time_picoseconds;
+        return (*note)->getNote().time_picoseconds;
     if (auto* note = std::get_if<GreenNote*>(&noteVariant))
-        return (*note)->getEvent().time_picoseconds;
+        return (*note)->getNote().time_picoseconds;
     return 0;
 }
 

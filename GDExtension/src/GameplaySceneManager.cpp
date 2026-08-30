@@ -88,9 +88,9 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    for (const auto& event : m_course.events)
+    for (const auto& noteEvent : m_course.notes)
     {
-        NoteTypes noteType = noteTypeForEvent(event.type);
+        NoteTypes noteType = noteTypeForEvent(noteEvent.type);
 
         if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
         {
@@ -98,7 +98,7 @@ void GameplaySceneManager::_ready()
             RedNote* note = Object::cast_to<RedNote>(instance);
             if (note)
             {
-                note->setEvent(event);
+                note->setNote(noteEvent);
                 note->set_z_index(3);
                 add_child(note);
                 m_course.redNotes.push_back(note);
@@ -110,7 +110,7 @@ void GameplaySceneManager::_ready()
             BlueNote* note = Object::cast_to<BlueNote>(instance);
             if (note)
             {
-                note->setEvent(event);
+                note->setNote(noteEvent);
                 note->set_z_index(3);
                 add_child(note);
                 m_course.blueNotes.push_back(note);
@@ -141,7 +141,7 @@ void GameplaySceneManager::_ready()
     GameManager::audioEngine->playAudioTrack(audioTrackHandle);
     GameManager::audioEngine->setTimedAudioTrack(audioTrackHandle);
 
-    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", m_course.name.c_str(), " | Level: ", std::to_string(m_course.level).c_str(), " | Events: ", std::to_string(m_course.events.size()).c_str(), " | Wave: ", wavePath.c_str());
+    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", m_course.name.c_str(), " | Level: ", std::to_string(m_course.level).c_str(), " | Events: ", std::to_string(m_course.notes.size()).c_str(), " | Wave: ", wavePath.c_str());
 }
 
 void GameplaySceneManager::_exit_tree()
