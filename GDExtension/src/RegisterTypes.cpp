@@ -4,7 +4,10 @@
 #include "DebugLauncherSceneManager.hpp"
 #include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
-#include "RedNote.hpp"
+#include "RedNotePrefab.hpp"
+#include "BlueNotePrefab.hpp"
+#include "YellowNotePrefab.hpp"
+#include "GreenNotePrefab.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
@@ -20,7 +23,10 @@ void initialize_module(ModuleInitializationLevel p_level)
     GDREGISTER_RUNTIME_CLASS(DebugLauncherSceneManager);
     GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
-    GDREGISTER_RUNTIME_CLASS(RedNote);
+    GDREGISTER_RUNTIME_CLASS(RedNotePrefab);
+    GDREGISTER_RUNTIME_CLASS(BlueNotePrefab);
+    GDREGISTER_RUNTIME_CLASS(YellowNotePrefab);
+    GDREGISTER_RUNTIME_CLASS(GreenNotePrefab);
 }
 
 void uninitialize_module(ModuleInitializationLevel p_level)

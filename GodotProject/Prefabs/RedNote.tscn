@@ -8,7 +8,7 @@ corner_radius_bottom_right = 1024
 corner_radius_bottom_left = 1024
 corner_detail = 16
 
-[node name="RedNote" type="RedNote"]
+[node name="RedNote" type="RedNotePrefab"]
 
 [node name="Black" type="Panel" parent="."]
 modulate = Color(0.14509805, 0.14509805, 0.14509805, 1)

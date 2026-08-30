@@ -24,13 +24,7 @@ public:
     void setNote(const Note& note);
     const Note& getNote() const;
 
-    bool isJudged() const;
-    void setJudged(NoteGradings grading);
-    NoteGradings getGrading() const;
-
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
-
-    BlueNote* getNote();
 
 private:
     BlueNote m_note;
