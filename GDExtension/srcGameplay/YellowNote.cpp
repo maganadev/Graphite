@@ -1,4 +1,5 @@
 #include "YellowNote.hpp"
+#include "YellowNotePrefab.hpp"
 
 YellowNote::YellowNote()
 {
@@ -20,6 +21,16 @@ const Note& YellowNote::getNote() const
     return m_note;
 }
 
+void YellowNote::setPrefab(YellowNotePrefab* prefab)
+{
+    m_prefab = prefab;
+}
+
+YellowNotePrefab* YellowNote::getPrefab() const
+{
+    return m_prefab;
+}
+
 bool YellowNote::isJudged() const
 {
     return m_judged.load(std::memory_order_acquire);
@@ -38,8 +49,13 @@ NoteGradings YellowNote::getGrading() const
 
 void YellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
 {
-    (void)songPositionPicoseconds;
-    (void)visualOffsetPicoseconds;
+    double x = 0.0;
+    double y = 0.0;
+    getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
+    if (m_prefab)
+    {
+        m_prefab->set_position(godot::Vector2(x, y));
+    }
 }
 
 void YellowNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const

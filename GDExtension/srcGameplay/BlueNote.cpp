@@ -1,9 +1,5 @@
 #include "BlueNote.hpp"
-
-void BlueNote::_bind_methods()
-{
-    //
-}
+#include "BlueNotePrefab.hpp"
 
 BlueNote::BlueNote()
 {
@@ -23,6 +19,16 @@ void BlueNote::setNote(const Note& note)
 const Note& BlueNote::getNote() const
 {
     return m_note;
+}
+
+void BlueNote::setPrefab(BlueNotePrefab* prefab)
+{
+    m_prefab = prefab;
+}
+
+BlueNotePrefab* BlueNote::getPrefab() const
+{
+    return m_prefab;
 }
 
 bool BlueNote::isJudged() const
@@ -46,7 +52,10 @@ void BlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOff
     double x = 0.0;
     double y = 0.0;
     getRenderPosition(songPositionPicoseconds, visualOffsetPicoseconds, x, y);
-    set_position(godot::Vector2(x, y));
+    if (m_prefab)
+    {
+        m_prefab->set_position(godot::Vector2(x, y));
+    }
 }
 
 void BlueNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const

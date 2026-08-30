@@ -7,6 +7,8 @@
 #include "Course.hpp"
 #include "RhythmEnums.hpp"
 
+class YellowNotePrefab;
+
 class YellowNote
 {
 public:
@@ -20,18 +22,21 @@ public:
     void setNote(const Note& note);
     const Note& getNote() const;
 
+    void setPrefab(YellowNotePrefab* prefab);
+    YellowNotePrefab* getPrefab() const;
+
     bool isJudged() const;
     void setJudged(NoteGradings grading);
     NoteGradings getGrading() const;
 
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
-
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
 
 private:
     Note m_note;
     std::atomic<bool> m_judged{false};
     NoteGradings m_grading{NoteGradings::Ungraded};
+    YellowNotePrefab* m_prefab{nullptr};
 };
 
 #endif
