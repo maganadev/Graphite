@@ -1,88 +1,54 @@
-#ifndef TJACourse_hpp
-#define TJACourse_hpp
+#ifndef Chart_hpp
+#define Chart_hpp
 
 #include <cstdint>
 #include <string>
-#include <variant>
 #include <vector>
 
 #include "../srcThirdParty/json.hpp"
-#include "CompletionList.hpp"
 
-class RedNote;
-class BlueNote;
-class YellowNote;
-class GreenNote;
+#include "Course.hpp"
 
-struct TJAEvent
-{
-    std::string type;
-    std::string time_fractional;
-    int64_t time_picoseconds;
-    double scroll;
-    int measure;
-    bool gogo;
-    bool big;
-    bool visible;
-};
-
-class TJACourse
+class Chart
 {
 public:
-    std::string name;
-    int level;
-    std::string bpm;
-    std::string offset;
-    int64_t offset_picoseconds{0};
-    std::vector<TJAEvent> events;
-    std::vector<RedNote*> redNotes;
-    std::vector<BlueNote*> blueNotes;
-    std::vector<YellowNote*> yellowNotes;
-    std::vector<GreenNote*> greenNotes;
-    CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneRed;
-    CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneBlue;
+    std::string title;
+    std::string wave;
+    std::string defaultBpm;
+    double defaultBpmDouble{0.0};
+    std::string defaultOffset;
+    int64_t defaultOffsetPicoseconds{0};
+    std::vector<Course> courses;
 
-    static TJACourse FromJson(const nlohmann::json& j)
+    static Chart FromJson(const nlohmann::json& j)
     {
-        TJACourse course;
-        course.name = j["name"];
-        course.level = j["level"];
-        course.bpm = j["bpm"];
-        course.offset = j.value("offset", "0/1");
-        course.offset_picoseconds = j.value("offset_picoseconds", static_cast<int64_t>(0));
-        if (j.contains("events"))
+        Chart chart;
+        chart.title = j.value("title", "");
+        chart.wave = j.value("wave", "");
+        chart.defaultBpm = j.value("defaultBpm", "0/1");
+        chart.defaultBpmDouble = j.value("defaultBpm_double", 0.0);
+        chart.defaultOffset = j.value("defaultOffset", "0/1");
+        chart.defaultOffsetPicoseconds = j.value("defaultOffset_picoseconds", static_cast<int64_t>(0));
+        if (j.contains("courses"))
         {
-            for (const auto& e : j["events"])
+            for (const auto& c : j["courses"])
             {
-                TJAEvent ev;
-                ev.type = e["type"];
-                ev.time_fractional = e["time_fractional"];
-                ev.time_picoseconds = e["time_picoseconds"];
-                ev.scroll = e.value("scroll", 1.0);
-                ev.measure = e["measure"];
-                ev.gogo = e.value("gogo", false);
-                ev.big = e.value("big", false);
-                ev.visible = e.value("visible", false);
-                course.events.push_back(ev);
+                chart.courses.push_back(Course::FromJson(c));
             }
         }
-        return course;
+        return chart;
     }
 
-    void populateLanes()
+    Course* findCourseByName(const std::string& name)
     {
-        laneRed = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
-        laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
-        for (auto* note : redNotes)
-            laneRed.push_back(note);
-        for (auto* note : blueNotes)
-            laneBlue.push_back(note);
-        for (auto* note : yellowNotes)
-            laneRed.push_back(note);
-        for (auto* note : greenNotes)
-            laneBlue.push_back(note);
-        laneRed.resetCompletionStates();
-        laneBlue.resetCompletionStates();
+        for (auto& course : courses)
+        {
+            if (course.name == name)
+            {
+                return &course;
+            }
+        }
+        return nullptr;
     }
 };
 

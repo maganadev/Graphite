@@ -14,7 +14,7 @@ class BlueNote;
 class YellowNote;
 class GreenNote;
 
-struct TJAEvent
+struct Note
 {
     std::string type;
     std::string time_fractional;
@@ -26,7 +26,7 @@ struct TJAEvent
     bool visible;
 };
 
-class TJACourse
+class Course
 {
 public:
     std::string name;
@@ -34,7 +34,7 @@ public:
     std::string bpm;
     std::string offset;
     int64_t offset_picoseconds{0};
-    std::vector<TJAEvent> events;
+    std::vector<Note> notes;
     std::vector<RedNote*> redNotes;
     std::vector<BlueNote*> blueNotes;
     std::vector<YellowNote*> yellowNotes;
@@ -42,9 +42,9 @@ public:
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneRed;
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneBlue;
 
-    static TJACourse FromJson(const nlohmann::json& j)
+    static Course FromJson(const nlohmann::json& j)
     {
-        TJACourse course;
+        Course course;
         course.name = j["name"];
         course.level = j["level"];
         course.bpm = j["bpm"];
@@ -54,16 +54,16 @@ public:
         {
             for (const auto& e : j["events"])
             {
-                TJAEvent ev;
-                ev.type = e["type"];
-                ev.time_fractional = e["time_fractional"];
-                ev.time_picoseconds = e["time_picoseconds"];
-                ev.scroll = e.value("scroll", 1.0);
-                ev.measure = e["measure"];
-                ev.gogo = e.value("gogo", false);
-                ev.big = e.value("big", false);
-                ev.visible = e.value("visible", false);
-                course.events.push_back(ev);
+                Note note;
+                note.type = e["type"];
+                note.time_fractional = e["time_fractional"];
+                note.time_picoseconds = e["time_picoseconds"];
+                note.scroll = e.value("scroll", 1.0);
+                note.measure = e["measure"];
+                note.gogo = e.value("gogo", false);
+                note.big = e.value("big", false);
+                note.visible = e.value("visible", false);
+                course.notes.push_back(note);
             }
         }
         return course;
