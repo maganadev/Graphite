@@ -2,6 +2,7 @@
 
 void RedNote::_bind_methods()
 {
+    //
 }
 
 RedNote::RedNote()
