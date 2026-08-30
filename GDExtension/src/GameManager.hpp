@@ -61,6 +61,8 @@ public:
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
     static Course* currentCourse;
+    static int64_t audioOffset;
+    static int64_t visualOffset;
 
 private:
     bool processFunctionRan = false;

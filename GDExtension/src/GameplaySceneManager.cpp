@@ -65,6 +65,14 @@ void GameplaySceneManager::_ready()
         }
     }
 
+    // TODO: CALCULATE THE NEW OFFSETS
+    int64_t unfilteredVisualOffset = 0;    // Should come from the user settings
+    int64_t unfilteredAudioOffset = 0;     // Should come from the song JSON and also the user settings
+    int64_t unfilteredJudgementOffset = 0; // Should be hardcoded as zero
+    int64_t filteredVisualOffset = 0;      // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredVisualOffset
+    int64_t filteredAudioOffset = 0;       // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredAudioOffset
+    int64_t filteredJudgementOffset = 0;   // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredJudgementOffset
+
     if (!currentCourse)
     {
         UtilityFunctions::print("Course not found: ", GameManager::courseDifficulty.c_str());

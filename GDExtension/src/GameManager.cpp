@@ -22,6 +22,8 @@ uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
 Course* GameManager::currentCourse{nullptr};
+int64_t GameManager::audioOffset{0};
+int64_t GameManager::visualOffset{0};
 
 void GameManager::_bind_methods()
 {
@@ -60,6 +62,15 @@ void GameManager::_ready()
     settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
     settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
     GameManager::audioEngine.emplace(settings);
+
+    SettingsFile offsetSettingsFile("offset_settings.json");
+    offsetSettingsFile.load();
+    offsetSettingsFile.ensureContainsInteger("AudioOffset", 0);
+    offsetSettingsFile.ensureContainsInteger("VisualOffset", 0);
+    offsetSettingsFile.save();
+    GameManager::audioOffset = offsetSettingsFile.jsonObj.value("AudioOffset", 0);
+    GameManager::visualOffset = offsetSettingsFile.jsonObj.value("VisualOffset", 0);
+
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
