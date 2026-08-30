@@ -3,13 +3,16 @@
 
 #include <cstdint>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "../srcThirdParty/json.hpp"
+#include "CompletionList.hpp"
 
 class RedNote;
-
-using json = nlohmann::json;
+class BlueNote;
+class YellowNote;
+class GreenNote;
 
 struct TJAEvent
 {
@@ -32,9 +35,14 @@ public:
     std::string offset;
     int64_t offset_picoseconds{0};
     std::vector<TJAEvent> events;
-    std::vector<RedNote*> spawnedNotes;
+    std::vector<RedNote*> redNotes;
+    std::vector<BlueNote*> blueNotes;
+    std::vector<YellowNote*> yellowNotes;
+    std::vector<GreenNote*> greenNotes;
+    CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneRed;
+    CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneBlue;
 
-    static TJACourse FromJson(const json& j)
+    static TJACourse FromJson(const nlohmann::json& j)
     {
         TJACourse course;
         course.name = j["name"];
@@ -59,6 +67,22 @@ public:
             }
         }
         return course;
+    }
+
+    void populateLanes()
+    {
+        laneRed = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
+        laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
+        for (auto* note : redNotes)
+            laneRed.push_back(note);
+        for (auto* note : blueNotes)
+            laneBlue.push_back(note);
+        for (auto* note : yellowNotes)
+            laneRed.push_back(note);
+        for (auto* note : greenNotes)
+            laneBlue.push_back(note);
+        laneRed.resetCompletionStates();
+        laneBlue.resetCompletionStates();
     }
 };
 

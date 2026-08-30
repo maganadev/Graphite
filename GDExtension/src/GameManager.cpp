@@ -4,6 +4,7 @@
 #include "InputThreadFunctions.hpp"
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
+#include "TJACourse.hpp"
 
 RhythmAudio::RhythmAudioEngine* GameManager::audioEngine{nullptr};
 RhythmInput::RhythmInputEngine* GameManager::inputEngine{nullptr};
@@ -20,6 +21,7 @@ uint64_t GameManager::redKaHitsoundHandle{0};
 uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
+TJACourse* GameManager::currentCourse{nullptr};
 
 void GameManager::_bind_methods()
 {

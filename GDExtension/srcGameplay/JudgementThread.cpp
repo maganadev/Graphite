@@ -1,7 +1,6 @@
 #include "JudgementThread.hpp"
 #include "GameManager.hpp"
 
-CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> JudgementThread::lanes[LANE_COUNT];
 QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
 std::counting_semaphore<1> JudgementThread::semaphore{0};
 std::thread JudgementThread::thread{};
@@ -160,7 +159,13 @@ void JudgementThread::threadBehavior()
                 break;
             }
 
-            auto& lane = lanes[laneIndex];
+            auto* course = GameManager::currentCourse;
+            if (!course)
+            {
+                continue;
+            }
+
+            CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
             NoteGradings outGrading = NoteGradings::Ungraded;
             gradeNoteIfNoteExists(lane, songPositionPs, outGrading);
 

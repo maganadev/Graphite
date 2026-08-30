@@ -28,6 +28,8 @@ namespace GameActionIndices
     constexpr size_t Back = 5;
 } // namespace GameActionIndices
 
+class TJACourse;
+
 class GameManager : public Sprite2D
 {
     GDCLASS(GameManager, Sprite2D)
@@ -57,6 +59,7 @@ public:
     static uint64_t redFukaHitsoundHandle;
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
+    static TJACourse* currentCourse;
 
 private:
     bool processFunctionRan = false;

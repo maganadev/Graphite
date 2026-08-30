@@ -52,7 +52,6 @@ public:
     static std::thread thread;
 
 private:
-    static CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> lanes[LANE_COUNT];
     static std::atomic<bool> requestShutdown;
     static void threadBehavior();
 };

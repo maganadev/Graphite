@@ -1,4 +1,6 @@
 #include "GameplaySceneManager.hpp"
+#include "BlueNote.hpp"
+#include "RedNote.hpp"
 #include "TJACourse.hpp"
 #include "TimingOSSingletons.hpp"
 #include <godot_cpp/classes/scene_tree.hpp>
@@ -88,33 +90,38 @@ void GameplaySceneManager::_ready()
 
     for (const auto& event : m_course.events)
     {
-        Ref<PackedScene> noteScene;
         NoteTypes noteType = noteTypeForEvent(event.type);
+
         if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
         {
-            noteScene = redNoteScene;
+            Node* instance = redNoteScene->instantiate();
+            RedNote* note = Object::cast_to<RedNote>(instance);
+            if (note)
+            {
+                note->setEvent(event);
+                note->set_z_index(3);
+                add_child(note);
+                m_course.redNotes.push_back(note);
+            }
         }
         else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
         {
-            noteScene = blueNoteScene;
-        }
-        else
-        {
-            continue;
-        }
-
-        Node* instance = noteScene->instantiate();
-        RedNote* note = Object::cast_to<RedNote>(instance);
-        if (note)
-        {
-            note->setEvent(event);
-            note->set_z_index(3);
-            add_child(note);
-            m_course.spawnedNotes.push_back(note);
+            Node* instance = blueNoteScene->instantiate();
+            BlueNote* note = Object::cast_to<BlueNote>(instance);
+            if (note)
+            {
+                note->setEvent(event);
+                note->set_z_index(3);
+                add_child(note);
+                m_course.blueNotes.push_back(note);
+            }
         }
     }
 
-    UtilityFunctions::print("Spawned notes for course: ", m_course.name.c_str());
+    m_course.populateLanes();
+    GameManager::currentCourse = &m_course;
+
+    UtilityFunctions::print("Spawned notes for course: ", m_course.name.c_str(), " | Red: ", std::to_string(m_course.redNotes.size()).c_str(), " Blue: ", std::to_string(m_course.blueNotes.size()).c_str());
 
     std::string wavePath = GameManager::songJson.value("wave", "");
     if (wavePath.empty())
@@ -139,6 +146,10 @@ void GameplaySceneManager::_ready()
 
 void GameplaySceneManager::_exit_tree()
 {
+    if (GameManager::currentCourse == &m_course)
+    {
+        GameManager::currentCourse = nullptr;
+    }
     if (audioTrackHandle != 0)
     {
         GameManager::audioEngine->stopAudioTrack(audioTrackHandle);
@@ -162,7 +173,11 @@ void GameplaySceneManager::_process(double delta)
     uint64_t outHandle;
     if (GameManager::audioEngine->getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
-        for (RedNote* note : m_course.spawnedNotes)
+        for (RedNote* note : m_course.redNotes)
+        {
+            note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
+        }
+        for (BlueNote* note : m_course.blueNotes)
         {
             note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
         }
