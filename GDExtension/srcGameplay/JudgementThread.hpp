@@ -39,6 +39,7 @@ public:
 
     static NoteGradings getGradingForOfftime(int64_t timeDelta);
     static void gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading);
+    static void gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs);
 
     // Thread lifecycle
     static void start();
@@ -48,6 +49,7 @@ public:
 
     // Queues
     static QueueSPSC<InputTimingMessage, 1024> messageQueue;
+    static QueueSPSC<uint64_t, 1024> abandonedCheckQueue;
     static std::counting_semaphore<1> semaphore;
     static std::thread thread;
 

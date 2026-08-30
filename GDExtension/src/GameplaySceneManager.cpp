@@ -186,14 +186,19 @@ void GameplaySceneManager::_exit_tree()
 
 void GameplaySceneManager::_process(double delta)
 {
+    // Get time
+    uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
+
+    // Grade abandoned notes
+    JudgementThread::abandonedCheckQueue.try_enqueue(cpuTimePs);
+    JudgementThread::signal();
+
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
         UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
         get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
         return;
     }
-
-    uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
 
     int64_t trackPositionPs;
     uint64_t outHandle;

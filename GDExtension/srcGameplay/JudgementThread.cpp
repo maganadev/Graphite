@@ -2,6 +2,7 @@
 #include "GameManager.hpp"
 
 QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
+QueueSPSC<uint64_t, 1024> JudgementThread::abandonedCheckQueue{};
 std::counting_semaphore<1> JudgementThread::semaphore{0};
 std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
@@ -129,6 +130,31 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*
     }
 }
 
+void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs)
+{
+    lane.pointToFirstUncompleted();
+
+    auto* noteVariant = lane.getNextUncompleted();
+    while (noteVariant != nullptr)
+    {
+        int64_t noteTime = getNoteTime(*noteVariant);
+        int64_t timeDelta = songPositionPs - noteTime;
+        NoteGradings grading = getGradingForOfftime(timeDelta);
+
+        if (grading == NoteGradings::Late_OutOfRange)
+        {
+            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange);
+            lane.markMostRecentAsCompleted();
+        }
+        else
+        {
+            break;
+        }
+
+        noteVariant = lane.getNextUncompleted();
+    }
+}
+
 void JudgementThread::threadBehavior()
 {
     while (requestShutdown.load(std::memory_order_acquire) == false)
@@ -230,6 +256,27 @@ void JudgementThread::threadBehavior()
             {
                 GameManager::audioEngine.value().playAudioTrack(hitsoundHandle);
             }
+        }
+
+        uint64_t abandonedTimestamp = 0;
+        while (abandonedCheckQueue.try_dequeue(abandonedTimestamp))
+        {
+            int64_t songPositionPs = 0;
+            uint64_t outHandle = 0;
+            if (!GameManager::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
+            {
+                continue;
+            }
+            songPositionPs -= judgementOffset.load(std::memory_order_acquire);
+
+            auto* course = GameManager::currentCourse;
+            if (!course)
+            {
+                continue;
+            }
+
+            gradeAllAbandonedNotes(course->laneRed, songPositionPs);
+            gradeAllAbandonedNotes(course->laneBlue, songPositionPs);
         }
     }
 }
