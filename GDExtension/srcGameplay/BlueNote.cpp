@@ -2,6 +2,7 @@
 
 void BlueNote::_bind_methods()
 {
+    //
 }
 
 BlueNote::BlueNote()
