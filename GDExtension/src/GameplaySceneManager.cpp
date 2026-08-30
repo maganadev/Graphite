@@ -65,13 +65,19 @@ void GameplaySceneManager::_ready()
         }
     }
 
-    // TODO: CALCULATE THE NEW OFFSETS
-    int64_t unfilteredVisualOffset = 0;    // Should come from the user settings
-    int64_t unfilteredAudioOffset = 0;     // Should come from the song JSON and also the user settings
-    int64_t unfilteredJudgementOffset = 0; // Should be hardcoded as zero
-    int64_t filteredVisualOffset = 0;      // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredVisualOffset
-    int64_t filteredAudioOffset = 0;       // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredAudioOffset
-    int64_t filteredJudgementOffset = 0;   // Should be be calculated by subtracting unfilteredAudioOffset from unfilteredJudgementOffset
+    int64_t unfilteredVisualOffset = GameManager::visualOffset;
+    int64_t unfilteredAudioOffset = m_course.offset_picoseconds + GameManager::audioOffset;
+    int64_t unfilteredJudgementOffset = 0;
+    int64_t filteredVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
+    int64_t filteredAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
+    int64_t filteredJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
+
+    UtilityFunctions::print("Input Visual Offset: ", std::to_string(unfilteredVisualOffset).c_str(), " ps");
+    UtilityFunctions::print("Input Audio Offset: ", std::to_string(unfilteredAudioOffset).c_str(), " ps");
+    UtilityFunctions::print("Input Judgement Offset: ", std::to_string(unfilteredJudgementOffset).c_str(), " ps");
+    UtilityFunctions::print("Output Visual Offset: ", std::to_string(filteredVisualOffset).c_str(), " ps");
+    UtilityFunctions::print("Output Audio Offset: ", std::to_string(filteredAudioOffset).c_str(), " ps");
+    UtilityFunctions::print("Output Judgement Offset: ", std::to_string(filteredJudgementOffset).c_str(), " ps");
 
     if (!currentCourse)
     {
@@ -80,8 +86,6 @@ void GameplaySceneManager::_ready()
     }
 
     m_course = *currentCourse;
-    visualOffsetPicoseconds = m_course.offset_picoseconds;
-    UtilityFunctions::print("Visual offset: ", std::to_string(visualOffsetPicoseconds).c_str(), " ps");
 
     // Spawn notes for each note event in the course
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
