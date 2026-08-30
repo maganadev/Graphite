@@ -145,7 +145,7 @@ void JudgementThread::threadBehavior()
             {
                 continue;
             }
-            songPositionPs += judgementOffset.load(std::memory_order_acquire);
+            songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
             // Determine which lane this button press maps to
             size_t laneIndex = 0;
