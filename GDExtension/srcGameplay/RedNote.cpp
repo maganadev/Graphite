@@ -60,7 +60,7 @@ void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffs
 
 void RedNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const
 {
-    const int64_t effectiveNoteTimePs = m_note.time_picoseconds - visualOffsetPicoseconds;
+    const int64_t effectiveNoteTimePs = m_note.time_picoseconds + visualOffsetPicoseconds;
     const int64_t timeUntilNote = effectiveNoteTimePs - songPositionPicoseconds;
     outX = HITZONE_CENTER_X + SCROLL_SPEED * (static_cast<double>(timeUntilNote) / 1.0e12);
     outY = LANE_Y;

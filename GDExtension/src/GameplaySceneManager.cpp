@@ -65,6 +65,14 @@ void GameplaySceneManager::_ready()
         }
     }
 
+    if (!currentCourse)
+    {
+        UtilityFunctions::print("Course not found: ", GameManager::courseDifficulty.c_str());
+        return;
+    }
+
+    m_course = *currentCourse;
+
     int64_t unfilteredVisualOffset = GameManager::visualOffset;
     int64_t unfilteredAudioOffset = m_course.offset_picoseconds + GameManager::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
@@ -80,13 +88,6 @@ void GameplaySceneManager::_ready()
     UtilityFunctions::print("Output Audio Offset: ", std::to_string(filteredAudioOffset).c_str(), " ps");
     UtilityFunctions::print("Output Judgement Offset: ", std::to_string(filteredJudgementOffset).c_str(), " ps");
 
-    if (!currentCourse)
-    {
-        UtilityFunctions::print("Course not found: ", GameManager::courseDifficulty.c_str());
-        return;
-    }
-
-    m_course = *currentCourse;
     visualOffsetPicoseconds = filteredVisualOffset;
 
     // Spawn notes for each note event in the course
