@@ -51,6 +51,8 @@ public:
     static std::counting_semaphore<1> semaphore;
     static std::thread thread;
 
+    static std::atomic<int64_t> judgementOffset;
+
 private:
     static std::atomic<bool> requestShutdown;
     static void threadBehavior();

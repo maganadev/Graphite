@@ -71,6 +71,7 @@ void GameplaySceneManager::_ready()
     int64_t filteredVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
     int64_t filteredAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
     int64_t filteredJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
+    JudgementThread::judgementOffset.store(filteredJudgementOffset, std::memory_order_release);
 
     UtilityFunctions::print("Input Visual Offset: ", std::to_string(unfilteredVisualOffset).c_str(), " ps");
     UtilityFunctions::print("Input Audio Offset: ", std::to_string(unfilteredAudioOffset).c_str(), " ps");
@@ -86,6 +87,7 @@ void GameplaySceneManager::_ready()
     }
 
     m_course = *currentCourse;
+    visualOffsetPicoseconds = filteredVisualOffset;
 
     // Spawn notes for each note event in the course
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");

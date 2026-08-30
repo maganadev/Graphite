@@ -5,6 +5,7 @@ QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
 std::counting_semaphore<1> JudgementThread::semaphore{0};
 std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
+std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
 int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
 {
@@ -144,6 +145,7 @@ void JudgementThread::threadBehavior()
             {
                 continue;
             }
+            songPositionPs += judgementOffset.load(std::memory_order_acquire);
 
             // Determine which lane this button press maps to
             size_t laneIndex = 0;
