@@ -1,5 +1,6 @@
 #include "GameplaySceneManager.hpp"
 #include "BlueNote.hpp"
+#include "BlueNotePrefab.hpp"
 #include "Course.hpp"
 #include "RedNote.hpp"
 #include "RedNotePrefab.hpp"
@@ -110,12 +111,14 @@ void GameplaySceneManager::_ready()
         else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
         {
             Node* instance = blueNoteScene->instantiate();
-            BlueNote* note = Object::cast_to<BlueNote>(instance);
-            if (note)
+            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
+            if (prefab)
             {
+                BlueNote* note = new BlueNote();
                 note->setNote(noteEvent);
-                note->set_z_index(3);
-                add_child(note);
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
                 m_course.blueNotes.push_back(note);
             }
         }
@@ -191,15 +194,30 @@ void GameplaySceneManager::_process(double delta)
         }
     }
 
-    // // Process judged notes from the judgment thread
-    // for (size_t i = 0; i < m_course.spawnedNotes.size(); i++)
-    // {
-    //     RedNote* note = m_course.spawnedNotes[i];
-    //     if (!note->isJudged() && i < JudgementThread::noteTargetCount() && JudgementThread::getNoteTarget(i).judged)
-    //     {
-    //         note->setJudged(JudgementThread::getNoteTarget(i).grading);
-    //     }
-    // }
+    for (RedNote* note : m_course.redNotes)
+    {
+        if (note->isJudged())
+        {
+            RedNotePrefab* prefab = note->getPrefab();
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->setPrefab(nullptr);
+            }
+        }
+    }
+    for (BlueNote* note : m_course.blueNotes)
+    {
+        if (note->isJudged())
+        {
+            BlueNotePrefab* prefab = note->getPrefab();
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->setPrefab(nullptr);
+            }
+        }
+    }
 }
 
 void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)
