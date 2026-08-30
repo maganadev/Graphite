@@ -1,7 +1,6 @@
 #ifndef RedNotePrefab_hpp
 #define RedNotePrefab_hpp
 
-#include "RedNote.hpp"
 #include <cstdint>
 #include <godot_cpp/classes/sprite2d.hpp>
 
@@ -18,6 +17,8 @@ public:
     static constexpr double SCROLL_SPEED = 1600.0;
     static constexpr double LANE_Y = 386.0;
     static constexpr double HITZONE_CENTER_X = 618.0;
+
+    int64_t noteTimePicoseconds = 0;
 
     RedNotePrefab();
     ~RedNotePrefab();

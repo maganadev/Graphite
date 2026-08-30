@@ -40,7 +40,8 @@ void RedNotePrefab::updatePosition(int64_t offsetAdjustedTimePs)
 
 void RedNotePrefab::getRenderPosition(int64_t offsetAdjustedTimePs, double& outX, double& outY) const
 {
-    const int64_t timeUntilNote = m_note.getNote().time_picoseconds - offsetAdjustedTimePs;
+    const int64_t timeUntilNote = noteTimePicoseconds - offsetAdjustedTimePs;
     outX = HITZONE_CENTER_X + SCROLL_SPEED * (static_cast<double>(timeUntilNote) / 1.0e12);
     outY = LANE_Y;
 }
+
