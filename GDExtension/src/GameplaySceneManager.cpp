@@ -152,7 +152,7 @@ void GameplaySceneManager::_ready()
     }
 
     // Load the wave file
-    if (!GameManager::audioEngine.value().createAudioTrackBlocking(wavePath, -24, audioTrackHandle))
+    if (!GameManager::audioEngine.value().createAudioTrackBlocking(wavePath, -36, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
         return;

@@ -60,6 +60,7 @@ public:
     static uint64_t redFukaHitsoundHandle;
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
+    static uint64_t sineWaveHitsoundHandle;
     static Course* currentCourse;
     static int64_t audioOffset;
     static int64_t visualOffset;

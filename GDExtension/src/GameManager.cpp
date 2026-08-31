@@ -21,6 +21,7 @@ uint64_t GameManager::redKaHitsoundHandle{0};
 uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
+uint64_t GameManager::sineWaveHitsoundHandle{0};
 Course* GameManager::currentCourse{nullptr};
 int64_t GameManager::audioOffset{0};
 int64_t GameManager::visualOffset{0};
@@ -84,6 +85,7 @@ void GameManager::_ready()
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
     GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrackBlocking("GameplaySineWave.ogg", -6, GameManager::sineWaveHitsoundHandle);
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
