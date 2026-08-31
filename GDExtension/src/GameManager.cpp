@@ -1,10 +1,10 @@
 #include "GameManager.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include "Course.hpp"
 #include "InputThreadFunctions.hpp"
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
-#include "Course.hpp"
 
 std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine{std::nullopt};
 std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine{std::nullopt};
@@ -39,6 +39,7 @@ GameManager::~GameManager()
 
 void GameManager::_ready()
 {
+    // Load and save RhythmAudioSettings
     RhythmAudio::RhythmAudioSettings settings{};
     SettingsFile audioSettingsFile("audio_settings.json");
     audioSettingsFile.load();
@@ -50,6 +51,8 @@ void GameManager::_ready()
     audioSettingsFile.ensureContainsInteger("ASIO_leftChannel", 0);
     audioSettingsFile.ensureContainsInteger("ASIO_rightChannel", 1);
     audioSettingsFile.save();
+
+    // Populate C++ RhythmAudioSettings from JSON
     std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
     if (backendMode == "ASIO")
     {
@@ -183,6 +186,8 @@ void GameManager::initializeInputEngine()
 
     SettingsFile inputSettingsFile("input_settings.json");
     inputSettingsFile.load();
+    inputSettingsFile.ensureContainsInteger("uncappedPolling", 0);
+    inputSettingsFile.save();
 
     if (!inputSettingsFile.jsonObj.contains("bindings"))
     {
@@ -206,5 +211,7 @@ void GameManager::initializeInputEngine()
         gameBindings.push_back(binding);
     }
 
-    GameManager::inputEngine.emplace(gameActions, gameBindings);
+    RhythmInput::RhythmInputSettings inputSettings{};
+    inputSettings.uncappedPolling = inputSettingsFile.jsonObj.value("uncappedPolling", 0) != 0;
+    GameManager::inputEngine.emplace(gameActions, gameBindings, inputSettings);
 }
