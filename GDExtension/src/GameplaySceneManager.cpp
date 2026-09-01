@@ -56,12 +56,21 @@ void GameplaySceneManager::_ready()
 
     Chart chart = Chart::FromJson(songJson);
 
-    Course* targetCourse = chart.findCourseByName(courseDifficulty);
-    if (!targetCourse)
+    int32_t courseIndex = -1;
+    for (int32_t i = 0; i < static_cast<int32_t>(chart.courses.size()); ++i)
+    {
+        if (chart.courses[i].name == courseDifficulty)
+        {
+            courseIndex = i;
+            break;
+        }
+    }
+    if (courseIndex < 0)
     {
         UtilityFunctions::print("Course not found: ", courseDifficulty.c_str());
         return;
     }
+    Course* targetCourse = &chart.courses[courseIndex];
 
     int64_t unfilteredVisualOffset = GameManager::visualOffset;
     int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GameManager::audioOffset;
@@ -96,17 +105,18 @@ void GameplaySceneManager::_ready()
     }
 
     chart.activeCourse = courseDifficulty;
+    chart.activeCourseIndex = courseIndex;
 
     // Build the course under write guard so judgment thread can't read it before it's ready
     {
         LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
         *guard.objRef = std::move(chart);
-        Course* courseInChart = guard.objRef->findCourseByName(courseDifficulty);
-        if (!courseInChart)
+        if (guard.objRef->activeCourseIndex < 0)
         {
             UtilityFunctions::print("Failed to find course in chart after move");
             return;
         }
+        Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
 
         for (const auto& noteEvent : courseInChart->notes)
         {
@@ -197,9 +207,9 @@ void GameplaySceneManager::_exit_tree()
 
     {
         LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
-        Course* courseInChart = guard.objRef->findCourseByName(guard.objRef->activeCourse);
-        if (courseInChart)
+        if (guard.objRef->activeCourseIndex >= 0)
         {
+            Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
             redNotesToDelete = std::move(courseInChart->redNotes);
             blueNotesToDelete = std::move(courseInChart->blueNotes);
             courseInChart->redNotes.clear();
@@ -208,6 +218,7 @@ void GameplaySceneManager::_exit_tree()
             courseInChart->laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
         }
         guard.objRef->activeCourse.clear();
+        guard.objRef->activeCourseIndex = -1;
     }
 
     for (RedNote* note : redNotesToDelete)
@@ -242,11 +253,12 @@ void GameplaySceneManager::_process(double delta)
         return;
     }
 
-    Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
-    if (!course)
+    if (chartGuard.objRef->activeCourseIndex < 0)
     {
         return;
     }
+
+    Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
     int64_t trackPositionPs;
     uint64_t outHandle;

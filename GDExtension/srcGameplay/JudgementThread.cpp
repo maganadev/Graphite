@@ -193,11 +193,12 @@ void JudgementThread::threadBehavior()
                 break;
             }
 
-            Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
-            if (!course)
+            if (chartGuard.objRef->activeCourseIndex < 0)
             {
                 continue;
             }
+
+            Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
             CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
             NoteGradings outGrading = NoteGradings::Ungraded;
@@ -264,6 +265,7 @@ void JudgementThread::threadBehavior()
             }
         }
 
+        uint64_t abandonedTimestamp = 0;
         while (abandonedCheckQueue.try_dequeue(abandonedTimestamp))
         {
             LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
@@ -272,7 +274,6 @@ void JudgementThread::threadBehavior()
                 continue;
             }
 
-            uint64_t abandonedTimestamp = 0;
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
             if (!GameManager::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
@@ -281,11 +282,12 @@ void JudgementThread::threadBehavior()
             }
             songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
-            Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
-            if (!course)
+            if (chartGuard.objRef->activeCourseIndex < 0)
             {
                 continue;
             }
+
+            Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
             gradeAllAbandonedNotes(course->laneRed, songPositionPs);
             gradeAllAbandonedNotes(course->laneBlue, songPositionPs);
