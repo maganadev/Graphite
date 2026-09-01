@@ -8,9 +8,6 @@
 
 std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine{std::nullopt};
 std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine{std::nullopt};
-std::string GameManager::songName;
-std::string GameManager::courseDifficulty;
-json GameManager::songJson;
 uint64_t GameManager::blueRyouHitsoundHandle{0};
 uint64_t GameManager::blueKaHitsoundHandle{0};
 uint64_t GameManager::blueFukaHitsoundHandle{0};
@@ -22,7 +19,7 @@ uint64_t GameManager::redFukaHitsoundHandle{0};
 uint64_t GameManager::redChouHitsoundHandle{0};
 uint64_t GameManager::redAdLibHitsoundHandle{0};
 uint64_t GameManager::sineWaveHitsoundHandle{0};
-Course* GameManager::currentCourse{nullptr};
+LFProtectObj<Chart> GameManager::currentChart{};
 int64_t GameManager::audioOffset{0};
 int64_t GameManager::visualOffset{0};
 

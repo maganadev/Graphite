@@ -5,6 +5,7 @@
 #include "RedNote.hpp"
 #include "RedNotePrefab.hpp"
 #include "TimingOSSingletons.hpp"
+#include <fstream>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -41,40 +42,29 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
 
 void GameplaySceneManager::_ready()
 {
-    // Set the song name
-    // Set the course
-    GameManager::songName = "Song.json";
-    GameManager::courseDifficulty = "Oni";
+    std::string songFileName = "Song.json";
+    std::string courseDifficulty = "Oni";
 
     // Open the song
-    std::ifstream ifs(GameManager::songName);
+    std::ifstream ifs(songFileName);
     if (!ifs.is_open())
     {
-        UtilityFunctions::print("Failed to open song file: ", GameManager::songName.c_str());
+        UtilityFunctions::print("Failed to open song file: ", songFileName.c_str());
         return;
     }
-    GameManager::songJson = json::parse(ifs);
-    std::vector<Course> courses;
-    Course* currentCourse = nullptr;
-    for (const auto& c : GameManager::songJson["courses"])
-    {
-        auto& course = courses.emplace_back(Course::FromJson(c));
-        if (course.name == GameManager::courseDifficulty)
-        {
-            currentCourse = &course;
-        }
-    }
+    json songJson = json::parse(ifs);
 
-    if (!currentCourse)
+    Chart chart = Chart::FromJson(songJson);
+
+    Course* targetCourse = chart.findCourseByName(courseDifficulty);
+    if (!targetCourse)
     {
-        UtilityFunctions::print("Course not found: ", GameManager::courseDifficulty.c_str());
+        UtilityFunctions::print("Course not found: ", courseDifficulty.c_str());
         return;
     }
-
-    m_course = *currentCourse;
 
     int64_t unfilteredVisualOffset = GameManager::visualOffset;
-    int64_t unfilteredAudioOffset = m_course.offset_picoseconds + GameManager::audioOffset;
+    int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GameManager::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
     int64_t filteredVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
     int64_t filteredAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
@@ -105,46 +95,68 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    for (const auto& noteEvent : m_course.notes)
-    {
-        NoteTypes noteType = noteTypeForEvent(noteEvent.type);
+    chart.activeCourse = courseDifficulty;
 
-        if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
+    // Build the course under write guard so judgment thread can't read it before it's ready
+    {
+        LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
+        *guard.objRef = std::move(chart);
+        Course* courseInChart = guard.objRef->findCourseByName(courseDifficulty);
+        if (!courseInChart)
         {
-            Node* instance = redNoteScene->instantiate();
-            RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
-            if (prefab)
+            UtilityFunctions::print("Failed to find course in chart after move");
+            return;
+        }
+
+        for (const auto& noteEvent : courseInChart->notes)
+        {
+            NoteTypes noteType = noteTypeForEvent(noteEvent.type);
+
+            if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
             {
-                RedNote* note = new RedNote();
-                note->setNote(noteEvent);
-                note->setPrefab(prefab);
-                prefab->set_z_index(3);
-                add_child(prefab);
-                m_course.redNotes.push_back(note);
+                Node* instance = redNoteScene->instantiate();
+                RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
+                if (prefab)
+                {
+                    RedNote* note = new RedNote();
+                    note->setNote(noteEvent);
+                    note->setPrefab(prefab);
+                    prefab->set_z_index(3);
+                    add_child(prefab);
+                    courseInChart->redNotes.push_back(note);
+                }
+            }
+            else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
+            {
+                Node* instance = blueNoteScene->instantiate();
+                BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
+                if (prefab)
+                {
+                    BlueNote* note = new BlueNote();
+                    note->setNote(noteEvent);
+                    note->setPrefab(prefab);
+                    prefab->set_z_index(3);
+                    add_child(prefab);
+                    courseInChart->blueNotes.push_back(note);
+                }
             }
         }
-        else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
+
+        courseInChart->populateLanes();
+    }
+
+    UtilityFunctions::print("Spawned notes for course: ", courseDifficulty.c_str());
+
+    // Read wave path from the chart via read guard
+    std::string wavePath;
+    {
+        LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+        if (chartGuard.objRef)
         {
-            Node* instance = blueNoteScene->instantiate();
-            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
-            if (prefab)
-            {
-                BlueNote* note = new BlueNote();
-                note->setNote(noteEvent);
-                note->setPrefab(prefab);
-                prefab->set_z_index(3);
-                add_child(prefab);
-                m_course.blueNotes.push_back(note);
-            }
+            wavePath = chartGuard.objRef->wave;
         }
     }
 
-    m_course.populateLanes();
-    GameManager::currentCourse = &m_course;
-
-    UtilityFunctions::print("Spawned notes for course: ", m_course.name.c_str(), " | Red: ", std::to_string(m_course.redNotes.size()).c_str(), " Blue: ", std::to_string(m_course.blueNotes.size()).c_str());
-
-    std::string wavePath = GameManager::songJson.value("wave", "");
     if (wavePath.empty())
     {
         UtilityFunctions::print("No wave file specified in song JSON");
@@ -162,25 +174,49 @@ void GameplaySceneManager::_ready()
     GameManager::audioEngine.value().playAudioTrack(audioTrackHandle);
     GameManager::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
 
-    UtilityFunctions::print("Loaded song: ", GameManager::songJson.value("title", "unknown").c_str(), " | Course: ", m_course.name.c_str(), " | Level: ", std::to_string(m_course.level).c_str(), " | Events: ", std::to_string(m_course.notes.size()).c_str(), " | Wave: ", wavePath.c_str());
+    {
+        LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+        if (chartGuard.objRef)
+        {
+            UtilityFunctions::print("Loaded song: ", chartGuard.objRef->title.c_str(), " | Course: ", chartGuard.objRef->activeCourse.c_str(), " | Wave: ", wavePath.c_str());
+        }
+    }
 }
 
 void GameplaySceneManager::_exit_tree()
 {
-    if (GameManager::currentCourse == &m_course)
-    {
-        GameManager::currentCourse = nullptr;
-    }
-    for (RedNote* note : m_course.redNotes)
-    {
-        delete note;
-    }
-    m_course.redNotes.clear();
     if (audioTrackHandle != 0)
     {
         GameManager::audioEngine.value().stopAudioTrack(audioTrackHandle);
         GameManager::audioEngine.value().freeAudioTrackBlocking(audioTrackHandle);
         audioTrackHandle = 0;
+    }
+
+    std::vector<RedNote*> redNotesToDelete;
+    std::vector<BlueNote*> blueNotesToDelete;
+
+    {
+        LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
+        Course* courseInChart = guard.objRef->findCourseByName(guard.objRef->activeCourse);
+        if (courseInChart)
+        {
+            redNotesToDelete = std::move(courseInChart->redNotes);
+            blueNotesToDelete = std::move(courseInChart->blueNotes);
+            courseInChart->redNotes.clear();
+            courseInChart->blueNotes.clear();
+            courseInChart->laneRed = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
+            courseInChart->laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
+        }
+        guard.objRef->activeCourse.clear();
+    }
+
+    for (RedNote* note : redNotesToDelete)
+    {
+        delete note;
+    }
+    for (BlueNote* note : blueNotesToDelete)
+    {
+        delete note;
     }
 }
 
@@ -200,21 +236,33 @@ void GameplaySceneManager::_process(double delta)
         return;
     }
 
+    LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+    if (!chartGuard.objRef)
+    {
+        return;
+    }
+
+    Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
+    if (!course)
+    {
+        return;
+    }
+
     int64_t trackPositionPs;
     uint64_t outHandle;
     if (GameManager::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
-        for (RedNote* note : m_course.redNotes)
+        for (RedNote* note : course->redNotes)
         {
             note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
         }
-        for (BlueNote* note : m_course.blueNotes)
+        for (BlueNote* note : course->blueNotes)
         {
             note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
         }
     }
 
-    for (RedNote* note : m_course.redNotes)
+    for (RedNote* note : course->redNotes)
     {
         if (note->isJudged())
         {
@@ -226,7 +274,7 @@ void GameplaySceneManager::_process(double delta)
             }
         }
     }
-    for (BlueNote* note : m_course.blueNotes)
+    for (BlueNote* note : course->blueNotes)
     {
         if (note->isJudged())
         {

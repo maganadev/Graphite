@@ -19,6 +19,7 @@ public:
     std::string defaultOffset;
     int64_t defaultOffsetPicoseconds{0};
     std::vector<Course> courses;
+    std::string activeCourse;
 
     static Chart FromJson(const nlohmann::json& j)
     {
@@ -39,13 +40,13 @@ public:
         return chart;
     }
 
-    Course* findCourseByName(const std::string& name)
+    Course* findCourseByName(const std::string& name) const
     {
         for (auto& course : courses)
         {
             if (course.name == name)
             {
-                return &course;
+                return const_cast<Course*>(&course);
             }
         }
         return nullptr;

@@ -1,8 +1,10 @@
 #ifndef GameManager_hpp
 #define GameManager_hpp
 
+#include "../../RhythmAudio/RhythmAudio/LFProtectObj.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include "../srcGameplay/Chart.hpp"
 #include "../srcThirdParty/json.hpp"
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
@@ -29,8 +31,6 @@ namespace GameActionIndices
     constexpr size_t Back = 5;
 } // namespace GameActionIndices
 
-class Course;
-
 class GameManager : public Sprite2D
 {
     GDCLASS(GameManager, Sprite2D)
@@ -47,9 +47,6 @@ public:
 
     static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
     static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
-    static std::string songName;
-    static std::string courseDifficulty;
-    static json songJson;
     static uint64_t blueRyouHitsoundHandle;
     static uint64_t blueKaHitsoundHandle;
     static uint64_t blueFukaHitsoundHandle;
@@ -61,7 +58,7 @@ public:
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
     static uint64_t sineWaveHitsoundHandle;
-    static Course* currentCourse;
+    static LFProtectObj<Chart> currentChart;
     static int64_t audioOffset;
     static int64_t visualOffset;
 

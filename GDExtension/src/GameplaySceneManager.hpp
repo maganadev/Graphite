@@ -38,7 +38,6 @@ public:
     Ref<PackedScene> get_blue_note_scene() const;
 
 private:
-    Course m_course;
     uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;

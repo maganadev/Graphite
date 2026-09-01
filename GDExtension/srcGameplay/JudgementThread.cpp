@@ -187,7 +187,12 @@ void JudgementThread::threadBehavior()
                 break;
             }
 
-            auto* course = GameManager::currentCourse;
+            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+            if (!chartGuard.objRef)
+            {
+                continue;
+            }
+            Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
             if (!course)
             {
                 continue;
@@ -269,7 +274,12 @@ void JudgementThread::threadBehavior()
             }
             songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
-            auto* course = GameManager::currentCourse;
+            LFProtectObjReadGuard<Chart> abandonedChartGuard(GameManager::currentChart);
+            if (!abandonedChartGuard.objRef)
+            {
+                continue;
+            }
+            Course* course = abandonedChartGuard.objRef->findCourseByName(abandonedChartGuard.objRef->activeCourse);
             if (!course)
             {
                 continue;
