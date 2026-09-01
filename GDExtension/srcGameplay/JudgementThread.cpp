@@ -170,13 +170,21 @@ void JudgementThread::threadBehavior()
                 continue;
             }
 
-            // Convert CPU picosecond timestamp to song position
+            // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
             if (!GameManager::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
             {
                 continue;
             }
+
+            // Bail if failed
+            if (outHandle == 0)
+            {
+                continue;
+            }
+
+            // Apply the judgement offset
             songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
             // Determine which lane this button press maps to
@@ -274,12 +282,21 @@ void JudgementThread::threadBehavior()
                 continue;
             }
 
+            // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
             if (!GameManager::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
             {
                 continue;
             }
+
+            // Bail if failed
+            if (outHandle == 0)
+            {
+                continue;
+            }
+
+            // Apply the judgement offset
             songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
             if (chartGuard.objRef->activeCourseIndex < 0)
