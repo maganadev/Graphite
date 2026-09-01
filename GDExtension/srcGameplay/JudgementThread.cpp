@@ -164,6 +164,12 @@ void JudgementThread::threadBehavior()
         InputTimingMessage msg{};
         while (messageQueue.try_dequeue(msg))
         {
+            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+            if (!chartGuard.objRef)
+            {
+                continue;
+            }
+
             // Convert CPU picosecond timestamp to song position
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
@@ -187,11 +193,6 @@ void JudgementThread::threadBehavior()
                 break;
             }
 
-            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
-            if (!chartGuard.objRef)
-            {
-                continue;
-            }
             Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
             if (!course)
             {
@@ -263,9 +264,15 @@ void JudgementThread::threadBehavior()
             }
         }
 
-        uint64_t abandonedTimestamp = 0;
         while (abandonedCheckQueue.try_dequeue(abandonedTimestamp))
         {
+            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+            if (!chartGuard.objRef)
+            {
+                continue;
+            }
+
+            uint64_t abandonedTimestamp = 0;
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
             if (!GameManager::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
@@ -274,12 +281,7 @@ void JudgementThread::threadBehavior()
             }
             songPositionPs -= judgementOffset.load(std::memory_order_acquire);
 
-            LFProtectObjReadGuard<Chart> abandonedChartGuard(GameManager::currentChart);
-            if (!abandonedChartGuard.objRef)
-            {
-                continue;
-            }
-            Course* course = abandonedChartGuard.objRef->findCourseByName(abandonedChartGuard.objRef->activeCourse);
+            Course* course = chartGuard.objRef->findCourseByName(chartGuard.objRef->activeCourse);
             if (!course)
             {
                 continue;
