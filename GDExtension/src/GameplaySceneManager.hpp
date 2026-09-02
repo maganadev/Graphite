@@ -42,6 +42,7 @@ private:
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
     int64_t visualOffsetPicoseconds{0};
+    bool resultsScreenTriggered{false};
     NoteTypes noteTypeForEvent(const std::string& type) const;
 };
 

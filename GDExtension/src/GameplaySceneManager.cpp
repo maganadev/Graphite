@@ -217,8 +217,6 @@ void GameplaySceneManager::_exit_tree()
             courseInChart->laneRed = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
             courseInChart->laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
         }
-        guard.objRef->activeCourse.clear();
-        guard.objRef->activeCourseIndex = -1;
     }
 
     for (RedNote* note : redNotesToDelete)
@@ -242,8 +240,8 @@ void GameplaySceneManager::_process(double delta)
 
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
-        UtilityFunctions::print("Back action detected, loading DebugLauncherScene");
-        get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
+        UtilityFunctions::print("Back action detected, loading ResultsScreen");
+        get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
         return;
     }
 
@@ -296,6 +294,28 @@ void GameplaySceneManager::_process(double delta)
                 prefab->queue_free();
                 note->setPrefab(nullptr);
             }
+        }
+    }
+
+    if (!resultsScreenTriggered)
+    {
+        bool allJudged = true;
+        for (RedNote* note : course->redNotes)
+        {
+            if (!note->isJudged()) { allJudged = false; break; }
+        }
+        if (allJudged)
+        {
+            for (BlueNote* note : course->blueNotes)
+            {
+                if (!note->isJudged()) { allJudged = false; break; }
+            }
+        }
+        if (allJudged)
+        {
+            resultsScreenTriggered = true;
+            UtilityFunctions::print("All notes judged, switching to ResultsScreen");
+            get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
         }
     }
 }

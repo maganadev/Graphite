@@ -36,15 +36,21 @@ bool YellowNote::isJudged() const
     return m_judged.load(std::memory_order_acquire);
 }
 
-void YellowNote::setJudged(NoteGradings grading)
+void YellowNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
 {
     m_grading = grading;
+    m_picosecondsOff = picosecondsOff;
     m_judged.store(true, std::memory_order_release);
 }
 
 NoteGradings YellowNote::getGrading() const
 {
     return m_grading;
+}
+
+int64_t YellowNote::getPicosecondsOff() const
+{
+    return m_picosecondsOff;
 }
 
 void YellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)

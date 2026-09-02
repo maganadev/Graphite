@@ -26,8 +26,9 @@ public:
     GreenNotePrefab* getPrefab() const;
 
     bool isJudged() const;
-    void setJudged(NoteGradings grading);
+    void setJudged(NoteGradings grading, int64_t picosecondsOff);
     NoteGradings getGrading() const;
+    int64_t getPicosecondsOff() const;
 
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
@@ -36,6 +37,7 @@ private:
     Note m_note;
     std::atomic<bool> m_judged{false};
     NoteGradings m_grading{NoteGradings::Ungraded};
+    int64_t m_picosecondsOff{0};
     GreenNotePrefab* m_prefab{nullptr};
 };
 

@@ -21,26 +21,26 @@ int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNo
     return 0;
 }
 
-void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant, NoteGradings grading)
+void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant, NoteGradings grading, int64_t picosecondsOff)
 {
     if (auto* note = std::get_if<RedNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading);
+        (*note)->setJudged(grading, picosecondsOff);
         return;
     }
     if (auto* note = std::get_if<BlueNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading);
+        (*note)->setJudged(grading, picosecondsOff);
         return;
     }
     if (auto* note = std::get_if<YellowNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading);
+        (*note)->setJudged(grading, picosecondsOff);
         return;
     }
     if (auto* note = std::get_if<GreenNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading);
+        (*note)->setJudged(grading, picosecondsOff);
         return;
     }
 }
@@ -120,7 +120,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
-            setNoteJudged(*noteVariant, grading);
+            setNoteJudged(*noteVariant, grading, timeDelta);
             lane.markMostRecentAsCompleted();
             outGrading = grading;
             return;
@@ -143,7 +143,7 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange);
+            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange, timeDelta);
             lane.markMostRecentAsCompleted();
         }
         else

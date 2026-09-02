@@ -36,15 +36,21 @@ bool GreenNote::isJudged() const
     return m_judged.load(std::memory_order_acquire);
 }
 
-void GreenNote::setJudged(NoteGradings grading)
+void GreenNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
 {
     m_grading = grading;
+    m_picosecondsOff = picosecondsOff;
     m_judged.store(true, std::memory_order_release);
 }
 
 NoteGradings GreenNote::getGrading() const
 {
     return m_grading;
+}
+
+int64_t GreenNote::getPicosecondsOff() const
+{
+    return m_picosecondsOff;
 }
 
 void GreenNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)

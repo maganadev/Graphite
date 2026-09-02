@@ -15,7 +15,7 @@ offset_bottom = 176.0
 theme_override_font_sizes/font_size = 40
 text = "Results:"
 
-[node name="DebugLauncherSceneManager" type="DebugLauncherSceneManager" parent="."]
+[node name="ResultsScreenSceneManager" type="ResultsScreenSceneManager" parent="."]
 
 [node name="Chou" type="Label" parent="."]
 offset_left = 45.0
@@ -82,7 +82,7 @@ theme_override_font_sizes/font_size = 40
 text = "0"
 
 [node name="Colorbars" type="Node2D" parent="."]
-position = Vector2(984, 649)
+position = Vector2(1019, 663)
 
 [node name="ColorRect2" type="ColorRect" parent="Colorbars"]
 offset_right = 20.0
@@ -344,11 +344,5 @@ color = Color(0.88, 0.7, 0, 1)
 [node name="ColorRect45" type="ColorRect" parent="Colorbars"]
 offset_left = 860.0
 offset_right = 880.0
-offset_bottom = 400.0
-color = Color(0.88, 0.7, 0, 1)
-
-[node name="ColorRect46" type="ColorRect" parent="Colorbars"]
-offset_left = 880.0
-offset_right = 900.0
 offset_bottom = 400.0
 color = Color(0.88, 0.7, 0, 1)

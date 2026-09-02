@@ -36,15 +36,21 @@ bool BlueNote::isJudged() const
     return m_judged.load(std::memory_order_acquire);
 }
 
-void BlueNote::setJudged(NoteGradings grading)
+void BlueNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
 {
     m_grading = grading;
+    m_picosecondsOff = picosecondsOff;
     m_judged.store(true, std::memory_order_release);
 }
 
 NoteGradings BlueNote::getGrading() const
 {
     return m_grading;
+}
+
+int64_t BlueNote::getPicosecondsOff() const
+{
+    return m_picosecondsOff;
 }
 
 void BlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)

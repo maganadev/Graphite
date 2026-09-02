@@ -36,15 +36,21 @@ bool RedNote::isJudged() const
     return m_judged.load(std::memory_order_acquire);
 }
 
-void RedNote::setJudged(NoteGradings grading)
+void RedNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
 {
     m_grading = grading;
+    m_picosecondsOff = picosecondsOff;
     m_judged.store(true, std::memory_order_release);
 }
 
 NoteGradings RedNote::getGrading() const
 {
     return m_grading;
+}
+
+int64_t RedNote::getPicosecondsOff() const
+{
+    return m_picosecondsOff;
 }
 
 void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
