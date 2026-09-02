@@ -2,6 +2,7 @@
 #define DO_NOT_REORDER_ABOVE
 #include "RegisterTypes.hpp"
 #include "DebugLauncherSceneManager.hpp"
+#include "ResultsScreenSceneManager.hpp"
 #include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
 #include "RedNotePrefab.hpp"
@@ -23,6 +24,7 @@ void initialize_module(ModuleInitializationLevel p_level)
     GDREGISTER_RUNTIME_CLASS(DebugLauncherSceneManager);
     GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
+    GDREGISTER_RUNTIME_CLASS(ResultsScreenSceneManager);
     GDREGISTER_RUNTIME_CLASS(RedNotePrefab);
     GDREGISTER_RUNTIME_CLASS(BlueNotePrefab);
     GDREGISTER_RUNTIME_CLASS(YellowNotePrefab);

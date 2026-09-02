@@ -12,3 +12,4 @@ Song.ogg
 audio_settings.json
 input_settings.json
 .kilo/**
+.vscode/**
