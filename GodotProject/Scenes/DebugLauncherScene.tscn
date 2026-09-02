@@ -3,10 +3,8 @@
 [node name="DebugLauncherScene" type="Node2D"]
 
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -110.0
-offset_top = -45.0
-offset_right = 2074.0
-offset_bottom = 1137.0
+offset_right = 1920.0
+offset_bottom = 1080.0
 color = Color(0.14117648, 0.14117648, 0.14117648, 1)
 
 [node name="Label" type="Label" parent="."]
