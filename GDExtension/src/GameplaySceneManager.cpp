@@ -2,9 +2,13 @@
 #include "BlueNote.hpp"
 #include "BlueNotePrefab.hpp"
 #include "Course.hpp"
+#include "GreenNote.hpp"
+#include "GreenNotePrefab.hpp"
 #include "RedNote.hpp"
 #include "RedNotePrefab.hpp"
 #include "TimingOSSingletons.hpp"
+#include "YellowNote.hpp"
+#include "YellowNotePrefab.hpp"
 #include <fstream>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -195,38 +199,7 @@ void GameplaySceneManager::_ready()
 
 void GameplaySceneManager::_exit_tree()
 {
-    if (audioTrackHandle != 0)
-    {
-        GameManager::audioEngine.value().stopAudioTrack(audioTrackHandle);
-        GameManager::audioEngine.value().freeAudioTrackBlocking(audioTrackHandle);
-        audioTrackHandle = 0;
-    }
-
-    std::vector<RedNote*> redNotesToDelete;
-    std::vector<BlueNote*> blueNotesToDelete;
-
-    {
-        LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
-        if (guard.objRef->activeCourseIndex >= 0)
-        {
-            Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
-            redNotesToDelete = std::move(courseInChart->redNotes);
-            blueNotesToDelete = std::move(courseInChart->blueNotes);
-            courseInChart->redNotes.clear();
-            courseInChart->blueNotes.clear();
-            courseInChart->laneRed = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
-            courseInChart->laneBlue = CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>();
-        }
-    }
-
-    for (RedNote* note : redNotesToDelete)
-    {
-        delete note;
-    }
-    for (BlueNote* note : blueNotesToDelete)
-    {
-        delete note;
-    }
+    //
 }
 
 void GameplaySceneManager::_process(double delta)
@@ -302,13 +275,21 @@ void GameplaySceneManager::_process(double delta)
         bool allJudged = true;
         for (RedNote* note : course->redNotes)
         {
-            if (!note->isJudged()) { allJudged = false; break; }
+            if (!note->isJudged())
+            {
+                allJudged = false;
+                break;
+            }
         }
         if (allJudged)
         {
             for (BlueNote* note : course->blueNotes)
             {
-                if (!note->isJudged()) { allJudged = false; break; }
+                if (!note->isJudged())
+                {
+                    allJudged = false;
+                    break;
+                }
             }
         }
         if (allJudged)
