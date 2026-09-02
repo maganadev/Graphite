@@ -72,17 +72,17 @@ void GameManager::_ready()
     GameManager::audioOffset = offsetSettingsFile.jsonObj.value("AudioOffset", 0);
     GameManager::visualOffset = offsetSettingsFile.jsonObj.value("VisualOffset", 0);
 
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrackBlocking("GameplaySineWave.ogg", -6, GameManager::sineWaveHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
+    GameManager::audioEngine.value().createAudioTrack("GameplaySineWave.ogg", -6, GameManager::sineWaveHitsoundHandle);
 
     UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
 
@@ -113,7 +113,7 @@ void GameManager::_exit_tree()
     {
         if (handle != 0)
         {
-            GameManager::audioEngine.value().freeAudioTrackBlocking(handle);
+            GameManager::audioEngine.value().freeAudioTrack(handle);
             handle = 0;
         }
     };
