@@ -79,19 +79,17 @@ void GameplaySceneManager::_ready()
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
     int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
-    int64_t filteredVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
-    int64_t filteredAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
-    int64_t filteredJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
-    JudgementThread::judgementOffset.store(filteredJudgementOffset, std::memory_order_release);
+    effectiveVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
+    effectiveAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
+    effectiveJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
+    JudgementThread::judgementOffset.store(effectiveJudgementOffset, std::memory_order_release);
 
     UtilityFunctions::print("Input Visual Offset: ", std::to_string(unfilteredVisualOffset).c_str(), " ps");
     UtilityFunctions::print("Input Audio Offset: ", std::to_string(unfilteredAudioOffset).c_str(), " ps");
     UtilityFunctions::print("Input Judgement Offset: ", std::to_string(unfilteredJudgementOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Visual Offset: ", std::to_string(filteredVisualOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Audio Offset: ", std::to_string(filteredAudioOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Judgement Offset: ", std::to_string(filteredJudgementOffset).c_str(), " ps");
-
-    visualOffsetPicoseconds = filteredVisualOffset;
+    UtilityFunctions::print("Output Visual Offset: ", std::to_string(effectiveVisualOffset).c_str(), " ps");
+    UtilityFunctions::print("Output Audio Offset: ", std::to_string(effectiveAudioOffset).c_str(), " ps");
+    UtilityFunctions::print("Output Judgement Offset: ", std::to_string(effectiveJudgementOffset).c_str(), " ps");
 
     // Spawn notes for each note event in the course
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
@@ -237,11 +235,11 @@ void GameplaySceneManager::_process(double delta)
     {
         for (RedNote* note : course->redNotes)
         {
-            note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
         for (BlueNote* note : course->blueNotes)
         {
-            note->updatePosition(trackPositionPs, visualOffsetPicoseconds);
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
     }
 

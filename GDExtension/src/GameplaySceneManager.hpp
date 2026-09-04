@@ -38,10 +38,12 @@ public:
     Ref<PackedScene> get_blue_note_scene() const;
 
 private:
-    uint64_t audioTrackHandle{0};
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
-    int64_t visualOffsetPicoseconds{0};
+    uint64_t audioTrackHandle{0};
+    int64_t effectiveVisualOffset{0};
+    int64_t effectiveAudioOffset{0};
+    int64_t effectiveJudgementOffset{0};
     bool resultsScreenTriggered{false};
     NoteTypes noteTypeForEvent(const std::string& type) const;
 };
