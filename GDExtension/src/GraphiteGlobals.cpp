@@ -1,0 +1,20 @@
+#include "GraphiteGlobals.hpp"
+#include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
+#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+
+std::optional<RhythmAudio::RhythmAudioEngine> GraphiteGlobals::audioEngine{std::nullopt};
+std::optional<RhythmInput::RhythmInputEngine> GraphiteGlobals::inputEngine{std::nullopt};
+uint64_t GraphiteGlobals::blueRyouHitsoundHandle{0};
+uint64_t GraphiteGlobals::blueKaHitsoundHandle{0};
+uint64_t GraphiteGlobals::blueFukaHitsoundHandle{0};
+uint64_t GraphiteGlobals::blueChouHitsoundHandle{0};
+uint64_t GraphiteGlobals::blueAdLibHitsoundHandle{0};
+uint64_t GraphiteGlobals::redRyouHitsoundHandle{0};
+uint64_t GraphiteGlobals::redKaHitsoundHandle{0};
+uint64_t GraphiteGlobals::redFukaHitsoundHandle{0};
+uint64_t GraphiteGlobals::redChouHitsoundHandle{0};
+uint64_t GraphiteGlobals::redAdLibHitsoundHandle{0};
+uint64_t GraphiteGlobals::sineWaveHitsoundHandle{0};
+LFProtectObj<Chart> GraphiteGlobals::currentChart{};
+int64_t GraphiteGlobals::audioOffset{0};
+int64_t GraphiteGlobals::visualOffset{0};

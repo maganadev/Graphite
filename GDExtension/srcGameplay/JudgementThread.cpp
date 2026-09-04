@@ -1,5 +1,6 @@
 #include "JudgementThread.hpp"
 #include "GameManager.hpp"
+#include "GraphiteGlobals.hpp"
 
 QueueSPSC<InputTimingMessage, 1024> JudgementThread::messageQueue{};
 QueueSPSC<uint64_t, 1024> JudgementThread::abandonedCheckQueue{};
@@ -164,7 +165,7 @@ void JudgementThread::threadBehavior()
         InputTimingMessage msg{};
         while (messageQueue.try_dequeue(msg))
         {
-            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+            LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
             if (!chartGuard.objRef)
             {
                 continue;
@@ -173,7 +174,7 @@ void JudgementThread::threadBehavior()
             // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
-            if (!GameManager::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
+            if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
             {
                 continue;
             }
@@ -221,22 +222,22 @@ void JudgementThread::threadBehavior()
                 case NoteGradings::Early_Chou:
                 case NoteGradings::Late_Chou:
                 case NoteGradings::CompletlelyPerfect:
-                    hitsoundHandle = GameManager::redChouHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::redChouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ryou:
                 case NoteGradings::Late_Ryou:
-                    hitsoundHandle = GameManager::redRyouHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::redRyouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ka:
                 case NoteGradings::Late_Ka:
-                    hitsoundHandle = GameManager::redKaHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::redKaHitsoundHandle;
                     break;
                 case NoteGradings::Early_Fuka:
                 case NoteGradings::Late_Fuka:
-                    hitsoundHandle = GameManager::redFukaHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::redFukaHitsoundHandle;
                     break;
                 default:
-                    hitsoundHandle = GameManager::redAdLibHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::redAdLibHitsoundHandle;
                     break;
                 }
             }
@@ -247,36 +248,36 @@ void JudgementThread::threadBehavior()
                 case NoteGradings::Early_Chou:
                 case NoteGradings::Late_Chou:
                 case NoteGradings::CompletlelyPerfect:
-                    hitsoundHandle = GameManager::blueChouHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::blueChouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ryou:
                 case NoteGradings::Late_Ryou:
-                    hitsoundHandle = GameManager::blueRyouHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::blueRyouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ka:
                 case NoteGradings::Late_Ka:
-                    hitsoundHandle = GameManager::blueKaHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::blueKaHitsoundHandle;
                     break;
                 case NoteGradings::Early_Fuka:
                 case NoteGradings::Late_Fuka:
-                    hitsoundHandle = GameManager::blueFukaHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::blueFukaHitsoundHandle;
                     break;
                 default:
-                    hitsoundHandle = GameManager::blueAdLibHitsoundHandle;
+                    hitsoundHandle = GraphiteGlobals::blueAdLibHitsoundHandle;
                     break;
                 }
             }
 
             if (hitsoundHandle != 0)
             {
-                GameManager::audioEngine.value().playAudioTrack(hitsoundHandle);
+                GraphiteGlobals::audioEngine.value().playAudioTrack(hitsoundHandle);
             }
         }
 
         uint64_t abandonedTimestamp = 0;
         while (abandonedCheckQueue.try_dequeue(abandonedTimestamp))
         {
-            LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+            LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
             if (!chartGuard.objRef)
             {
                 continue;
@@ -285,7 +286,7 @@ void JudgementThread::threadBehavior()
             // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
-            if (!GameManager::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
+            if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
             {
                 continue;
             }

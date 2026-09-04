@@ -6,23 +6,6 @@
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
 
-std::optional<RhythmAudio::RhythmAudioEngine> GameManager::audioEngine{std::nullopt};
-std::optional<RhythmInput::RhythmInputEngine> GameManager::inputEngine{std::nullopt};
-uint64_t GameManager::blueRyouHitsoundHandle{0};
-uint64_t GameManager::blueKaHitsoundHandle{0};
-uint64_t GameManager::blueFukaHitsoundHandle{0};
-uint64_t GameManager::blueChouHitsoundHandle{0};
-uint64_t GameManager::blueAdLibHitsoundHandle{0};
-uint64_t GameManager::redRyouHitsoundHandle{0};
-uint64_t GameManager::redKaHitsoundHandle{0};
-uint64_t GameManager::redFukaHitsoundHandle{0};
-uint64_t GameManager::redChouHitsoundHandle{0};
-uint64_t GameManager::redAdLibHitsoundHandle{0};
-uint64_t GameManager::sineWaveHitsoundHandle{0};
-LFProtectObj<Chart> GameManager::currentChart{};
-int64_t GameManager::audioOffset{0};
-int64_t GameManager::visualOffset{0};
-
 void GameManager::_bind_methods()
 {
 }
@@ -62,34 +45,34 @@ void GameManager::_ready()
     settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
     settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
     settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
-    GameManager::audioEngine.emplace(settings);
+    GraphiteGlobals::audioEngine.emplace(settings);
 
     SettingsFile offsetSettingsFile("offset_settings.json");
     offsetSettingsFile.load();
     offsetSettingsFile.ensureContainsInteger("AudioOffset", 0);
     offsetSettingsFile.ensureContainsInteger("VisualOffset", 0);
     offsetSettingsFile.save();
-    GameManager::audioOffset = offsetSettingsFile.jsonObj.value("AudioOffset", 0);
-    GameManager::visualOffset = offsetSettingsFile.jsonObj.value("VisualOffset", 0);
+    GraphiteGlobals::audioOffset = offsetSettingsFile.jsonObj.value("AudioOffset", 0);
+    GraphiteGlobals::visualOffset = offsetSettingsFile.jsonObj.value("VisualOffset", 0);
 
-    GameManager::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GameManager::blueRyouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayBlueKaHitsound.ogg", -36, GameManager::blueKaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayBlueFukaHitsound.ogg", -36, GameManager::blueFukaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayBlueChouHitsound.ogg", -36, GameManager::blueChouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayBlueAdLibHitsound.ogg", -36, GameManager::blueAdLibHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayRedRyouHitsound.ogg", -36, GameManager::redRyouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayRedKaHitsound.ogg", -36, GameManager::redKaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayRedFukaHitsound.ogg", -36, GameManager::redFukaHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayRedChouHitsound.ogg", -36, GameManager::redChouHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplayRedAdLibHitsound.ogg", -36, GameManager::redAdLibHitsoundHandle);
-    GameManager::audioEngine.value().createAudioTrack("GameplaySineWave.ogg", -6, GameManager::sineWaveHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueKaHitsound.ogg", -36, GraphiteGlobals::blueKaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueFukaHitsound.ogg", -36, GraphiteGlobals::blueFukaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueChouHitsound.ogg", -36, GraphiteGlobals::blueChouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueAdLibHitsound.ogg", -36, GraphiteGlobals::blueAdLibHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedRyouHitsound.ogg", -36, GraphiteGlobals::redRyouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedKaHitsound.ogg", -36, GraphiteGlobals::redKaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedFukaHitsound.ogg", -36, GraphiteGlobals::redFukaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedChouHitsound.ogg", -36, GraphiteGlobals::redChouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedAdLibHitsound.ogg", -36, GraphiteGlobals::redAdLibHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplaySineWave.ogg", -6, GraphiteGlobals::sineWaveHitsoundHandle);
 
-    UtilityFunctions::print("GameManager::blueRyouHitsoundHandle: ", std::to_string(GameManager::blueRyouHitsoundHandle).c_str());
+    UtilityFunctions::print("GraphiteGlobals::blueRyouHitsoundHandle: ", std::to_string(GraphiteGlobals::blueRyouHitsoundHandle).c_str());
 
     JudgementThread::start();
 
     RhythmAudio::RhythmAudioStats stats{};
-    GameManager::audioEngine.value().getEngineStats(stats);
+    GraphiteGlobals::audioEngine.value().getEngineStats(stats);
     UtilityFunctions::print("--- Engine Stats ---");
     UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
     UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
@@ -104,7 +87,7 @@ void GameManager::_ready()
 
 void GameManager::_exit_tree()
 {
-    if (!GameManager::audioEngine.has_value())
+    if (!GraphiteGlobals::audioEngine.has_value())
     {
         JudgementThread::stop();
         return;
@@ -113,20 +96,20 @@ void GameManager::_exit_tree()
     {
         if (handle != 0)
         {
-            GameManager::audioEngine.value().freeAudioTrack(handle);
+            GraphiteGlobals::audioEngine.value().freeAudioTrack(handle);
             handle = 0;
         }
     };
-    freeTrack(GameManager::blueRyouHitsoundHandle);
-    freeTrack(GameManager::blueKaHitsoundHandle);
-    freeTrack(GameManager::blueFukaHitsoundHandle);
-    freeTrack(GameManager::blueChouHitsoundHandle);
-    freeTrack(GameManager::blueAdLibHitsoundHandle);
-    freeTrack(GameManager::redRyouHitsoundHandle);
-    freeTrack(GameManager::redKaHitsoundHandle);
-    freeTrack(GameManager::redFukaHitsoundHandle);
-    freeTrack(GameManager::redChouHitsoundHandle);
-    freeTrack(GameManager::redAdLibHitsoundHandle);
+    freeTrack(GraphiteGlobals::blueRyouHitsoundHandle);
+    freeTrack(GraphiteGlobals::blueKaHitsoundHandle);
+    freeTrack(GraphiteGlobals::blueFukaHitsoundHandle);
+    freeTrack(GraphiteGlobals::blueChouHitsoundHandle);
+    freeTrack(GraphiteGlobals::blueAdLibHitsoundHandle);
+    freeTrack(GraphiteGlobals::redRyouHitsoundHandle);
+    freeTrack(GraphiteGlobals::redKaHitsoundHandle);
+    freeTrack(GraphiteGlobals::redFukaHitsoundHandle);
+    freeTrack(GraphiteGlobals::redChouHitsoundHandle);
+    freeTrack(GraphiteGlobals::redAdLibHitsoundHandle);
 
     JudgementThread::stop();
 }
@@ -139,7 +122,7 @@ void GameManager::_process(double delta)
         processFunctionRan = true;
     }
 
-    GameManager::inputEngine.value().parseEventsSinceLastFrame();
+    GraphiteGlobals::inputEngine.value().parseEventsSinceLastFrame();
 }
 
 void GameManager::initializeInputEngine()
@@ -212,5 +195,5 @@ void GameManager::initializeInputEngine()
 
     RhythmInput::RhythmInputSettings inputSettings{};
     inputSettings.uncappedPolling = inputSettingsFile.jsonObj.value("uncappedPolling", 0) != 0;
-    GameManager::inputEngine.emplace(gameActions, gameBindings, inputSettings);
+    GraphiteGlobals::inputEngine.emplace(gameActions, gameBindings, inputSettings);
 }

@@ -76,8 +76,8 @@ void GameplaySceneManager::_ready()
     }
     Course* targetCourse = &chart.courses[courseIndex];
 
-    int64_t unfilteredVisualOffset = GameManager::visualOffset;
-    int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GameManager::audioOffset;
+    int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
+    int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
     int64_t filteredVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
     int64_t filteredAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
@@ -113,7 +113,7 @@ void GameplaySceneManager::_ready()
 
     // Build the course under write guard so judgment thread can't read it before it's ready
     {
-        LFProtectObjWriteGuard<Chart> guard(GameManager::currentChart, true);
+        LFProtectObjWriteGuard<Chart> guard(GraphiteGlobals::currentChart, true);
         *guard.objRef = std::move(chart);
         if (guard.objRef->activeCourseIndex < 0)
         {
@@ -164,7 +164,7 @@ void GameplaySceneManager::_ready()
     // Read wave path from the chart via read guard
     std::string wavePath;
     {
-        LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
         if (chartGuard.objRef)
         {
             wavePath = chartGuard.objRef->wave;
@@ -178,18 +178,18 @@ void GameplaySceneManager::_ready()
     }
 
     // Load the wave file
-    if (!GameManager::audioEngine.value().createAudioTrack(wavePath, -36, audioTrackHandle))
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(wavePath, -36, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
         return;
     }
 
     // Play the audio track
-    GameManager::audioEngine.value().playAudioTrack(audioTrackHandle);
-    GameManager::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
+    GraphiteGlobals::audioEngine.value().playAudioTrack(audioTrackHandle);
+    GraphiteGlobals::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
 
     {
-        LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
         if (chartGuard.objRef)
         {
             UtilityFunctions::print("Loaded song: ", chartGuard.objRef->title.c_str(), " | Course: ", chartGuard.objRef->activeCourse.c_str(), " | Wave: ", wavePath.c_str());
@@ -218,7 +218,7 @@ void GameplaySceneManager::_process(double delta)
         return;
     }
 
-    LFProtectObjReadGuard<Chart> chartGuard(GameManager::currentChart);
+    LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
     if (!chartGuard.objRef)
     {
         return;
@@ -233,7 +233,7 @@ void GameplaySceneManager::_process(double delta)
 
     int64_t trackPositionPs;
     uint64_t outHandle;
-    if (GameManager::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
     {
         for (RedNote* note : course->redNotes)
         {

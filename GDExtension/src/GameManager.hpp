@@ -1,6 +1,7 @@
 #ifndef GameManager_hpp
 #define GameManager_hpp
 
+#include "GraphiteGlobals.hpp"
 #include "../../RhythmAudio/RhythmAudio/LFProtectObj.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
@@ -45,24 +46,7 @@ public:
     void _exit_tree() override;
     void _process(double delta) override;
 
-    static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
-    static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
-    static uint64_t blueRyouHitsoundHandle;
-    static uint64_t blueKaHitsoundHandle;
-    static uint64_t blueFukaHitsoundHandle;
-    static uint64_t blueChouHitsoundHandle;
-    static uint64_t blueAdLibHitsoundHandle;
-    static uint64_t redRyouHitsoundHandle;
-    static uint64_t redKaHitsoundHandle;
-    static uint64_t redFukaHitsoundHandle;
-    static uint64_t redChouHitsoundHandle;
-    static uint64_t redAdLibHitsoundHandle;
-    static uint64_t sineWaveHitsoundHandle;
-    static LFProtectObj<Chart> currentChart;
-    static int64_t audioOffset;
-    static int64_t visualOffset;
-
-private:
+    private:
     bool processFunctionRan = false;
     void initializeInputEngine();
 };
