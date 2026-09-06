@@ -12,7 +12,7 @@ class YellowNotePrefab;
 class YellowNote
 {
 public:
-    static constexpr double SCROLL_SPEED_FACTOR = 1600.0 / (240.0 * 1.0e12);
+    static constexpr double SCROLL_SPEED_FACTOR = 2000.0 / (240.0 * 1.0e12);
     static constexpr double LANE_Y = 386.0;
     static constexpr double HITZONE_CENTER_X = 618.0;
 

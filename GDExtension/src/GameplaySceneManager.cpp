@@ -47,7 +47,7 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
 void GameplaySceneManager::_ready()
 {
     std::string songFileName = GraphiteGlobals::currentSongFileName;
-    std::string courseDifficulty = "Oni";
+    std::string courseDifficulty = (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration) ? "Oni" : "Hard";
 
     // Open the song
     std::ifstream ifs(songFileName);
