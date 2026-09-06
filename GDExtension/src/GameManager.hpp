@@ -30,6 +30,8 @@ namespace GameActionIndices
     constexpr size_t DrumCenterRight = 3;
     constexpr size_t Enter = 4;
     constexpr size_t Back = 5;
+    constexpr size_t PlaySong = 6;
+    constexpr size_t Calibration = 7;
 } // namespace GameActionIndices
 
 class GameManager : public Sprite2D

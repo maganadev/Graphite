@@ -7,6 +7,7 @@
 #include "../srcGameplay/Chart.hpp"
 #include <cstdint>
 #include <optional>
+#include <string>
 
 class GraphiteGlobals
 {
@@ -27,6 +28,7 @@ public:
     static LFProtectObj<Chart> currentChart;
     static int64_t audioOffset;
     static int64_t visualOffset;
+    static std::string currentSongFileName;
 };
 
 #endif

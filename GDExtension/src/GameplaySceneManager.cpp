@@ -46,7 +46,7 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
 
 void GameplaySceneManager::_ready()
 {
-    std::string songFileName = "Song.json";
+    std::string songFileName = GraphiteGlobals::currentSongFileName;
     std::string courseDifficulty = "Oni";
 
     // Open the song
