@@ -3,6 +3,7 @@
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
 #include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/color_rect.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -153,5 +154,8 @@ void ResultsScreenSceneManager::_ready()
 
 void ResultsScreenSceneManager::_process(double delta)
 {
-    //
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
+    {
+        get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
+    }
 }
