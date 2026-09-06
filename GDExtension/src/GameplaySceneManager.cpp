@@ -175,10 +175,16 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    // Load the wave file
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(wavePath, -36, audioTrackHandle))
+    // Load the wave file - if visual offset calibration, use silence instead
+    std::string audioPath = wavePath;
+    if (GraphiteGlobals::modVisualOffsetCalibration)
     {
-        UtilityFunctions::print("Failed to load audio track: ", wavePath.c_str());
+        audioPath = "GameplaySilence.ogg";
+        UtilityFunctions::print("Visual offset calibration: using GameplaySilence.ogg");
+    }
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioPath, -36, audioTrackHandle))
+    {
+        UtilityFunctions::print("Failed to load audio track: ", audioPath.c_str());
         return;
     }
 

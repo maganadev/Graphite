@@ -19,3 +19,5 @@ LFProtectObj<Chart> GraphiteGlobals::currentChart{};
 int64_t GraphiteGlobals::audioOffset{0};
 int64_t GraphiteGlobals::visualOffset{0};
 std::string GraphiteGlobals::currentSongFileName{""};
+bool GraphiteGlobals::modVisualOffsetCalibration{false};
+bool GraphiteGlobals::modAudioOffsetCalibration{false};

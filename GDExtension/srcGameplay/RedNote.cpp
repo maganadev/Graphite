@@ -1,5 +1,6 @@
 #include "RedNote.hpp"
 #include "RedNotePrefab.hpp"
+#include "../src/GraphiteGlobals.hpp"
 
 RedNote::RedNote()
 {

@@ -1,6 +1,7 @@
 #include "ResultsScreenSceneManager.hpp"
 #include "GameManager.hpp"
 #include "JudgementThread.hpp"
+#include "SettingsFile.hpp"
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/color_rect.hpp>
@@ -72,6 +73,46 @@ void ResultsScreenSceneManager::_ready()
     for (auto* note : course->blueNotes) countNote(note);
     for (auto* note : course->yellowNotes) countNote(note);
     for (auto* note : course->greenNotes) countNote(note);
+
+    // Calculate average off-time for calibration mods
+    int64_t totalOff = 0;
+    int64_t judgedCount = 0;
+    auto sumOff = [&](auto* note) {
+        if (!note || !note->isJudged()) return;
+        totalOff += note->getPicosecondsOff();
+        judgedCount++;
+    };
+    for (auto* note : course->redNotes) sumOff(note);
+    for (auto* note : course->blueNotes) sumOff(note);
+    for (auto* note : course->yellowNotes) sumOff(note);
+    for (auto* note : course->greenNotes) sumOff(note);
+
+    if (judgedCount > 0)
+    {
+        int64_t averageOff = totalOff / judgedCount;
+
+        if (GraphiteGlobals::modVisualOffsetCalibration)
+        {
+            GraphiteGlobals::visualOffset -= averageOff;
+            UtilityFunctions::print("Visual offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new visual offset ", std::to_string(GraphiteGlobals::visualOffset).c_str(), " ps");
+            SettingsFile offsetSettingsFile("offset_settings.json");
+            offsetSettingsFile.load();
+            offsetSettingsFile.jsonObj["VisualOffset"] = GraphiteGlobals::visualOffset;
+            offsetSettingsFile.save();
+            GraphiteGlobals::modVisualOffsetCalibration = false;
+        }
+
+        if (GraphiteGlobals::modAudioOffsetCalibration)
+        {
+            GraphiteGlobals::audioOffset += averageOff;
+            UtilityFunctions::print("Audio offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new audio offset ", std::to_string(GraphiteGlobals::audioOffset).c_str(), " ps");
+            SettingsFile offsetSettingsFile("offset_settings.json");
+            offsetSettingsFile.load();
+            offsetSettingsFile.jsonObj["AudioOffset"] = GraphiteGlobals::audioOffset;
+            offsetSettingsFile.save();
+            GraphiteGlobals::modAudioOffsetCalibration = false;
+        }
+    }
 
     auto setLabelText = [this](const String& name, const String& text) {
         Label* label = get_node<Label>(NodePath(String("..") + "/" + name));

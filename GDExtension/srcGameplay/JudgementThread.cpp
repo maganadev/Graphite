@@ -268,7 +268,7 @@ void JudgementThread::threadBehavior()
                 }
             }
 
-            if (hitsoundHandle != 0)
+            if (hitsoundHandle != 0 && !GraphiteGlobals::modVisualOffsetCalibration)
             {
                 GraphiteGlobals::audioEngine.value().playAudioTrack(hitsoundHandle);
             }

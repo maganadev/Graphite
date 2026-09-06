@@ -172,11 +172,17 @@ void GameManager::initializeInputEngine()
     PlaySongKeybind.callbackOnRelease = nullptr;
     gameActions.push_back(PlaySongKeybind);
 
-    RhythmInput::RhythmInputAction CalibrationKeybind{};
-    CalibrationKeybind.name = "Calibration";
-    CalibrationKeybind.callbackOnPress = nullptr;
-    CalibrationKeybind.callbackOnRelease = nullptr;
-    gameActions.push_back(CalibrationKeybind);
+    RhythmInput::RhythmInputAction AudioCalibrationKeybind{};
+    AudioCalibrationKeybind.name = "AudioCalibration";
+    AudioCalibrationKeybind.callbackOnPress = nullptr;
+    AudioCalibrationKeybind.callbackOnRelease = nullptr;
+    gameActions.push_back(AudioCalibrationKeybind);
+
+    RhythmInput::RhythmInputAction VisualCalibrationKeybind{};
+    VisualCalibrationKeybind.name = "VisualCalibration";
+    VisualCalibrationKeybind.callbackOnPress = nullptr;
+    VisualCalibrationKeybind.callbackOnRelease = nullptr;
+    gameActions.push_back(VisualCalibrationKeybind);
 
     SettingsFile inputSettingsFile("input_settings.json");
     inputSettingsFile.load();
@@ -193,8 +199,8 @@ void GameManager::initializeInputEngine()
         defaultBindings.push_back({{"button", "enter"}, {"action", "Enter"}});
         defaultBindings.push_back({{"button", "escape"}, {"action", "Back"}});
         defaultBindings.push_back({{"button", "p"}, {"action", "PlaySong"}});
-        defaultBindings.push_back({{"button", "v"}, {"action", "Calibration"}});
-        defaultBindings.push_back({{"button", "a"}, {"action", "Calibration"}});
+        defaultBindings.push_back({{"button", "v"}, {"action", "VisualCalibration"}});
+        defaultBindings.push_back({{"button", "a"}, {"action", "AudioCalibration"}});
         inputSettingsFile.jsonObj["bindings"] = defaultBindings;
     }
 
