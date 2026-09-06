@@ -16,42 +16,42 @@
       "offset_picoseconds": 0,
       "notes": [
         {
-          "value": 23,
+          "value": 10,
           "time": "0/1",
           "time_picoseconds": 0
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "1/4",
           "time_picoseconds": 250000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "1/2",
           "time_picoseconds": 500000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "3/4",
           "time_picoseconds": 750000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "1/1",
           "time_picoseconds": 1000000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "5/4",
           "time_picoseconds": 1250000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "3/2",
           "time_picoseconds": 1500000000000
         },
         {
-          "value": 23,
+          "value": 10,
           "time": "7/4",
           "time_picoseconds": 1750000000000
         },
