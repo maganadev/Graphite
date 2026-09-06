@@ -68,6 +68,11 @@ void RedNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualO
 {
     const int64_t effectiveNoteTimePs = m_note.time_picoseconds + visualOffsetPicoseconds;
     const int64_t timeUntilNote = effectiveNoteTimePs - songPositionPicoseconds;
-    outX = HITZONE_CENTER_X + SCROLL_SPEED * (static_cast<double>(timeUntilNote) / 1.0e12);
+    double scrollXOffset = (SCROLL_SPEED_FACTOR * m_note.bpmForScroll_double * static_cast<double>(timeUntilNote));
+    if (GraphiteGlobals::modAudioOffsetCalibration)
+    {
+        scrollXOffset *= 0.25;
+    }
+    outX = scrollXOffset + HITZONE_CENTER_X;
     outY = LANE_Y;
 }

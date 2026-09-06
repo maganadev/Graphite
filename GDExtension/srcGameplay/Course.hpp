@@ -20,6 +20,8 @@ struct Note
     std::string type;
     std::string time_fractional;
     int64_t time_picoseconds;
+    std::string bpmForScroll_fractional;
+    double bpmForScroll_double{0.0};
     double scroll;
     int measure;
     bool gogo;
@@ -55,12 +57,14 @@ public:
         course.offset = j.value("offset", "0/1");
         course.offset_picoseconds = j.value("offset_picoseconds", static_cast<int64_t>(0));
 
-        auto parseNote = [&course](const std::string& type, const std::string& timeFrac, int64_t timePs, double scroll, int measure, bool gogo, bool big, bool visible)
+        auto parseNote = [&course](const std::string& type, const std::string& timeFrac, int64_t timePs, const std::string& bpmFrac, double bpmDouble, double scroll, int measure, bool gogo, bool big, bool visible)
         {
             Note note;
             note.type = type;
             note.time_fractional = timeFrac;
             note.time_picoseconds = timePs;
+            note.bpmForScroll_fractional = bpmFrac;
+            note.bpmForScroll_double = bpmDouble;
             note.scroll = scroll;
             note.measure = measure;
             note.gogo = gogo;
@@ -79,7 +83,7 @@ public:
                     continue;
                 std::string type = it->second;
                 bool big = (val == 3 || val == 4);
-                parseNote(type, e["time"], e["time_picoseconds"], 1.0, 0, false, big, true);
+                parseNote(type, e["time"], e["time_picoseconds"], e.value("bpmForScroll_fractional", std::string("240/1")), e.value("bpmForScroll_double", 240.0), 1.0, 0, false, big, true);
             }
         }
         return course;
