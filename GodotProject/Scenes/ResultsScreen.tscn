@@ -352,3 +352,9 @@ offset_left = 880.0
 offset_right = 900.0
 offset_bottom = 400.0
 color = Color(0.88, 0.7, 0, 1)
+
+[node name="Center" type="ColorRect" parent="Colorbars"]
+offset_left = 446.0
+offset_right = 453.0
+offset_bottom = 400.0
+color = Color(1, 0, 0, 1)

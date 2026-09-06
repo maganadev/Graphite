@@ -68,6 +68,7 @@ void ResultsScreenSceneManager::_ready()
         if (bucket < 0) bucket = 0;
         if (bucket >= BAR_COUNT) bucket = BAR_COUNT - 1;
         histogram[bucket]++;
+        UtilityFunctions::print("Note off=", std::to_string(off).c_str(), " ps -> bucket=", bucket);
     };
 
     for (auto* note : course->redNotes) countNote(note);
@@ -149,6 +150,7 @@ void ResultsScreenSceneManager::_ready()
         double heightRatio = static_cast<double>(histogram[i]) / static_cast<double>(maxCount);
         double barHeight = heightRatio * MAX_HEIGHT;
         bar->set_offset(SIDE_BOTTOM, static_cast<float>(barHeight));
+        UtilityFunctions::print("Bar ", i, " count=", histogram[i], " height=", barHeight);
     }
 }
 
