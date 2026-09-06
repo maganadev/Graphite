@@ -29,6 +29,10 @@ public:
     static int64_t audioOffset;
     static int64_t visualOffset;
     static std::string currentSongFileName;
+
+    // Mods
+    static bool modVisualOffsetCalibration;
+    static bool modAudioOffsetCalibration;
 };
 
 #endif

@@ -18,132 +18,184 @@
         {
           "value": 10,
           "time": "0/1",
-          "time_picoseconds": 0
+          "time_picoseconds": 0,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "1/4",
-          "time_picoseconds": 250000000000
+          "time_picoseconds": 250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "1/2",
-          "time_picoseconds": 500000000000
+          "time_picoseconds": 500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "3/4",
-          "time_picoseconds": 750000000000
+          "time_picoseconds": 750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "1/1",
-          "time_picoseconds": 1000000000000
+          "time_picoseconds": 1000000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "5/4",
-          "time_picoseconds": 1250000000000
+          "time_picoseconds": 1250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "3/2",
-          "time_picoseconds": 1500000000000
+          "time_picoseconds": 1500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 10,
           "time": "7/4",
-          "time_picoseconds": 1750000000000
+          "time_picoseconds": 1750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "2/1",
-          "time_picoseconds": 2000000000000
+          "time_picoseconds": 2000000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "17/8",
-          "time_picoseconds": 2125000000000
+          "time_picoseconds": 2125000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "9/4",
-          "time_picoseconds": 2250000000000
+          "time_picoseconds": 2250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "5/2",
-          "time_picoseconds": 2500000000000
+          "time_picoseconds": 2500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "21/8",
-          "time_picoseconds": 2625000000000
+          "time_picoseconds": 2625000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "11/4",
-          "time_picoseconds": 2750000000000
+          "time_picoseconds": 2750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "3/1",
-          "time_picoseconds": 3000000000000
+          "time_picoseconds": 3000000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "13/4",
-          "time_picoseconds": 3250000000000
+          "time_picoseconds": 3250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "7/2",
-          "time_picoseconds": 3500000000000
+          "time_picoseconds": 3500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "4/1",
-          "time_picoseconds": 4000000000000
+          "time_picoseconds": 4000000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "33/8",
-          "time_picoseconds": 4125000000000
+          "time_picoseconds": 4125000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "17/4",
-          "time_picoseconds": 4250000000000
+          "time_picoseconds": 4250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "9/2",
-          "time_picoseconds": 4500000000000
+          "time_picoseconds": 4500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "37/8",
-          "time_picoseconds": 4625000000000
+          "time_picoseconds": 4625000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "19/4",
-          "time_picoseconds": 4750000000000
+          "time_picoseconds": 4750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "5/1",
-          "time_picoseconds": 5000000000000
+          "time_picoseconds": 5000000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "21/4",
-          "time_picoseconds": 5250000000000
+          "time_picoseconds": 5250000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         },
         {
           "value": 1,
           "time": "11/2",
-          "time_picoseconds": 5500000000000
+          "time_picoseconds": 5500000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         }
       ],
       "measures": [
