@@ -13,4 +13,4 @@ audio_settings.json
 input_settings.json
 .kilo/**
 .vscode/**
-#GodotProject/offset_settings.json
+GodotProject/offset_settings.json
