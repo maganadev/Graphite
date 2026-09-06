@@ -12,24 +12,24 @@ corner_detail = 16
 
 [node name="RightBlack" type="Panel" parent="."]
 modulate = Color(0.14509805, 0.14509805, 0.14509805, 1)
-offset_left = 187.0
+offset_left = 248.0
 offset_top = -52.0
-offset_right = 291.0
+offset_right = 352
 offset_bottom = 52.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
 [node name="RightYellow" type="Panel" parent="."]
 modulate = Color(0.9607843, 0.7137255, 0.003921569, 1)
-offset_left = 191.0
+offset_left = 252.0
 offset_top = -48.0
-offset_right = 287.0
+offset_right = 348
 offset_bottom = 48.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
 [node name="MidBlack" type="ColorRect" parent="."]
-offset_top = -51.0
-offset_right = 246.0
-offset_bottom = 51.0
+offset_top = -52.0
+offset_right = 300.0
+offset_bottom = 52.0
 color = Color(0.14509805, 0.14509805, 0.14509805, 1)
 
 [node name="MidYellow" type="ColorRect" parent="."]
