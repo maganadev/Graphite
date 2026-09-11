@@ -72,7 +72,7 @@ void BlueNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visual
     double scrollXOffset = (SCROLL_SPEED_FACTOR * m_note.bpmForScroll_double * static_cast<double>(timeUntilNote));
     if (GraphiteGlobals::modAudioOffsetCalibration)
     {
-        scrollXOffset *= 0.25;
+        scrollXOffset *= 0.125;
     }
     outX = scrollXOffset + HITZONE_CENTER_X;
     outY = LANE_Y;

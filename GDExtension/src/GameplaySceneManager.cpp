@@ -76,9 +76,20 @@ void GameplaySceneManager::_ready()
     }
     Course* targetCourse = &chart.courses[courseIndex];
 
+    // Unfiltered offsets
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
     int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
+
+    // If calibration mods are enabled, override the offsets
+    if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
+    {
+        unfilteredVisualOffset = 0;
+        unfilteredAudioOffset = 0;
+        unfilteredJudgementOffset = 0;
+    }
+
+    // Calculate effective offsets
     effectiveVisualOffset = unfilteredVisualOffset - unfilteredAudioOffset;
     effectiveAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
     effectiveJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
