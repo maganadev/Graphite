@@ -14,14 +14,10 @@ enum class NoteTypes : uint8_t
 {
     RedNoteSmall,
     BlueNoteSmall,
-    YellowNoteSmall,
-    GreenNoteSmall,
+    YellowNote,
+    GreenNote,
     RedNoteLarge,
     BlueNoteLarge,
-    YellowNoteLarge,
-    GreenNoteLarge,
-    LongNote,
-    BalloonNote,
 };
 
 enum class NoteGradings : uint8_t

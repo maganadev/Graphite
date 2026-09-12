@@ -42,17 +42,13 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
     if (type == "blue")
         return NoteTypes::BlueNoteSmall;
     if (type == "yellow")
-        return NoteTypes::YellowNoteSmall;
+        return NoteTypes::YellowNote;
     if (type == "green")
-        return NoteTypes::GreenNoteSmall;
+        return NoteTypes::GreenNote;
     if (type == "redBig")
         return NoteTypes::RedNoteLarge;
     if (type == "blueBig")
         return NoteTypes::BlueNoteLarge;
-    if (type == "yellowBig")
-        return NoteTypes::YellowNoteLarge;
-    if (type == "greenBig")
-        return NoteTypes::GreenNoteLarge;
     return NoteTypes::RedNoteSmall;
 }
 
@@ -189,7 +185,7 @@ void GameplaySceneManager::_ready()
                     courseInChart->blueNotes.push_back(note);
                 }
             }
-            else if (noteType == NoteTypes::YellowNoteSmall || noteType == NoteTypes::YellowNoteLarge)
+            else if (noteType == NoteTypes::YellowNote)
             {
                 Node* instance = yellowNoteScene->instantiate();
                 YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
@@ -203,7 +199,7 @@ void GameplaySceneManager::_ready()
                     courseInChart->yellowNotes.push_back(note);
                 }
             }
-            else if (noteType == NoteTypes::GreenNoteSmall || noteType == NoteTypes::GreenNoteLarge)
+            else if (noteType == NoteTypes::GreenNote)
             {
                 Node* instance = greenNoteScene->instantiate();
                 GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
