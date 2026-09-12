@@ -19,6 +19,10 @@ void GameplaySceneManager::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_red_note_scene"), &GameplaySceneManager::get_red_note_scene);
     ClassDB::bind_method(D_METHOD("set_blue_note_scene", "scene"), &GameplaySceneManager::set_blue_note_scene);
     ClassDB::bind_method(D_METHOD("get_blue_note_scene"), &GameplaySceneManager::get_blue_note_scene);
+    ClassDB::bind_method(D_METHOD("set_yellow_note_scene", "scene"), &GameplaySceneManager::set_yellow_note_scene);
+    ClassDB::bind_method(D_METHOD("get_yellow_note_scene"), &GameplaySceneManager::get_yellow_note_scene);
+    ClassDB::bind_method(D_METHOD("set_green_note_scene", "scene"), &GameplaySceneManager::set_green_note_scene);
+    ClassDB::bind_method(D_METHOD("get_green_note_scene"), &GameplaySceneManager::get_green_note_scene);
 }
 
 GameplaySceneManager::GameplaySceneManager()
@@ -37,10 +41,18 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
         return NoteTypes::RedNoteSmall;
     if (type == "blue")
         return NoteTypes::BlueNoteSmall;
+    if (type == "yellow")
+        return NoteTypes::YellowNoteSmall;
+    if (type == "green")
+        return NoteTypes::GreenNoteSmall;
     if (type == "redBig")
         return NoteTypes::RedNoteLarge;
     if (type == "blueBig")
         return NoteTypes::BlueNoteLarge;
+    if (type == "yellowBig")
+        return NoteTypes::YellowNoteLarge;
+    if (type == "greenBig")
+        return NoteTypes::GreenNoteLarge;
     return NoteTypes::RedNoteSmall;
 }
 
@@ -117,6 +129,20 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    yellowNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/YellowNote.tscn");
+    if (yellowNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load YellowNote scene");
+        return;
+    }
+
+    greenNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/GreenNote.tscn");
+    if (greenNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load GreenNote scene");
+        return;
+    }
+
     chart.activeCourse = courseDifficulty;
     chart.activeCourseIndex = courseIndex;
 
@@ -161,6 +187,34 @@ void GameplaySceneManager::_ready()
                     prefab->set_z_index(3);
                     add_child(prefab);
                     courseInChart->blueNotes.push_back(note);
+                }
+            }
+            else if (noteType == NoteTypes::YellowNoteSmall || noteType == NoteTypes::YellowNoteLarge)
+            {
+                Node* instance = yellowNoteScene->instantiate();
+                YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
+                if (prefab)
+                {
+                    YellowNote* note = new YellowNote();
+                    note->setNote(noteEvent);
+                    note->setPrefab(prefab);
+                    prefab->set_z_index(3);
+                    add_child(prefab);
+                    courseInChart->yellowNotes.push_back(note);
+                }
+            }
+            else if (noteType == NoteTypes::GreenNoteSmall || noteType == NoteTypes::GreenNoteLarge)
+            {
+                Node* instance = greenNoteScene->instantiate();
+                GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
+                if (prefab)
+                {
+                    GreenNote* note = new GreenNote();
+                    note->setNote(noteEvent);
+                    note->setPrefab(prefab);
+                    prefab->set_z_index(3);
+                    add_child(prefab);
+                    courseInChart->greenNotes.push_back(note);
                 }
             }
         }
@@ -258,6 +312,14 @@ void GameplaySceneManager::_process(double delta)
         {
             note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
+        for (YellowNote* note : course->yellowNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (GreenNote* note : course->greenNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
     }
 
     for (RedNote* note : course->redNotes)
@@ -284,6 +346,30 @@ void GameplaySceneManager::_process(double delta)
             }
         }
     }
+    for (YellowNote* note : course->yellowNotes)
+    {
+        if (note->isJudged())
+        {
+            YellowNotePrefab* prefab = note->getPrefab();
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->setPrefab(nullptr);
+            }
+        }
+    }
+    for (GreenNote* note : course->greenNotes)
+    {
+        if (note->isJudged())
+        {
+            GreenNotePrefab* prefab = note->getPrefab();
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->setPrefab(nullptr);
+            }
+        }
+    }
 
     if (!resultsScreenTriggered)
     {
@@ -299,6 +385,28 @@ void GameplaySceneManager::_process(double delta)
         if (allJudged)
         {
             for (BlueNote* note : course->blueNotes)
+            {
+                if (!note->isJudged())
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (YellowNote* note : course->yellowNotes)
+            {
+                if (!note->isJudged())
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (GreenNote* note : course->greenNotes)
             {
                 if (!note->isJudged())
                 {
@@ -334,4 +442,24 @@ void GameplaySceneManager::set_blue_note_scene(Ref<PackedScene> scene)
 Ref<PackedScene> GameplaySceneManager::get_blue_note_scene() const
 {
     return blueNoteScene;
+}
+
+void GameplaySceneManager::set_yellow_note_scene(Ref<PackedScene> scene)
+{
+    yellowNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_yellow_note_scene() const
+{
+    return yellowNoteScene;
+}
+
+void GameplaySceneManager::set_green_note_scene(Ref<PackedScene> scene)
+{
+    greenNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_green_note_scene() const
+{
+    return greenNoteScene;
 }

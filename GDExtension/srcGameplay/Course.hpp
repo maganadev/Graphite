@@ -48,7 +48,7 @@ public:
     static Course FromJson(const nlohmann::json& j)
     {
         static const std::unordered_map<int, std::string> valueToType = {
-            {1, "red"}, {2, "blue"}, {3, "redBig"}, {4, "blueBig"}};
+            {1, "red"}, {2, "blue"}, {3, "redBig"}, {4, "blueBig"}, {5, "yellow"}, {6, "green"}, {7, "yellowBig"}, {8, "greenBig"}};
 
         Course course;
         course.name = j["name"];
@@ -82,7 +82,7 @@ public:
                 if (it == valueToType.end())
                     continue;
                 std::string type = it->second;
-                bool big = (val == 3 || val == 4);
+                bool big = (val == 3 || val == 4 || val == 7 || val == 8);
                 parseNote(type, e["time"], e["time_picoseconds"], e.value("bpmForScroll_fractional", std::string("240/1")), e.value("bpmForScroll_double", 240.0), 1.0, 0, false, big, true);
             }
         }
@@ -100,7 +100,7 @@ public:
         for (auto* note : yellowNotes)
             laneRed.push_back(note);
         for (auto* note : greenNotes)
-            laneBlue.push_back(note);
+            laneRed.push_back(note);
         laneRed.resetCompletionStates();
         laneBlue.resetCompletionStates();
     }

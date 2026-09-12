@@ -14,8 +14,12 @@ enum class NoteTypes : uint8_t
 {
     RedNoteSmall,
     BlueNoteSmall,
+    YellowNoteSmall,
+    GreenNoteSmall,
     RedNoteLarge,
     BlueNoteLarge,
+    YellowNoteLarge,
+    GreenNoteLarge,
     LongNote,
     BalloonNote,
 };
