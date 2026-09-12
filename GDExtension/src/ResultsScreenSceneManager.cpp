@@ -2,10 +2,10 @@
 #include "GameManager.hpp"
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
-#include <godot_cpp/classes/label.hpp>
-#include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/color_rect.hpp>
+#include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/node2d.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 void ResultsScreenSceneManager::_bind_methods()
@@ -34,60 +34,72 @@ void ResultsScreenSceneManager::_ready()
 
     const Course* course = &chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex];
 
-    auto isChou = [](NoteGradings g) {
-        return g == NoteGradings::CompletlelyPerfect || g == NoteGradings::Early_Chou || g == NoteGradings::Late_Chou;
-    };
-    auto isRyou = [](NoteGradings g) {
-        return g == NoteGradings::Early_Ryou || g == NoteGradings::Late_Ryou;
-    };
-    auto isKa = [](NoteGradings g) {
-        return g == NoteGradings::Early_Ka || g == NoteGradings::Late_Ka;
-    };
-    auto isFuka = [](NoteGradings g) {
-        return g == NoteGradings::Early_Fuka || g == NoteGradings::Late_Fuka;
-    };
+    auto isChou = [](NoteGradings g) { return g == NoteGradings::CompletlelyPerfect || g == NoteGradings::Early_Chou || g == NoteGradings::Late_Chou; };
+    auto isRyou = [](NoteGradings g) { return g == NoteGradings::Early_Ryou || g == NoteGradings::Late_Ryou; };
+    auto isKa = [](NoteGradings g) { return g == NoteGradings::Early_Ka || g == NoteGradings::Late_Ka; };
+    auto isFuka = [](NoteGradings g) { return g == NoteGradings::Early_Fuka || g == NoteGradings::Late_Fuka; };
 
     int chouCount = 0, ryouCount = 0, kaCount = 0, fukaCount = 0;
 
     constexpr int BAR_COUNT = 45;
-    constexpr int64_t WINDOW_PS = 110000000000LL;
+    constexpr int64_t WINDOW_PS = JudgementThread::TIME_WINDOW_FUKA;
     std::vector<int> histogram(BAR_COUNT, 0);
 
-    auto countNote = [&](auto* note) {
-        if (!note || !note->isJudged()) return;
+    auto countNote = [&](auto* note)
+    {
+        if (!note || !note->isJudged())
+            return;
         NoteGradings g = note->getGrading();
-        if (isChou(g)) chouCount++;
-        else if (isRyou(g)) ryouCount++;
-        else if (isKa(g)) kaCount++;
-        else if (isFuka(g)) fukaCount++;
+        if (isChou(g))
+            chouCount++;
+        else if (isRyou(g))
+            ryouCount++;
+        else if (isKa(g))
+            kaCount++;
+        else if (isFuka(g))
+            fukaCount++;
 
         int64_t off = note->getPicosecondsOff();
-        if (off < -WINDOW_PS) off = -WINDOW_PS;
-        if (off > WINDOW_PS) off = WINDOW_PS;
+        if (off < -WINDOW_PS)
+            off = -WINDOW_PS;
+        if (off > WINDOW_PS)
+            off = WINDOW_PS;
         int bucket = static_cast<int>((off + WINDOW_PS) * BAR_COUNT / (2 * WINDOW_PS));
-        if (bucket < 0) bucket = 0;
-        if (bucket >= BAR_COUNT) bucket = BAR_COUNT - 1;
+        if (bucket < 0)
+            bucket = 0;
+        if (bucket >= BAR_COUNT)
+            bucket = BAR_COUNT - 1;
         histogram[bucket]++;
         UtilityFunctions::print("Note off=", std::to_string(off).c_str(), " ps -> bucket=", bucket);
     };
 
-    for (auto* note : course->redNotes) countNote(note);
-    for (auto* note : course->blueNotes) countNote(note);
-    for (auto* note : course->yellowNotes) countNote(note);
-    for (auto* note : course->greenNotes) countNote(note);
+    for (auto* note : course->redNotes)
+        countNote(note);
+    for (auto* note : course->blueNotes)
+        countNote(note);
+    for (auto* note : course->yellowNotes)
+        countNote(note);
+    for (auto* note : course->greenNotes)
+        countNote(note);
 
     // Calculate average off-time for calibration mods
     int64_t totalOff = 0;
     int64_t judgedCount = 0;
-    auto sumOff = [&](auto* note) {
-        if (!note || !note->isJudged()) return;
+    auto sumOff = [&](auto* note)
+    {
+        if (!note || !note->isJudged())
+            return;
         totalOff += note->getPicosecondsOff();
         judgedCount++;
     };
-    for (auto* note : course->redNotes) sumOff(note);
-    for (auto* note : course->blueNotes) sumOff(note);
-    for (auto* note : course->yellowNotes) sumOff(note);
-    for (auto* note : course->greenNotes) sumOff(note);
+    for (auto* note : course->redNotes)
+        sumOff(note);
+    for (auto* note : course->blueNotes)
+        sumOff(note);
+    for (auto* note : course->yellowNotes)
+        sumOff(note);
+    for (auto* note : course->greenNotes)
+        sumOff(note);
 
     if (judgedCount > 0)
     {
@@ -95,7 +107,7 @@ void ResultsScreenSceneManager::_ready()
 
         if (GraphiteGlobals::modVisualOffsetCalibration)
         {
-            GraphiteGlobals::visualOffset -= averageOff;
+            GraphiteGlobals::visualOffset = -averageOff;
             UtilityFunctions::print("Visual offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new visual offset ", std::to_string(GraphiteGlobals::visualOffset).c_str(), " ps");
             SettingsFile offsetSettingsFile("offset_settings.json");
             offsetSettingsFile.load();
@@ -106,7 +118,7 @@ void ResultsScreenSceneManager::_ready()
 
         if (GraphiteGlobals::modAudioOffsetCalibration)
         {
-            GraphiteGlobals::audioOffset += averageOff;
+            GraphiteGlobals::audioOffset = -averageOff;
             UtilityFunctions::print("Audio offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new audio offset ", std::to_string(GraphiteGlobals::audioOffset).c_str(), " ps");
             SettingsFile offsetSettingsFile("offset_settings.json");
             offsetSettingsFile.load();
@@ -116,7 +128,8 @@ void ResultsScreenSceneManager::_ready()
         }
     }
 
-    auto setLabelText = [this](const String& name, const String& text) {
+    auto setLabelText = [this](const String& name, const String& text)
+    {
         Label* label = get_node<Label>(NodePath(String("..") + "/" + name));
         if (label)
             label->set_text(text);
@@ -129,7 +142,8 @@ void ResultsScreenSceneManager::_ready()
 
     int maxCount = 1;
     for (int c : histogram)
-        if (c > maxCount) maxCount = c;
+        if (c > maxCount)
+            maxCount = c;
 
     constexpr double MAX_HEIGHT = 400.0;
 
