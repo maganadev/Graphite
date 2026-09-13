@@ -49,6 +49,11 @@ void ResultsScreenSceneManager::_ready()
     {
         if (!note || !note->isJudged())
             return;
+
+        int64_t rawOff = note->getPicosecondsOff();
+        if (rawOff < -WINDOW_PS || rawOff > WINDOW_PS)
+            return;
+
         NoteGradings g = note->getGrading();
         if (isChou(g))
             chouCount++;
@@ -59,18 +64,13 @@ void ResultsScreenSceneManager::_ready()
         else if (isFuka(g))
             fukaCount++;
 
-        int64_t off = note->getPicosecondsOff();
-        if (off < -WINDOW_PS)
-            off = -WINDOW_PS;
-        if (off > WINDOW_PS)
-            off = WINDOW_PS;
-        int bucket = static_cast<int>((off + WINDOW_PS) * BAR_COUNT / (2 * WINDOW_PS));
+        int bucket = static_cast<int>((rawOff + WINDOW_PS) * BAR_COUNT / (2 * WINDOW_PS));
         if (bucket < 0)
             bucket = 0;
         if (bucket >= BAR_COUNT)
             bucket = BAR_COUNT - 1;
         histogram[bucket]++;
-        UtilityFunctions::print("Note off=", std::to_string(off).c_str(), " ps -> bucket=", bucket);
+        UtilityFunctions::print("Note rawOff=", std::to_string(rawOff).c_str(), " ps -> bucket=", bucket);
     };
 
     for (auto* note : course->redNotes)
@@ -89,7 +89,10 @@ void ResultsScreenSceneManager::_ready()
     {
         if (!note || !note->isJudged())
             return;
-        totalOff += note->getPicosecondsOff();
+        int64_t off = note->getPicosecondsOff();
+        if (off < -WINDOW_PS || off > WINDOW_PS)
+            return;
+        totalOff += off;
         judgedCount++;
     };
     for (auto* note : course->redNotes)
