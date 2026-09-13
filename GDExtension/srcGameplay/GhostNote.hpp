@@ -25,11 +25,6 @@ public:
     void setPrefab(GhostNotePrefab* prefab);
     GhostNotePrefab* getPrefab() const;
 
-    bool isJudged() const;
-    void setJudged(NoteGradings grading, int64_t picosecondsOff);
-    NoteGradings getGrading() const;
-    int64_t getPicosecondsOff() const;
-
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
 

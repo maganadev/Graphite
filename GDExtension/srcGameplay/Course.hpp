@@ -2,6 +2,7 @@
 #define Course_hpp
 
 #include <cstdint>
+#include <cstdlib>
 #include <string>
 #include <unordered_map>
 #include <variant>
@@ -14,6 +15,7 @@ class RedNote;
 class BlueNote;
 class YellowNote;
 class GreenNote;
+class GhostNote;
 
 struct Note
 {
@@ -29,33 +31,30 @@ struct Note
     bool visible;
 };
 
+void courseLogError(const std::string& message);
+
 class Course
 {
 public:
-    std::string name;
+    int courseNumber;
     int level;
-    std::string bpm;
-    std::string offset;
-    int64_t offset_picoseconds{0};
     std::vector<Note> notes;
     std::vector<RedNote*> redNotes;
     std::vector<BlueNote*> blueNotes;
     std::vector<YellowNote*> yellowNotes;
     std::vector<GreenNote*> greenNotes;
+    std::vector<GhostNote*> ghostNotes;
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneRed;
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneBlue;
 
     static Course FromJson(const nlohmann::json& j)
     {
-        static const std::unordered_map<int, std::string> valueToType = {
-            {1, "red"}, {2, "blue"}, {3, "redBig"}, {4, "blueBig"}, {5, "yellow"}, {7, "green"}};
+        static const std::unordered_map<std::string, std::string> typeToName = {
+            {"1", "red"}, {"2", "blue"}, {"3", "redBig"}, {"4", "blueBig"}, {"5", "yellow"}, {"7", "green"}, {"8", "green"}, {"G", "ghost"}};
 
         Course course;
-        course.name = j["name"];
+        course.courseNumber = j["course"];
         course.level = j["level"];
-        course.bpm = j["bpm"];
-        course.offset = j.value("offset", "0/1");
-        course.offset_picoseconds = j.value("offset_picoseconds", static_cast<int64_t>(0));
 
         auto parseNote = [&course](const std::string& type, const std::string& timeFrac, int64_t timePs, const std::string& bpmFrac, double bpmDouble, double scroll, int measure, bool gogo, bool big, bool visible)
         {
@@ -77,13 +76,15 @@ public:
         {
             for (const auto& e : j["notes"])
             {
-                int val = e["value"];
-                auto it = valueToType.find(val);
-                if (it == valueToType.end())
+                std::string typeStr = e["type"];
+                auto it = typeToName.find(typeStr);
+                if (it == typeToName.end())
+                {
+                    courseLogError("Unknown note type string \"" + typeStr + "\" at time " + e["time"].get<std::string>());
                     continue;
-                std::string type = it->second;
-                bool big = (val == 3 || val == 4);
-                parseNote(type, e["time"], e["time_picoseconds"], e.value("bpmForScroll_fractional", std::string("240/1")), e.value("bpmForScroll_double", 240.0), 1.0, 0, false, big, true);
+                }
+                bool big = (typeStr == "3" || typeStr == "4");
+                parseNote(it->second, e["time"], e["time_picoseconds"], e.value("bpmForScroll_fractional", std::string("240/1")), e.value("bpmForScroll_double", 240.0), 1.0, 0, false, big, true);
             }
         }
         return course;

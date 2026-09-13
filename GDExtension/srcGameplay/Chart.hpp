@@ -27,9 +27,9 @@ public:
         Chart chart;
         chart.title = j.value("title", "");
         chart.wave = j.value("wave", "");
-        chart.defaultBpm = j.value("defaultBpm", "0/1");
+        chart.defaultBpm = j.value("defaultBpm_fractional", "0/1");
         chart.defaultBpmDouble = j.value("defaultBpm_double", 0.0);
-        chart.defaultOffset = j.value("defaultOffset", "0/1");
+        chart.defaultOffset = j.value("defaultOffset_fractional", "0/1");
         chart.defaultOffsetPicoseconds = j.value("defaultOffset_picoseconds", static_cast<int64_t>(0));
         if (j.contains("courses"))
         {
@@ -40,7 +40,6 @@ public:
         }
         return chart;
     }
-
-    };
+};
 
 #endif

@@ -18,6 +18,7 @@ enum class NoteTypes : uint8_t
     GreenNote,
     RedNoteLarge,
     BlueNoteLarge,
+    GhostNote,
 };
 
 enum class NoteGradings : uint8_t

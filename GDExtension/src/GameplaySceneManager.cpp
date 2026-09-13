@@ -2,6 +2,8 @@
 #include "BlueNote.hpp"
 #include "BlueNotePrefab.hpp"
 #include "Course.hpp"
+#include "GhostNote.hpp"
+#include "GhostNotePrefab.hpp"
 #include "GreenNote.hpp"
 #include "GreenNotePrefab.hpp"
 #include "RedNote.hpp"
@@ -23,6 +25,8 @@ void GameplaySceneManager::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_yellow_note_scene"), &GameplaySceneManager::get_yellow_note_scene);
     ClassDB::bind_method(D_METHOD("set_green_note_scene", "scene"), &GameplaySceneManager::set_green_note_scene);
     ClassDB::bind_method(D_METHOD("get_green_note_scene"), &GameplaySceneManager::get_green_note_scene);
+    ClassDB::bind_method(D_METHOD("set_ghost_note_scene", "scene"), &GameplaySceneManager::set_ghost_note_scene);
+    ClassDB::bind_method(D_METHOD("get_ghost_note_scene"), &GameplaySceneManager::get_ghost_note_scene);
 }
 
 GameplaySceneManager::GameplaySceneManager()
@@ -45,6 +49,8 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
         return NoteTypes::YellowNote;
     if (type == "green")
         return NoteTypes::GreenNote;
+    if (type == "ghost")
+        return NoteTypes::GhostNote;
     if (type == "redBig")
         return NoteTypes::RedNoteLarge;
     if (type == "blueBig")
@@ -55,7 +61,7 @@ NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
 void GameplaySceneManager::_ready()
 {
     std::string songFileName = GraphiteGlobals::currentSongFileName;
-    std::string courseDifficulty = (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration) ? "Oni" : "Hard";
+    int32_t courseDifficulty = (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration) ? 3 : 2;
 
     // Open the song
     std::ifstream ifs(songFileName);
@@ -71,7 +77,7 @@ void GameplaySceneManager::_ready()
     int32_t courseIndex = -1;
     for (int32_t i = 0; i < static_cast<int32_t>(chart.courses.size()); ++i)
     {
-        if (chart.courses[i].name == courseDifficulty)
+        if (chart.courses[i].courseNumber == courseDifficulty)
         {
             courseIndex = i;
             break;
@@ -79,14 +85,14 @@ void GameplaySceneManager::_ready()
     }
     if (courseIndex < 0)
     {
-        UtilityFunctions::print("Course not found: ", courseDifficulty.c_str());
+        UtilityFunctions::print("Course not found: ", std::to_string(courseDifficulty).c_str());
         return;
     }
     Course* targetCourse = &chart.courses[courseIndex];
 
     // Unfiltered offsets
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
-    int64_t unfilteredAudioOffset = targetCourse->offset_picoseconds + GraphiteGlobals::audioOffset;
+    int64_t unfilteredAudioOffset = chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
 
     // If calibration mods are enabled, override the offsets
@@ -139,7 +145,14 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    chart.activeCourse = courseDifficulty;
+    ghostNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/GhostNote.tscn");
+    if (ghostNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load GhostNote scene");
+        return;
+    }
+
+    chart.activeCourse = std::to_string(courseDifficulty);
     chart.activeCourseIndex = courseIndex;
 
     // Build the course under write guard so judgment thread can't read it before it's ready
@@ -213,12 +226,26 @@ void GameplaySceneManager::_ready()
                     courseInChart->greenNotes.push_back(note);
                 }
             }
+            else if (noteType == NoteTypes::GhostNote)
+            {
+                Node* instance = ghostNoteScene->instantiate();
+                GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
+                if (prefab)
+                {
+                    GhostNote* note = new GhostNote();
+                    note->setNote(noteEvent);
+                    note->setPrefab(prefab);
+                    prefab->set_z_index(3);
+                    add_child(prefab);
+                    courseInChart->ghostNotes.push_back(note);
+                }
+            }
         }
 
         courseInChart->populateLanes();
     }
 
-    UtilityFunctions::print("Spawned notes for course: ", courseDifficulty.c_str());
+    UtilityFunctions::print("Spawned notes for course: ", std::to_string(courseDifficulty).c_str());
 
     // Read wave path from the chart via read guard
     std::string wavePath;
@@ -313,6 +340,10 @@ void GameplaySceneManager::_process(double delta)
             note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
         for (GreenNote* note : course->greenNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (GhostNote* note : course->ghostNotes)
         {
             note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
@@ -458,4 +489,14 @@ void GameplaySceneManager::set_green_note_scene(Ref<PackedScene> scene)
 Ref<PackedScene> GameplaySceneManager::get_green_note_scene() const
 {
     return greenNoteScene;
+}
+
+void GameplaySceneManager::set_ghost_note_scene(Ref<PackedScene> scene)
+{
+    ghostNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_ghost_note_scene() const
+{
+    return ghostNoteScene;
 }
