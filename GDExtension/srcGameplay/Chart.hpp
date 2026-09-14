@@ -22,6 +22,12 @@ public:
     std::string activeCourse;
     int32_t activeCourseIndex{-1};
 
+    int64_t hitWindowAboutToBeOutOfRange{110000000000};
+    int64_t hitWindowFuka{100000000000};
+    int64_t hitWindowKa{80000000000};
+    int64_t hitWindowRyou{46000000000};
+    int64_t hitWindowChou{20000000000};
+
     static Chart FromJson(const nlohmann::json& j)
     {
         Chart chart;

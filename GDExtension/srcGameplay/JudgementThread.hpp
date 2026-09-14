@@ -15,6 +15,8 @@
 #include <variant>
 #include <vector>
 
+class Chart;
+
 enum class Lanes : size_t
 {
     Red = 0,
@@ -30,16 +32,9 @@ struct InputTimingMessage
 class JudgementThread
 {
 public:
-    static constexpr int64_t TIME_WINDOW_ABOUT_TO_BE_OOR = 110000000000;
-    static constexpr int64_t TIME_WINDOW_FUKA = 100000000000;
-    static constexpr int64_t TIME_WINDOW_KA = 80000000000;
-    static constexpr int64_t TIME_WINDOW_RYOU = 46000000000;
-    static constexpr int64_t TIME_WINDOW_CHOU = 20000000000;
-    static constexpr size_t LANE_COUNT = 2;
-
-    static NoteGradings getGradingForOfftime(int64_t timeDelta);
-    static void gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading);
-    static void gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs);
+    static NoteGradings getGradingForOfftime(int64_t timeDelta, const Chart* chart);
+    static void gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
+    static void gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, const Chart* chart);
 
     // Thread lifecycle
     static void start();

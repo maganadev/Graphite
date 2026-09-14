@@ -34,7 +34,7 @@ void ResultsScreenSceneManager::_ready()
 
     const Course* course = &chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex];
 
-    auto isChou = [](NoteGradings g) { return g == NoteGradings::CompletlelyPerfect || g == NoteGradings::Early_Chou || g == NoteGradings::Late_Chou; };
+    auto isChou = [](NoteGradings g) { return g == NoteGradings::CompletelyPerfect || g == NoteGradings::Early_Chou || g == NoteGradings::Late_Chou; };
     auto isRyou = [](NoteGradings g) { return g == NoteGradings::Early_Ryou || g == NoteGradings::Late_Ryou; };
     auto isKa = [](NoteGradings g) { return g == NoteGradings::Early_Ka || g == NoteGradings::Late_Ka; };
     auto isFuka = [](NoteGradings g) { return g == NoteGradings::Early_Fuka || g == NoteGradings::Late_Fuka; };
@@ -42,7 +42,7 @@ void ResultsScreenSceneManager::_ready()
     int chouCount = 0, ryouCount = 0, kaCount = 0, fukaCount = 0;
 
     constexpr int BAR_COUNT = 45;
-    constexpr int64_t WINDOW_PS = JudgementThread::TIME_WINDOW_FUKA;
+    const int64_t WINDOW_PS = chartGuard.objRef->hitWindowFuka;
     std::vector<int> histogram(BAR_COUNT, 0);
 
     auto countNote = [&](auto* note)

@@ -25,17 +25,17 @@ enum class NoteGradings : uint8_t
 {
     Ungraded,
     Early_OutOfRange,
-    Early_AboutToBeOOR,
+    Early_AboutToBeOutOfRange,
     Early_Fuka,
     Early_Ka,
     Early_Ryou,
     Early_Chou,
-    CompletlelyPerfect,
+    CompletelyPerfect,
     Late_Chou,
     Late_Ryou,
     Late_Ka,
     Late_Fuka,
-    Late_AboutToBeOOR,
+    Late_AboutToBeOutOfRange,
     Late_OutOfRange,
 };
 #endif

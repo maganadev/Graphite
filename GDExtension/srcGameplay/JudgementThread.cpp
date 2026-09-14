@@ -46,33 +46,39 @@ void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNot
     }
 }
 
-NoteGradings JudgementThread::getGradingForOfftime(int64_t timeDelta)
+NoteGradings JudgementThread::getGradingForOfftime(int64_t timeDelta, const Chart* chart)
 {
     const int64_t absDelta = std::abs(timeDelta);
     const bool isEarly = timeDelta < 0;
+    const int64_t hitWindowAboutToBeOutOfRange = chart->hitWindowAboutToBeOutOfRange;
+    const int64_t hitWindowFuka = chart->hitWindowFuka;
+    const int64_t hitWindowKa = chart->hitWindowKa;
+    const int64_t hitWindowRyou = chart->hitWindowRyou;
+    const int64_t hitWindowChou = chart->hitWindowChou;
+
     if (absDelta == 0)
     {
-        return NoteGradings::CompletlelyPerfect;
+        return NoteGradings::CompletelyPerfect;
     }
-    if (absDelta <= TIME_WINDOW_CHOU)
+    if (absDelta <= hitWindowChou)
     {
         return isEarly ? NoteGradings::Early_Chou : NoteGradings::Late_Chou;
     }
-    if (absDelta <= TIME_WINDOW_RYOU)
+    if (absDelta <= hitWindowRyou)
     {
         return isEarly ? NoteGradings::Early_Ryou : NoteGradings::Late_Ryou;
     }
-    if (absDelta <= TIME_WINDOW_KA)
+    if (absDelta <= hitWindowKa)
     {
         return isEarly ? NoteGradings::Early_Ka : NoteGradings::Late_Ka;
     }
-    if (absDelta <= TIME_WINDOW_FUKA)
+    if (absDelta <= hitWindowFuka)
     {
         return isEarly ? NoteGradings::Early_Fuka : NoteGradings::Late_Fuka;
     }
-    if (absDelta <= TIME_WINDOW_ABOUT_TO_BE_OOR)
+    if (absDelta <= hitWindowAboutToBeOutOfRange)
     {
-        return isEarly ? NoteGradings::Early_AboutToBeOOR : NoteGradings::Late_AboutToBeOOR;
+        return isEarly ? NoteGradings::Early_AboutToBeOutOfRange : NoteGradings::Late_AboutToBeOutOfRange;
     }
     return isEarly ? NoteGradings::Early_OutOfRange : NoteGradings::Late_OutOfRange;
 }
@@ -103,7 +109,7 @@ bool JudgementThread::isRunning()
     return thread.joinable() && !requestShutdown.load(std::memory_order_acquire);
 }
 
-void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading)
+void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -112,7 +118,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*
     {
         int64_t noteTime = getNoteTime(*noteVariant);
         int64_t timeDelta = songPositionPs - noteTime;
-        NoteGradings grading = getGradingForOfftime(timeDelta);
+        NoteGradings grading = getGradingForOfftime(timeDelta, chart);
 
         if (grading == NoteGradings::Early_OutOfRange)
         {
@@ -131,7 +137,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*
     }
 }
 
-void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs)
+void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -140,7 +146,7 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote
     {
         int64_t noteTime = getNoteTime(*noteVariant);
         int64_t timeDelta = songPositionPs - noteTime;
-        NoteGradings grading = getGradingForOfftime(timeDelta);
+        NoteGradings grading = getGradingForOfftime(timeDelta, chart);
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
@@ -211,7 +217,7 @@ void JudgementThread::threadBehavior()
 
             CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
             NoteGradings outGrading = NoteGradings::Ungraded;
-            gradeNoteIfNoteExists(lane, songPositionPs, outGrading);
+            gradeNoteIfNoteExists(lane, songPositionPs, outGrading, chartGuard.objRef);
 
             const bool isRed = (laneIndex == static_cast<size_t>(Lanes::Red));
             uint64_t hitsoundHandle = 0;
@@ -221,7 +227,7 @@ void JudgementThread::threadBehavior()
                 {
                 case NoteGradings::Early_Chou:
                 case NoteGradings::Late_Chou:
-                case NoteGradings::CompletlelyPerfect:
+                case NoteGradings::CompletelyPerfect:
                     hitsoundHandle = GraphiteGlobals::redChouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ryou:
@@ -247,7 +253,7 @@ void JudgementThread::threadBehavior()
                 {
                 case NoteGradings::Early_Chou:
                 case NoteGradings::Late_Chou:
-                case NoteGradings::CompletlelyPerfect:
+                case NoteGradings::CompletelyPerfect:
                     hitsoundHandle = GraphiteGlobals::blueChouHitsoundHandle;
                     break;
                 case NoteGradings::Early_Ryou:
@@ -307,8 +313,8 @@ void JudgementThread::threadBehavior()
 
             Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
-            gradeAllAbandonedNotes(course->laneRed, songPositionPs);
-            gradeAllAbandonedNotes(course->laneBlue, songPositionPs);
+            gradeAllAbandonedNotes(course->laneRed, songPositionPs, chartGuard.objRef);
+            gradeAllAbandonedNotes(course->laneBlue, songPositionPs, chartGuard.objRef);
         }
     }
 }

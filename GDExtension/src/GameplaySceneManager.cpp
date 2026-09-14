@@ -164,6 +164,16 @@ void GameplaySceneManager::_ready()
             UtilityFunctions::print("Failed to find course in chart after move");
             return;
         }
+
+        if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
+        {
+            guard.objRef->hitWindowAboutToBeOutOfRange *= 4;
+            guard.objRef->hitWindowFuka *= 4;
+            guard.objRef->hitWindowKa *= 4;
+            guard.objRef->hitWindowRyou *= 4;
+            guard.objRef->hitWindowChou *= 4;
+        }
+
         Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
 
         for (const auto& noteEvent : courseInChart->notes)

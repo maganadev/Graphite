@@ -8,6 +8,7 @@
 #include "RedNotePrefab.hpp"
 #include "BlueNotePrefab.hpp"
 #include "YellowNotePrefab.hpp"
+#include "GhostNotePrefab.hpp"
 #include "GreenNotePrefab.hpp"
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -29,6 +30,7 @@ void initialize_module(ModuleInitializationLevel p_level)
     GDREGISTER_RUNTIME_CLASS(BlueNotePrefab);
     GDREGISTER_RUNTIME_CLASS(YellowNotePrefab);
     GDREGISTER_RUNTIME_CLASS(GreenNotePrefab);
+    GDREGISTER_RUNTIME_CLASS(GhostNotePrefab);
 }
 
 void uninitialize_module(ModuleInitializationLevel p_level)
