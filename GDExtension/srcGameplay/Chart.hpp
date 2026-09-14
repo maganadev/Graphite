@@ -12,6 +12,11 @@
 class Chart
 {
 public:
+    ////////////////////////////////////////////////////////////
+    //
+    // Information stored in the chart
+    //
+    ////////////////////////////////////////////////////////////
     std::string title;
     std::string wave;
     std::string defaultBpm;
@@ -19,9 +24,13 @@ public:
     std::string defaultOffset;
     int64_t defaultOffsetPicoseconds{0};
     std::vector<Course> courses;
-    std::string activeCourse;
-    int32_t activeCourseIndex{-1};
 
+    ////////////////////////////////////////////////////////////
+    //
+    // Tacked-on information for the game to use during play
+    //
+    ////////////////////////////////////////////////////////////
+    int32_t activeCourseIndex{-1};
     int64_t hitWindowAboutToBeOutOfRange{110000000000};
     int64_t hitWindowFuka{100000000000};
     int64_t hitWindowKa{80000000000};

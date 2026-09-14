@@ -152,7 +152,6 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    chart.activeCourse = std::to_string(courseDifficulty);
     chart.activeCourseIndex = courseIndex;
 
     // Build the course under write guard so judgment thread can't read it before it's ready
@@ -294,7 +293,7 @@ void GameplaySceneManager::_ready()
         LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
         if (chartGuard.objRef)
         {
-            UtilityFunctions::print("Loaded song: ", chartGuard.objRef->title.c_str(), " | Course: ", chartGuard.objRef->activeCourse.c_str(), " | Wave: ", wavePath.c_str());
+            UtilityFunctions::print("Loaded song: ", chartGuard.objRef->title.c_str(), " | Wave: ", wavePath.c_str());
         }
     }
 }

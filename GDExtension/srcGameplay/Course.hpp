@@ -36,6 +36,11 @@ void courseLogError(const std::string& message);
 class Course
 {
 public:
+    ////////////////////////////////////////////////////////////
+    //
+    // Information stored in the chart
+    //
+    ////////////////////////////////////////////////////////////
     int courseNumber;
     int level;
     std::vector<Note> notes;
@@ -44,13 +49,18 @@ public:
     std::vector<YellowNote*> yellowNotes;
     std::vector<GreenNote*> greenNotes;
     std::vector<GhostNote*> ghostNotes;
+
+    ////////////////////////////////////////////////////////////
+    //
+    // Tacked-on information for the game to use during play
+    //
+    ////////////////////////////////////////////////////////////
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneRed;
     CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>> laneBlue;
 
     static Course FromJson(const nlohmann::json& j)
     {
-        static const std::unordered_map<std::string, std::string> typeToName = {
-            {"1", "red"}, {"2", "blue"}, {"3", "redBig"}, {"4", "blueBig"}, {"5", "yellow"}, {"7", "green"}, {"8", "green"}, {"G", "ghost"}};
+        static const std::unordered_map<std::string, std::string> typeToName = {{"1", "red"}, {"2", "blue"}, {"3", "redBig"}, {"4", "blueBig"}, {"5", "yellow"}, {"7", "green"}, {"8", "green"}, {"G", "ghost"}};
 
         Course course;
         course.courseNumber = j["course"];
