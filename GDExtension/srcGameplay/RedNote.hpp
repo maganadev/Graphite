@@ -1,10 +1,10 @@
 #ifndef RedNote_hpp
 #define RedNote_hpp
 
+#include "../srcThirdParty/json.hpp"
 #include <atomic>
 #include <cstdint>
 
-#include "Course.hpp"
 #include "RhythmEnums.hpp"
 
 class RedNotePrefab;
@@ -16,11 +16,10 @@ public:
     static constexpr double LANE_Y = 386.0;
     static constexpr double HITZONE_CENTER_X = 618.0;
 
-    RedNote();
+    RedNote(const nlohmann::json& j);
     ~RedNote();
 
-    void setNote(const Note& note);
-    const Note& getNote() const;
+    int64_t getTimePicoseconds() const;
 
     void setPrefab(RedNotePrefab* prefab);
     RedNotePrefab* getPrefab() const;
@@ -34,7 +33,8 @@ public:
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
 
 private:
-    Note m_note;
+    int64_t m_timePicoseconds;
+    double m_bpmForScrollDouble;
     std::atomic<bool> m_judged{false};
     NoteGradings m_grading{NoteGradings::Ungraded};
     int64_t m_picosecondsOff{0};

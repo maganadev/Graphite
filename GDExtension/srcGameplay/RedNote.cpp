@@ -1,25 +1,18 @@
 #include "RedNote.hpp"
-#include "RedNotePrefab.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "RedNotePrefab.hpp"
 
-RedNote::RedNote()
+RedNote::RedNote(const nlohmann::json& j) : m_timePicoseconds(j["time_picoseconds"]), m_bpmForScrollDouble(j.value("bpmForScroll_double", 240.0))
 {
-    //
 }
 
 RedNote::~RedNote()
 {
-    //
 }
 
-void RedNote::setNote(const Note& note)
+int64_t RedNote::getTimePicoseconds() const
 {
-    m_note = note;
-}
-
-const Note& RedNote::getNote() const
-{
-    return m_note;
+    return m_timePicoseconds;
 }
 
 void RedNote::setPrefab(RedNotePrefab* prefab)
@@ -67,9 +60,9 @@ void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffs
 
 void RedNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const
 {
-    const int64_t effectiveNoteTimePs = m_note.time_picoseconds + visualOffsetPicoseconds;
+    const int64_t effectiveNoteTimePs = m_timePicoseconds + visualOffsetPicoseconds;
     const int64_t timeUntilNote = effectiveNoteTimePs - songPositionPicoseconds;
-    double scrollXOffset = (SCROLL_SPEED_FACTOR * m_note.bpmForScroll_double * static_cast<double>(timeUntilNote));
+    double scrollXOffset = (SCROLL_SPEED_FACTOR * m_bpmForScrollDouble * static_cast<double>(timeUntilNote));
     if (GraphiteGlobals::modAudioOffsetCalibration)
     {
         scrollXOffset *= 0.125;

@@ -1,10 +1,9 @@
 #ifndef GhostNote_hpp
 #define GhostNote_hpp
 
-#include <atomic>
+#include "../srcThirdParty/json.hpp"
 #include <cstdint>
 
-#include "Course.hpp"
 #include "RhythmEnums.hpp"
 
 class GhostNotePrefab;
@@ -16,11 +15,10 @@ public:
     static constexpr double LANE_Y = 386.0;
     static constexpr double HITZONE_CENTER_X = 618.0;
 
-    GhostNote();
+    GhostNote(const nlohmann::json& j);
     ~GhostNote();
 
-    void setNote(const Note& note);
-    const Note& getNote() const;
+    int64_t getTimePicoseconds() const;
 
     void setPrefab(GhostNotePrefab* prefab);
     GhostNotePrefab* getPrefab() const;
@@ -29,7 +27,8 @@ public:
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
 
 private:
-    Note m_note;
+    int64_t m_timePicoseconds;
+    double m_bpmForScrollDouble;
     GhostNotePrefab* m_prefab{nullptr};
 };
 

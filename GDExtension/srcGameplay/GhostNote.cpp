@@ -1,25 +1,18 @@
 #include "GhostNote.hpp"
-#include "GhostNotePrefab.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "GhostNotePrefab.hpp"
 
-GhostNote::GhostNote()
+GhostNote::GhostNote(const nlohmann::json& j) : m_timePicoseconds(j["time_picoseconds"]), m_bpmForScrollDouble(j.value("bpmForScroll_double", 240.0))
 {
-    //
 }
 
 GhostNote::~GhostNote()
 {
-    //
 }
 
-void GhostNote::setNote(const Note& note)
+int64_t GhostNote::getTimePicoseconds() const
 {
-    m_note = note;
-}
-
-const Note& GhostNote::getNote() const
-{
-    return m_note;
+    return m_timePicoseconds;
 }
 
 void GhostNote::setPrefab(GhostNotePrefab* prefab)
@@ -45,9 +38,9 @@ void GhostNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOf
 
 void GhostNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const
 {
-    const int64_t effectiveNoteTimePs = m_note.time_picoseconds + visualOffsetPicoseconds;
+    const int64_t effectiveNoteTimePs = m_timePicoseconds + visualOffsetPicoseconds;
     const int64_t timeUntilNote = effectiveNoteTimePs - songPositionPicoseconds;
-    double scrollXOffset = (SCROLL_SPEED_FACTOR * m_note.bpmForScroll_double * static_cast<double>(timeUntilNote));
+    double scrollXOffset = (SCROLL_SPEED_FACTOR * m_bpmForScrollDouble * static_cast<double>(timeUntilNote));
     if (GraphiteGlobals::modAudioOffsetCalibration)
     {
         scrollXOffset *= 0.125;

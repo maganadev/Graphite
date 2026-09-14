@@ -9,27 +9,12 @@
 #include <vector>
 
 #include "../srcThirdParty/json.hpp"
+#include "BlueNote.hpp"
 #include "CompletionList.hpp"
-
-class RedNote;
-class BlueNote;
-class YellowNote;
-class GreenNote;
-class GhostNote;
-
-struct Note
-{
-    std::string type;
-    std::string time_fractional;
-    int64_t time_picoseconds;
-    std::string bpmForScroll_fractional;
-    double bpmForScroll_double{0.0};
-    double scroll;
-    int measure;
-    bool gogo;
-    bool big;
-    bool visible;
-};
+#include "GhostNote.hpp"
+#include "GreenNote.hpp"
+#include "RedNote.hpp"
+#include "YellowNote.hpp"
 
 void courseLogError(const std::string& message);
 
@@ -43,7 +28,6 @@ public:
     ////////////////////////////////////////////////////////////
     int courseNumber;
     int level;
-    std::vector<Note> notes;
     std::vector<RedNote*> redNotes;
     std::vector<BlueNote*> blueNotes;
     std::vector<YellowNote*> yellowNotes;
@@ -66,22 +50,6 @@ public:
         course.courseNumber = j["course"];
         course.level = j["level"];
 
-        auto parseNote = [&course](const std::string& type, const std::string& timeFrac, int64_t timePs, const std::string& bpmFrac, double bpmDouble, double scroll, int measure, bool gogo, bool big, bool visible)
-        {
-            Note note;
-            note.type = type;
-            note.time_fractional = timeFrac;
-            note.time_picoseconds = timePs;
-            note.bpmForScroll_fractional = bpmFrac;
-            note.bpmForScroll_double = bpmDouble;
-            note.scroll = scroll;
-            note.measure = measure;
-            note.gogo = gogo;
-            note.big = big;
-            note.visible = visible;
-            course.notes.push_back(note);
-        };
-
         if (j.contains("notes"))
         {
             for (const auto& e : j["notes"])
@@ -93,8 +61,33 @@ public:
                     courseLogError("Unknown note type string \"" + typeStr + "\" at time " + e["time"].get<std::string>());
                     continue;
                 }
-                bool big = (typeStr == "3" || typeStr == "4");
-                parseNote(it->second, e["time"], e["time_picoseconds"], e.value("bpmForScroll_fractional", std::string("240/1")), e.value("bpmForScroll_double", 240.0), 1.0, 0, false, big, true);
+                const std::string& noteTypeName = it->second;
+
+                if (noteTypeName == "red" || noteTypeName == "redBig")
+                {
+                    RedNote* note = new RedNote(e);
+                    course.redNotes.push_back(note);
+                }
+                else if (noteTypeName == "blue" || noteTypeName == "blueBig")
+                {
+                    BlueNote* note = new BlueNote(e);
+                    course.blueNotes.push_back(note);
+                }
+                else if (noteTypeName == "yellow")
+                {
+                    YellowNote* note = new YellowNote(e);
+                    course.yellowNotes.push_back(note);
+                }
+                else if (noteTypeName == "green")
+                {
+                    GreenNote* note = new GreenNote(e);
+                    course.greenNotes.push_back(note);
+                }
+                else if (noteTypeName == "ghost")
+                {
+                    GhostNote* note = new GhostNote(e);
+                    course.ghostNotes.push_back(note);
+                }
             }
         }
         return course;

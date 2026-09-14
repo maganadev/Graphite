@@ -54,7 +54,6 @@ private:
     int64_t effectiveAudioOffset{0};
     int64_t effectiveJudgementOffset{0};
     bool resultsScreenTriggered{false};
-    NoteTypes noteTypeForEvent(const std::string& type) const;
 };
 
 #endif

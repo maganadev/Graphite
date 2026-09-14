@@ -12,13 +12,13 @@ std::atomic<int64_t> JudgementThread::judgementOffset{0};
 int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
 {
     if (auto* note = std::get_if<RedNote*>(&noteVariant))
-        return (*note)->getNote().time_picoseconds;
+        return (*note)->getTimePicoseconds();
     if (auto* note = std::get_if<BlueNote*>(&noteVariant))
-        return (*note)->getNote().time_picoseconds;
+        return (*note)->getTimePicoseconds();
     if (auto* note = std::get_if<YellowNote*>(&noteVariant))
-        return (*note)->getNote().time_picoseconds;
+        return (*note)->getTimePicoseconds();
     if (auto* note = std::get_if<GreenNote*>(&noteVariant))
-        return (*note)->getNote().time_picoseconds;
+        return (*note)->getTimePicoseconds();
     return 0;
 }
 

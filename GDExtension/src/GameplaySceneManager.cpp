@@ -39,25 +39,6 @@ GameplaySceneManager::~GameplaySceneManager()
     //
 }
 
-NoteTypes GameplaySceneManager::noteTypeForEvent(const std::string& type) const
-{
-    if (type == "red")
-        return NoteTypes::RedNoteSmall;
-    if (type == "blue")
-        return NoteTypes::BlueNoteSmall;
-    if (type == "yellow")
-        return NoteTypes::YellowNote;
-    if (type == "green")
-        return NoteTypes::GreenNote;
-    if (type == "ghost")
-        return NoteTypes::GhostNote;
-    if (type == "redBig")
-        return NoteTypes::RedNoteLarge;
-    if (type == "blueBig")
-        return NoteTypes::BlueNoteLarge;
-    return NoteTypes::RedNoteSmall;
-}
-
 void GameplaySceneManager::_ready()
 {
     std::string songFileName = GraphiteGlobals::currentSongFileName;
@@ -175,79 +156,59 @@ void GameplaySceneManager::_ready()
 
         Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
 
-        for (const auto& noteEvent : courseInChart->notes)
+        for (RedNote* note : courseInChart->redNotes)
         {
-            NoteTypes noteType = noteTypeForEvent(noteEvent.type);
-
-            if (noteType == NoteTypes::RedNoteSmall || noteType == NoteTypes::RedNoteLarge)
+            Node* instance = redNoteScene->instantiate();
+            RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
+            if (prefab)
             {
-                Node* instance = redNoteScene->instantiate();
-                RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
-                if (prefab)
-                {
-                    RedNote* note = new RedNote();
-                    note->setNote(noteEvent);
-                    note->setPrefab(prefab);
-                    prefab->set_z_index(3);
-                    add_child(prefab);
-                    courseInChart->redNotes.push_back(note);
-                }
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
             }
-            else if (noteType == NoteTypes::BlueNoteSmall || noteType == NoteTypes::BlueNoteLarge)
+        }
+        for (BlueNote* note : courseInChart->blueNotes)
+        {
+            Node* instance = blueNoteScene->instantiate();
+            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
+            if (prefab)
             {
-                Node* instance = blueNoteScene->instantiate();
-                BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
-                if (prefab)
-                {
-                    BlueNote* note = new BlueNote();
-                    note->setNote(noteEvent);
-                    note->setPrefab(prefab);
-                    prefab->set_z_index(3);
-                    add_child(prefab);
-                    courseInChart->blueNotes.push_back(note);
-                }
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
             }
-            else if (noteType == NoteTypes::YellowNote)
+        }
+        for (YellowNote* note : courseInChart->yellowNotes)
+        {
+            Node* instance = yellowNoteScene->instantiate();
+            YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
+            if (prefab)
             {
-                Node* instance = yellowNoteScene->instantiate();
-                YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
-                if (prefab)
-                {
-                    YellowNote* note = new YellowNote();
-                    note->setNote(noteEvent);
-                    note->setPrefab(prefab);
-                    prefab->set_z_index(3);
-                    add_child(prefab);
-                    courseInChart->yellowNotes.push_back(note);
-                }
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
             }
-            else if (noteType == NoteTypes::GreenNote)
+        }
+        for (GreenNote* note : courseInChart->greenNotes)
+        {
+            Node* instance = greenNoteScene->instantiate();
+            GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
+            if (prefab)
             {
-                Node* instance = greenNoteScene->instantiate();
-                GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
-                if (prefab)
-                {
-                    GreenNote* note = new GreenNote();
-                    note->setNote(noteEvent);
-                    note->setPrefab(prefab);
-                    prefab->set_z_index(3);
-                    add_child(prefab);
-                    courseInChart->greenNotes.push_back(note);
-                }
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
             }
-            else if (noteType == NoteTypes::GhostNote)
+        }
+        for (GhostNote* note : courseInChart->ghostNotes)
+        {
+            Node* instance = ghostNoteScene->instantiate();
+            GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
+            if (prefab)
             {
-                Node* instance = ghostNoteScene->instantiate();
-                GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
-                if (prefab)
-                {
-                    GhostNote* note = new GhostNote();
-                    note->setNote(noteEvent);
-                    note->setPrefab(prefab);
-                    prefab->set_z_index(3);
-                    add_child(prefab);
-                    courseInChart->ghostNotes.push_back(note);
-                }
+                note->setPrefab(prefab);
+                prefab->set_z_index(3);
+                add_child(prefab);
             }
         }
 
