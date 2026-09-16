@@ -18,18 +18,12 @@ public:
     GhostNote(const nlohmann::json& j);
     ~GhostNote();
 
-    int64_t getTimePicoseconds() const;
-
-    void setPrefab(GhostNotePrefab* prefab);
-    GhostNotePrefab* getPrefab() const;
-
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY) const;
 
-private:
-    int64_t m_timePicoseconds;
-    double m_bpmForScrollDouble;
-    GhostNotePrefab* m_prefab{nullptr};
+    int64_t timePicoseconds;
+    double bpmForScrollDouble;
+    GhostNotePrefab* prefab{nullptr};
 };
 
 #endif

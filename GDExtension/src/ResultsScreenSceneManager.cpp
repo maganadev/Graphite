@@ -47,14 +47,14 @@ void ResultsScreenSceneManager::_ready()
 
     auto countNote = [&](auto* note)
     {
-        if (!note || !note->isJudged())
+        if (!note || !note->judged.load(std::memory_order_acquire))
             return;
 
-        int64_t rawOff = note->getPicosecondsOff();
+        int64_t rawOff = note->picosecondsOff;
         if (rawOff < -WINDOW_PS || rawOff > WINDOW_PS)
             return;
 
-        NoteGradings g = note->getGrading();
+        NoteGradings g = note->grading;
         if (isChou(g))
             chouCount++;
         else if (isRyou(g))
@@ -87,9 +87,9 @@ void ResultsScreenSceneManager::_ready()
     int64_t judgedCount = 0;
     auto sumOff = [&](auto* note)
     {
-        if (!note || !note->isJudged())
+        if (!note || !note->judged.load(std::memory_order_acquire))
             return;
-        int64_t off = note->getPicosecondsOff();
+        int64_t off = note->picosecondsOff;
         if (off < -WINDOW_PS || off > WINDOW_PS)
             return;
         totalOff += off;

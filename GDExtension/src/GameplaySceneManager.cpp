@@ -162,7 +162,7 @@ void GameplaySceneManager::_ready()
             RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
             if (prefab)
             {
-                note->setPrefab(prefab);
+                note->prefab = prefab;
                 prefab->set_z_index(3);
                 add_child(prefab);
             }
@@ -173,7 +173,7 @@ void GameplaySceneManager::_ready()
             BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
             if (prefab)
             {
-                note->setPrefab(prefab);
+                note->prefab = prefab;
                 prefab->set_z_index(3);
                 add_child(prefab);
             }
@@ -184,7 +184,7 @@ void GameplaySceneManager::_ready()
             YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
             if (prefab)
             {
-                note->setPrefab(prefab);
+                note->prefab = prefab;
                 prefab->set_z_index(3);
                 add_child(prefab);
             }
@@ -195,7 +195,7 @@ void GameplaySceneManager::_ready()
             GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
             if (prefab)
             {
-                note->setPrefab(prefab);
+                note->prefab = prefab;
                 prefab->set_z_index(3);
                 add_child(prefab);
             }
@@ -206,7 +206,7 @@ void GameplaySceneManager::_ready()
             GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
             if (prefab)
             {
-                note->setPrefab(prefab);
+                note->prefab = prefab;
                 prefab->set_z_index(3);
                 add_child(prefab);
             }
@@ -321,49 +321,49 @@ void GameplaySceneManager::_process(double delta)
 
     for (RedNote* note : course->redNotes)
     {
-        if (note->isJudged())
+        if (note->judged.load(std::memory_order_acquire))
         {
-            RedNotePrefab* prefab = note->getPrefab();
+            RedNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
                 prefab->queue_free();
-                note->setPrefab(nullptr);
+                note->prefab = nullptr;
             }
         }
     }
     for (BlueNote* note : course->blueNotes)
     {
-        if (note->isJudged())
+        if (note->judged.load(std::memory_order_acquire))
         {
-            BlueNotePrefab* prefab = note->getPrefab();
+            BlueNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
                 prefab->queue_free();
-                note->setPrefab(nullptr);
+                note->prefab = nullptr;
             }
         }
     }
     for (YellowNote* note : course->yellowNotes)
     {
-        if (note->isJudged())
+        if (note->judged.load(std::memory_order_acquire))
         {
-            YellowNotePrefab* prefab = note->getPrefab();
+            YellowNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
                 prefab->queue_free();
-                note->setPrefab(nullptr);
+                note->prefab = nullptr;
             }
         }
     }
     for (GreenNote* note : course->greenNotes)
     {
-        if (note->isJudged())
+        if (note->judged.load(std::memory_order_acquire))
         {
-            GreenNotePrefab* prefab = note->getPrefab();
+            GreenNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
                 prefab->queue_free();
-                note->setPrefab(nullptr);
+                note->prefab = nullptr;
             }
         }
     }
@@ -373,7 +373,7 @@ void GameplaySceneManager::_process(double delta)
         bool allJudged = true;
         for (RedNote* note : course->redNotes)
         {
-            if (!note->isJudged())
+            if (!note->judged.load(std::memory_order_acquire))
             {
                 allJudged = false;
                 break;
@@ -383,7 +383,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BlueNote* note : course->blueNotes)
             {
-                if (!note->isJudged())
+                if (!note->judged.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -394,7 +394,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (YellowNote* note : course->yellowNotes)
             {
-                if (!note->isJudged())
+                if (!note->judged.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -405,7 +405,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (GreenNote* note : course->greenNotes)
             {
-                if (!note->isJudged())
+                if (!note->judged.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;

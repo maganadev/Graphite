@@ -12,13 +12,13 @@ std::atomic<int64_t> JudgementThread::judgementOffset{0};
 int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
 {
     if (auto* note = std::get_if<RedNote*>(&noteVariant))
-        return (*note)->getTimePicoseconds();
+        return (*note)->timePicoseconds;
     if (auto* note = std::get_if<BlueNote*>(&noteVariant))
-        return (*note)->getTimePicoseconds();
+        return (*note)->timePicoseconds;
     if (auto* note = std::get_if<YellowNote*>(&noteVariant))
-        return (*note)->getTimePicoseconds();
+        return (*note)->timePicoseconds;
     if (auto* note = std::get_if<GreenNote*>(&noteVariant))
-        return (*note)->getTimePicoseconds();
+        return (*note)->timePicoseconds;
     return 0;
 }
 
@@ -26,22 +26,30 @@ void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNot
 {
     if (auto* note = std::get_if<RedNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading, picosecondsOff);
+        (*note)->grading = grading;
+        (*note)->picosecondsOff = picosecondsOff;
+        (*note)->judged.store(true, std::memory_order_release);
         return;
     }
     if (auto* note = std::get_if<BlueNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading, picosecondsOff);
+        (*note)->grading = grading;
+        (*note)->picosecondsOff = picosecondsOff;
+        (*note)->judged.store(true, std::memory_order_release);
         return;
     }
     if (auto* note = std::get_if<YellowNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading, picosecondsOff);
+        (*note)->grading = grading;
+        (*note)->picosecondsOff = picosecondsOff;
+        (*note)->judged.store(true, std::memory_order_release);
         return;
     }
     if (auto* note = std::get_if<GreenNote*>(&noteVariant))
     {
-        (*note)->setJudged(grading, picosecondsOff);
+        (*note)->grading = grading;
+        (*note)->picosecondsOff = picosecondsOff;
+        (*note)->judged.store(true, std::memory_order_release);
         return;
     }
 }
