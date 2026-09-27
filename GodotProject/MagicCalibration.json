@@ -132,6 +132,13 @@
         },
         {
           "type": "1",
+          "time": "15/4",
+          "time_picoseconds": 3750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
+        },
+        {
+          "type": "1",
           "time": "4/1",
           "time_picoseconds": 4000000000000,
           "bpmForScroll_fractional": "240/1",
@@ -192,6 +199,13 @@
           "time_picoseconds": 5500000000000,
           "bpmForScroll_fractional": "240/1",
           "bpmForScroll_double": 240.0
+        },
+        {
+          "type": "1",
+          "time": "23/4",
+          "time_picoseconds": 5750000000000,
+          "bpmForScroll_fractional": "240/1",
+          "bpmForScroll_double": 240.0
         }
       ],
       "measures": [
@@ -225,7 +239,7 @@
           "barlineVisible": false,
           "startTime_fractional": "3/1",
           "startTime_picoseconds": 3000000000000,
-          "text": "1 0 1 0 1 0 0 0"
+          "text": "1 0 1 0 1 0 1 0"
         },
         {
           "scroll": 1.0,
@@ -241,7 +255,7 @@
           "barlineVisible": false,
           "startTime_fractional": "5/1",
           "startTime_picoseconds": 5000000000000,
-          "text": "1 0 1 0 1 0 0 0"
+          "text": "1 0 1 0 1 0 1 0"
         }
       ]
     }
