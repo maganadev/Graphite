@@ -39,6 +39,8 @@ color = Color(0, 0, 0, 1)
 
 [node name="DebugLauncherSceneManager" type="DebugLauncherSceneManager" parent="."]
 
+[node name="MenuSceneManager" type="MenuSceneManager" parent="."]
+
 [node name="MenuElements" type="VBoxContainer" parent="."]
 offset_left = 340.0
 offset_top = -460.0

@@ -5,6 +5,7 @@
 #include "ResultsScreenSceneManager.hpp"
 #include "GameManager.hpp"
 #include "GameplaySceneManager.hpp"
+#include "MenuSceneManager.hpp"
 #include "RedNotePrefab.hpp"
 #include "BlueNotePrefab.hpp"
 #include "YellowNotePrefab.hpp"
@@ -25,6 +26,7 @@ void initialize_module(ModuleInitializationLevel p_level)
     GDREGISTER_RUNTIME_CLASS(DebugLauncherSceneManager);
     GDREGISTER_RUNTIME_CLASS(GameManager);
     GDREGISTER_RUNTIME_CLASS(GameplaySceneManager);
+    GDREGISTER_RUNTIME_CLASS(MenuSceneManager);
     GDREGISTER_RUNTIME_CLASS(ResultsScreenSceneManager);
     GDREGISTER_RUNTIME_CLASS(RedNotePrefab);
     GDREGISTER_RUNTIME_CLASS(BlueNotePrefab);
