@@ -323,6 +323,10 @@ void GameplaySceneManager::_process(double delta)
     {
         if (note->judged.load(std::memory_order_acquire))
         {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
             RedNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
@@ -335,6 +339,10 @@ void GameplaySceneManager::_process(double delta)
     {
         if (note->judged.load(std::memory_order_acquire))
         {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
             BlueNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
@@ -347,6 +355,10 @@ void GameplaySceneManager::_process(double delta)
     {
         if (note->judged.load(std::memory_order_acquire))
         {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
             YellowNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
@@ -359,6 +371,10 @@ void GameplaySceneManager::_process(double delta)
     {
         if (note->judged.load(std::memory_order_acquire))
         {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
             GreenNotePrefab* prefab = note->prefab;
             if (prefab && prefab->is_inside_tree())
             {
