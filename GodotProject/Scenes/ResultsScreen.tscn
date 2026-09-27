@@ -1,11 +1,27 @@
-[gd_scene format=3 uid="uid://c05xs2t2ccccb"]
+[gd_scene load_steps=3 format=3 uid="uid://c05xs2t2ccccb"]
+
+[ext_resource type="Shader" uid="uid://d3ma4lusweii3" path="res://Background.gdshader" id="1_upav3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3nlhs"]
+shader = ExtResource("1_upav3")
+shader_parameter/tri_color = Color(0.15, 0.15, 0.15, 1)
+shader_parameter/bg_color = Color(0, 0, 0, 1)
+shader_parameter/scale = 10.0
+shader_parameter/gap = 0.01
+shader_parameter/scroll_dir = Vector2(-1, -1)
+shader_parameter/scroll_speed_val = 0.004
+shader_parameter/ripple_speed = 1.2
+shader_parameter/ripple_frequency = 8.0
+shader_parameter/max_shrink = 0.9
+shader_parameter/wave_dir = Vector2(-1, 0.5)
 
 [node name="DebugLauncherScene" type="Node2D"]
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ShaderBackground" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_3nlhs")
 offset_right = 1920.0
 offset_bottom = 1080.0
-color = Color(0.14117648, 0.14117648, 0.14117648, 1)
+color = Color(0, 0, 0, 1)
 
 [node name="Results" type="Label" parent="."]
 offset_left = 45.0
