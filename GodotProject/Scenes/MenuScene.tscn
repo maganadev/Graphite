@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://6mdjapu0bst0"]
+[gd_scene load_steps=8 format=3 uid="uid://6mdjapu0bst0"]
 
 [ext_resource type="Shader" uid="uid://d3ma4lusweii3" path="res://Background.gdshader" id="1_36iol"]
 
@@ -18,13 +18,16 @@ shader_parameter/wave_dir = Vector2(-1, 0.5)
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_awpqq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_awpqq"]
-bg_color = Color(1, 0.31375533, 0.46978402, 1)
+bg_color = Color(0.07058824, 0.07058824, 0.07058824, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36iol"]
-bg_color = Color(1, 0.3504854, 0.23640394, 1)
+bg_color = Color(0.09019608, 0.09019608, 0.09019608, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_awpqq"]
 font_size = 70
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xx56i"]
+bg_color = Color(0.81512964, 0.53146887, 3.85046e-07, 1)
 
 [node name="DebugLauncherScene" type="Node2D"]
 
@@ -38,8 +41,10 @@ color = Color(0, 0, 0, 1)
 
 [node name="MenuElements" type="VBoxContainer" parent="."]
 offset_left = 340.0
+offset_top = -460.0
 offset_right = 1580.0
-offset_bottom = 1080.0
+offset_bottom = 1540.0
+alignment = 1
 
 [node name="Element0" type="PanelContainer" parent="MenuElements"]
 layout_mode = 2
@@ -69,6 +74,262 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
 
 [node name="Label" type="Label" parent="MenuElements/Element0/MarginContainer/Background/MarginContainer/Background"]
 layout_mode = 2
-text = "Hello World!!"
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element1" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element1"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element1/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element1/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element1/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element1/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element2" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element2"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element2/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element2/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element2/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element2/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element3" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element3"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element3/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element3/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element3/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element3/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element4" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_xx56i")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element4"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element4/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element4/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element4/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element4/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element5" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element5"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element5/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element5/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element5/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element5/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element6" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element6"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element6/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element6/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element6/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element6/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element7" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element7"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element7/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element7/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element7/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element7/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
+label_settings = SubResource("LabelSettings_awpqq")
+horizontal_alignment = 1
+
+[node name="Element8" type="PanelContainer" parent="MenuElements"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element8"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element8/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_awpqq")
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuElements/Element8/MarginContainer/Background"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Background" type="PanelContainer" parent="MenuElements/Element8/MarginContainer/Background/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36iol")
+
+[node name="Label" type="Label" parent="MenuElements/Element8/MarginContainer/Background/MarginContainer/Background"]
+layout_mode = 2
+text = " "
 label_settings = SubResource("LabelSettings_awpqq")
 horizontal_alignment = 1
