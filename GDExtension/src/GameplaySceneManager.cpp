@@ -11,9 +11,11 @@
 #include "TimingOSSingletons.hpp"
 #include "YellowNote.hpp"
 #include "YellowNotePrefab.hpp"
+#include <algorithm>
 #include <fstream>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <vector>
 
 void GameplaySceneManager::_bind_methods()
 {
@@ -156,6 +158,8 @@ void GameplaySceneManager::_ready()
 
         Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
 
+        std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
+
         for (RedNote* note : courseInChart->redNotes)
         {
             Node* instance = redNoteScene->instantiate();
@@ -164,7 +168,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                add_child(prefab);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
         for (BlueNote* note : courseInChart->blueNotes)
@@ -175,7 +179,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                add_child(prefab);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
         for (YellowNote* note : courseInChart->yellowNotes)
@@ -186,7 +190,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                add_child(prefab);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
         for (GreenNote* note : courseInChart->greenNotes)
@@ -197,7 +201,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                add_child(prefab);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
         for (GhostNote* note : courseInChart->ghostNotes)
@@ -208,8 +212,15 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                add_child(prefab);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
+        }
+
+        std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first < b.first; });
+
+        for (auto& entry : sortedPrefabs)
+        {
+            add_child(entry.second);
         }
 
         courseInChart->populateLanes();
