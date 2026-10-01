@@ -12,6 +12,7 @@
 #include "YellowNote.hpp"
 #include "YellowNotePrefab.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -245,15 +246,19 @@ void GameplaySceneManager::_ready()
     }
 
     // Load the wave file - if visual offset calibration, use silence instead
-    std::string audioPath = wavePath;
+    std::filesystem::path audioFilePath = wavePath;
     if (GraphiteGlobals::modVisualOffsetCalibration)
     {
-        audioPath = "GameplaySilence.ogg";
+        audioFilePath = std::filesystem::path("GameplaySilence.ogg");
         UtilityFunctions::print("Visual offset calibration: using GameplaySilence.ogg");
     }
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioPath, -36, audioTrackHandle))
+    else if (!wavePath.empty())
     {
-        UtilityFunctions::print("Failed to load audio track: ", audioPath.c_str());
+        audioFilePath = std::filesystem::path(songFileName).parent_path() / wavePath;
+    }
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, audioTrackHandle))
+    {
+        UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
         return;
     }
 
