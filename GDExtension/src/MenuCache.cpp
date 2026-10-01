@@ -28,16 +28,24 @@ void MenuCache::computeFingerprint(const std::filesystem::path& songsDir,
     for (const auto& entry : std::filesystem::recursive_directory_iterator(
              songsDir, std::filesystem::directory_options::skip_permission_denied, ec))
     {
-        if (entry.is_regular_file())
+        if (!entry.is_regular_file())
         {
-            std::string rel = entry.path().string();
-            hashUpdate(hash, reinterpret_cast<const uint8_t*>(rel.data()), rel.size());
-            hashU64(hash, entry.file_size());
-
-            auto mtime = entry.last_write_time();
-            int64_t ft = mtime.time_since_epoch().count();
-            hashU64(hash, static_cast<uint64_t>(ft));
+            continue;
         }
+
+        std::string name = entry.path().filename().string();
+        if (name == "song_cache.bin")
+        {
+            continue;
+        }
+
+        std::string rel = entry.path().string();
+        hashUpdate(hash, reinterpret_cast<const uint8_t*>(rel.data()), rel.size());
+        hashU64(hash, entry.file_size());
+
+        auto mtime = entry.last_write_time();
+        int64_t ft = mtime.time_since_epoch().count();
+        hashU64(hash, static_cast<uint64_t>(ft));
     }
 
     outFingerprint.resize(8);

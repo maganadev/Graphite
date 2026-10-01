@@ -46,6 +46,7 @@ void MenuSceneManager::buildMenuTree()
         {
             GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
             UtilityFunctions::print("Playing: ", this->database.songs[songIndex].title.c_str());
+            get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
         }
     };
 
