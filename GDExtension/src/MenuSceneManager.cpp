@@ -1,20 +1,20 @@
 #include "MenuSceneManager.hpp"
+#include "MenuTree.hpp"
+#include "SongDatabase.hpp"
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 
 void MenuSceneManager::_bind_methods()
 {
-    //
 }
 
 MenuSceneManager::MenuSceneManager()
 {
-    items = {"Apple", "Banana", "Carrot", "Dog", "Cat", "Otter", "Keyboard", "Mouse", "Monitor", "Piano", "Guitar", "Drums", "Flute", "Trumpet", "Violin", "Cello", "Harp", "Saxophone", "Clarinet", "Trombone"};
 }
 
 MenuSceneManager::~MenuSceneManager()
 {
-    //
 }
 
 void MenuSceneManager::_ready()
@@ -33,34 +33,90 @@ void MenuSceneManager::_ready()
         slotLabels[i] = parent->get_node<Label>(NodePath(path));
     }
 
+    buildMenuTree();
+}
+
+void MenuSceneManager::buildMenuTree()
+{
+    database.loadOrBuild("Songs");
+
+    tree.onPlaySong = [this](int32_t songIndex) -> void
+    {
+        if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
+        {
+            GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
+            UtilityFunctions::print("Playing: ", this->database.songs[songIndex].title.c_str());
+        }
+    };
+
+    tree.onExit = [this]() -> void
+    {
+        UtilityFunctions::print("Exit requested");
+    };
+
+    tree.build(&database);
     rebuildVisibleWindow();
 }
 
 void MenuSceneManager::_process(double delta)
 {
-    int32_t n = static_cast<int32_t>(items.size());
-
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumRimLeft].timesPressedSinceLastFrame > 0)
     {
-        selectedIndex = (selectedIndex - 1 + n) % n;
+        tree.moveUp();
         rebuildVisibleWindow();
     }
 
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumRimRight].timesPressedSinceLastFrame > 0)
     {
-        selectedIndex = (selectedIndex + 1) % n;
+        tree.moveDown();
         rebuildVisibleWindow();
     }
 
-    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Enter].timesPressedSinceLastFrame > 0)
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterLeft].timesPressedSinceLastFrame > 0 ||
+        RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterRight].timesPressedSinceLastFrame > 0)
     {
-        UtilityFunctions::print("Selected: ", items[selectedIndex].c_str());
+        tree.onEnter();
+        rebuildVisibleWindow();
+    }
+
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
+    {
+        tree.navigateBack();
+        rebuildVisibleWindow();
     }
 }
 
 void MenuSceneManager::rebuildVisibleWindow()
 {
-    int32_t n = static_cast<int32_t>(items.size());
+    int32_t count = tree.getCurrentItemCount();
+    items.clear();
+    items.reserve(count);
+    for (int32_t i = 0; i < count; i++)
+    {
+        items.push_back(tree.getCurrentItemLabel(i));
+    }
+
+    if (count == 0)
+    {
+        for (int32_t i = 0; i < VISIBLE_SLOTS; i++)
+        {
+            if (slotLabels[i])
+            {
+                slotLabels[i]->set_text("");
+            }
+        }
+        return;
+    }
+
+    selectedIndex = tree.currentItemIndex;
+    if (selectedIndex < 0)
+    {
+        selectedIndex = 0;
+    }
+    if (selectedIndex >= count)
+    {
+        selectedIndex = count - 1;
+    }
 
     for (int32_t i = 0; i < VISIBLE_SLOTS; i++)
     {
@@ -69,10 +125,10 @@ void MenuSceneManager::rebuildVisibleWindow()
             continue;
         }
 
-        int32_t idx = (selectedIndex - CENTER_SLOT + i) % n;
+        int32_t idx = (selectedIndex - CENTER_SLOT + i) % count;
         if (idx < 0)
         {
-            idx += n;
+            idx += count;
         }
         slotLabels[i]->set_text(items[idx].c_str());
     }

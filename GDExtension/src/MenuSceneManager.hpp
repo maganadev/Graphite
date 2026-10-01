@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "GameManager.hpp"
+#include "MenuTree.hpp"
+#include "SongDatabase.hpp"
 
 using namespace ::godot;
 
@@ -25,6 +27,10 @@ public:
 
 private:
     void rebuildVisibleWindow();
+    void buildMenuTree();
+
+    MenuTree tree;
+    SongDatabase database;
 
     std::vector<std::string> items;
     int32_t selectedIndex{0};
