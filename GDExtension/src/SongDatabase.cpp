@@ -9,6 +9,16 @@
 #include <vector>
 #include <unordered_map>
 
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
+
 using json = nlohmann::json;
 
 static std::string trim(const std::string& s)
@@ -58,13 +68,33 @@ bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
         }
     }
 
-    // Run TJAParser to convert .tja -> .json
-    std::string cmd = "\"" + tjaParserPath.string() + "\" \"" + tjaFile.string() + "\"";
-    int result = std::system(cmd.c_str());
-    if (result != 0)
+    // Run TJAParser to convert .tja -> .json, without showing a window.
+#ifdef _WIN32
+    std::string exePath = tjaParserPath.string();
+    std::string cmdLine = "\"" + exePath + "\" \"" + tjaFile.string() + "\"";
+    std::vector<char> cmdBuf(cmdLine.begin(), cmdLine.end());
+    cmdBuf.push_back('\0');
+
+    STARTUPINFO si{};
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    PROCESS_INFORMATION pi{};
+
+    if (!CreateProcess(exePath.c_str(), cmdBuf.data(), nullptr, nullptr,
+                       FALSE, 0, nullptr, nullptr, &si, &pi))
     {
         return false;
     }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hProcess);
+#else
+    std::string cmdLine = "\"" + tjaParserPath.string() + "\" \"" + tjaFile.string() + "\" > /dev/null 2>&1";
+    if (std::system(cmdLine.c_str()) != 0)
+    {
+        return false;
+    }
+#endif
 
     return std::filesystem::exists(jsonFile);
 }
