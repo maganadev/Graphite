@@ -49,8 +49,9 @@ static std::string lowercaseAscii(const std::string& s)
 
 static std::filesystem::path jsonForTja(const std::filesystem::path& tjaFile)
 {
-    std::filesystem::path p = tjaFile;
-    return p.replace_extension(".json");
+    std::filesystem::path dir = tjaFile.parent_path();
+    std::string filename = tjaFile.filename().string() + ".json";
+    return dir / filename;
 }
 
 bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
@@ -71,7 +72,9 @@ bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
     // Run TJAParser to convert .tja -> .json, without showing a window.
 #ifdef _WIN32
     std::string exePath = tjaParserPath.string();
-    std::string cmdLine = "\"" + exePath + "\" \"" + tjaFile.string() + "\"";
+    std::string inPath = tjaFile.string();
+    std::string outPath = jsonFile.string();
+    std::string cmdLine = "\"" + exePath + "\" -i \"" + inPath + "\" -o \"" + outPath + "\"";
     std::vector<char> cmdBuf(cmdLine.begin(), cmdLine.end());
     cmdBuf.push_back('\0');
 
@@ -89,7 +92,8 @@ bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
     WaitForSingleObject(pi.hProcess, INFINITE);
     CloseHandle(pi.hProcess);
 #else
-    std::string cmdLine = "\"" + tjaParserPath.string() + "\" \"" + tjaFile.string() + "\" > /dev/null 2>&1";
+    std::string cmdLine = "\"" + tjaParserPath.string() + "\" -i \""
+                          + tjaFile.string() + "\" -o \"" + jsonFile.string() + "\" > /dev/null 2>&1";
     if (std::system(cmdLine.c_str()) != 0)
     {
         return false;
