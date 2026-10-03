@@ -1,43 +1,43 @@
 #ifndef JsonKeys_hpp
 #define JsonKeys_hpp
 
-// JSON key constants matching TJAParser C# format
-constexpr const char* JC_TITLE = "a";
-constexpr const char* JC_SUBTITLE = "b";
-constexpr const char* JC_WAVE = "c";
-constexpr const char* JC_DEMOSTART_F = "d";
-constexpr const char* JC_DEMOSTART_PS = "e";
-constexpr const char* JC_DEFAULTBPM_F = "f";
-constexpr const char* JC_DEFAULTBPM_D = "g";
-constexpr const char* JC_DEFAULTOFFSET_F = "h";
-constexpr const char* JC_DEFAULTOFFSET_PS = "i";
-constexpr const char* JC_COURSES = "j";
-constexpr const char* JC_COURSE = "k";
-constexpr const char* JC_LEVEL = "l";
-constexpr const char* JC_REDNOTES = "m";
-constexpr const char* JC_BLUENOTES = "n";
-constexpr const char* JC_BIGREDNOTES = "o";
-constexpr const char* JC_BIGBLUENOTES = "p";
-constexpr const char* JC_YELLOWNOTES = "q";
-constexpr const char* JC_BIGYELLOWNOTES = "r";
-constexpr const char* JC_GREENNOTES = "s";
-constexpr const char* JC_MEASURES = "t";
-constexpr const char* JC_STARTTIME_F = "u";
-constexpr const char* JC_STARTTIME_PS = "v";
-constexpr const char* JC_STOPTIME_F = "w";
-constexpr const char* JC_STOPTIME_PS = "x";
-constexpr const char* JC_BPMSCROLL_F = "y";
-constexpr const char* JC_BPMSCROLL_D = "z";
-constexpr const char* JC_GREENNOTEHITS = "0";
-constexpr const char* JC_SCROLL = "1";
-constexpr const char* JC_GOGO = "2";
-constexpr const char* JC_BARLINEVISIBLE = "3";
-constexpr const char* JC_TEXT = "4";
-
-// Note type labels used for internal dispatch
-constexpr const char* NT_RED = "red";
-constexpr const char* NT_BLUE = "blue";
-constexpr const char* NT_YELLOW = "yellow";
-constexpr const char* NT_GREEN = "green";
+class JsonKeys
+{
+public:
+    constexpr const char* title = "a";
+    constexpr const char* subtitle = "b";
+    constexpr const char* wave = "c";
+    constexpr const char* demoStart_fractional = "d";
+    constexpr const char* demoStart_picoseconds = "e";
+    constexpr const char* defaultBpm_fractional = "f";
+    constexpr const char* defaultBpm_double = "g";
+    constexpr const char* defaultOffset_fractional = "h";
+    constexpr const char* defaultOffset_picoseconds = "i";
+    constexpr const char* courses = "j";
+    constexpr const char* course = "k";
+    constexpr const char* level = "l";
+    constexpr const char* bigRedNotes = "m";
+    constexpr const char* bigBlueNotes = "n";
+    constexpr const char* bigGhostNotes = "o";
+    constexpr const char* bigGreenNotes = "p";
+    constexpr const char* bigYellowNotes = "q";
+    constexpr const char* blueNotes = "r";
+    constexpr const char* ghostNotes = "s";
+    constexpr const char* greenNotes = "t";
+    constexpr const char* redNotes = "u";
+    constexpr const char* yellowNotes = "v";
+    constexpr const char* measures = "w";
+    constexpr const char* startTime_fractional = "x";
+    constexpr const char* startTime_picoseconds = "y";
+    constexpr const char* stopTime_fractional = "z";
+    constexpr const char* stopTime_picoseconds = "A";
+    constexpr const char* bpmForScroll_fractional = "B";
+    constexpr const char* bpmForScroll_double = "C";
+    constexpr const char* greenNoteHits = "D";
+    constexpr const char* scroll = "E";
+    constexpr const char* gogo = "F";
+    constexpr const char* barlineVisible = "G";
+    constexpr const char* text = "H";
+};
 
 #endif
