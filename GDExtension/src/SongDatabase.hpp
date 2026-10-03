@@ -25,6 +25,14 @@ struct FolderEntry
     uint16_t availableLevels;
 };
 
+// A .tja chart found while walking the songs directory, recorded in scan order so
+// that the parallel conversion pass and the metadata pass stay deterministic.
+struct PendingChart
+{
+    std::filesystem::path tjaFile;
+    int folderIndex;
+};
+
 class SongDatabase
 {
 public:
@@ -62,21 +70,28 @@ public:
 
     // Get songs from `subset` that match the given group key.
     // The group key is a lowercase comparison against title or artist.
-    std::vector<int> getSongsByGroup(const std::vector<int>& subset,
-                                     const std::string& groupKey);
+    std::vector<int> getSongsByGroup(const std::vector<int>& subset, const std::string& groupKey);
 
 private:
     std::filesystem::path cachePath;
 
-    void scanDirectory(const std::filesystem::path& dir,
-                       const std::string& folderName,
-                       int folderIndex);
+    // Phase 1: record every .tja chart under a folder, in scan order.
+    void collectCharts(const std::filesystem::path& dir, int folderIndex, std::vector<PendingChart>& charts);
 
-    bool ensureJsonForTja(const std::filesystem::path& tjaFile);
+    // Phase 2: convert every collected chart to .json, using all available cores.
+    void convertCharts(const std::vector<PendingChart>& charts);
 
-    static std::string parseTitleFromJson(const std::filesystem::path& jsonFile);
-    static std::string parseArtistFromJson(const std::filesystem::path& jsonFile);
-    static uint16_t parseLevelsFromJson(const std::filesystem::path& jsonFile);
+    // Phase 3: read a chart's .json metadata and add it to the database.
+    void addChartFromJson(const PendingChart& chart);
+
+    // Invoke TJAParser on a single chart, unless a newer .json already exists.
+    // Safe to call from multiple threads at once.
+    static bool runTjaParser(const std::filesystem::path& parserExe, const std::filesystem::path& tjaFile);
+
+    // Read a chart's title, artist and level mask from its .json in one pass.
+    // TJAParser emits the compact single-letter keys (see JsonKeys.hpp).
+    // Returns false if the document is unreadable or has no title.
+    static bool readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels);
 };
 
 #endif

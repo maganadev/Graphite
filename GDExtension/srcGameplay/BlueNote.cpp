@@ -1,10 +1,8 @@
 #include "BlueNote.hpp"
-#include "BlueNotePrefab.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "BlueNotePrefab.hpp"
 
-BlueNote::BlueNote(const nlohmann::json& j)
-    : timePicoseconds(j["time_picoseconds"])
-    , bpmForScrollDouble(j.value("bpmForScroll_double", 240.0))
+BlueNote::BlueNote(const nlohmann::json& j) : timePicoseconds(j[JC_STARTTIME_PS]), bpmForScrollDouble(j.value(JC_BPMSCROLL_D, 240.0))
 {
 }
 

@@ -1,13 +1,12 @@
 #ifndef Chart_hpp
 #define Chart_hpp
 
+#include "../srcThirdParty/json.hpp"
+#include "Course.hpp"
+#include "JsonKeys.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include "../srcThirdParty/json.hpp"
-
-#include "Course.hpp"
 
 class Chart
 {
@@ -40,15 +39,15 @@ public:
     static Chart FromJson(const nlohmann::json& j)
     {
         Chart chart;
-        chart.title = j.value("title", "");
-        chart.wave = j.value("wave", "");
-        chart.defaultBpm = j.value("defaultBpm_fractional", "0/1");
-        chart.defaultBpmDouble = j.value("defaultBpm_double", 0.0);
-        chart.defaultOffset = j.value("defaultOffset_fractional", "0/1");
-        chart.defaultOffsetPicoseconds = j.value("defaultOffset_picoseconds", static_cast<int64_t>(0));
-        if (j.contains("courses"))
+        chart.title = j.value(JC_TITLE, "");
+        chart.wave = j.value(JC_WAVE, "");
+        chart.defaultBpm = j.value(JC_DEFAULTBPM_F, "0/1");
+        chart.defaultBpmDouble = j.value(JC_DEFAULTBPM_D, 0.0);
+        chart.defaultOffset = j.value(JC_DEFAULTOFFSET_F, "0/1");
+        chart.defaultOffsetPicoseconds = j.value(JC_DEFAULTOFFSET_PS, static_cast<int64_t>(0));
+        if (j.contains(JC_COURSES))
         {
-            for (const auto& c : j["courses"])
+            for (const auto& c : j[JC_COURSES])
             {
                 chart.courses.push_back(Course::FromJson(c));
             }

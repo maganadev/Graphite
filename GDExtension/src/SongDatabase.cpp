@@ -1,13 +1,17 @@
 #include "SongDatabase.hpp"
-#include "MenuCache.hpp"
+#include "../srcGameplay/JsonKeys.hpp"
 #include "../srcThirdParty/json.hpp"
-#include <cstdint>
+#include "MenuCache.hpp"
+#include <algorithm>
+#include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <string>
-#include <vector>
+#include <thread>
 #include <unordered_map>
+#include <vector>
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -54,16 +58,19 @@ static std::filesystem::path jsonForTja(const std::filesystem::path& tjaFile)
     return dir / filename;
 }
 
-bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
+bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const std::filesystem::path& tjaFile)
 {
     std::filesystem::path jsonFile = jsonForTja(tjaFile);
 
     // If the .json already exists and is newer than the .tja, skip conversion.
-    if (std::filesystem::exists(jsonFile))
+    // Uses the error_code overloads throughout: this runs on worker threads, and
+    // the extension is built with exceptions disabled.
+    std::error_code ec;
+    auto jsonTime = std::filesystem::last_write_time(jsonFile, ec);
+    if (!ec)
     {
-        auto tjaTime = std::filesystem::last_write_time(tjaFile);
-        auto jsonTime = std::filesystem::last_write_time(jsonFile);
-        if (jsonTime >= tjaTime)
+        auto tjaTime = std::filesystem::last_write_time(tjaFile, ec);
+        if (!ec && jsonTime >= tjaTime)
         {
             return true;
         }
@@ -71,7 +78,7 @@ bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
 
     // Run TJAParser to convert .tja -> .json, without showing a window.
 #ifdef _WIN32
-    std::string exePath = tjaParserPath.string();
+    std::string exePath = parserExe.string();
     std::string inPath = tjaFile.string();
     std::string outPath = jsonFile.string();
     std::string cmdLine = "\"" + exePath + "\" -i \"" + inPath + "\" -o \"" + outPath + "\"";
@@ -84,73 +91,61 @@ bool SongDatabase::ensureJsonForTja(const std::filesystem::path& tjaFile)
     si.wShowWindow = SW_HIDE;
     PROCESS_INFORMATION pi{};
 
-    if (!CreateProcess(exePath.c_str(), cmdBuf.data(), nullptr, nullptr,
-                       FALSE, 0, nullptr, nullptr, &si, &pi))
+    if (!CreateProcess(exePath.c_str(), cmdBuf.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
     {
         return false;
     }
     WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
 #else
-    std::string cmdLine = "\"" + tjaParserPath.string() + "\" -i \""
-                          + tjaFile.string() + "\" -o \"" + jsonFile.string() + "\" > /dev/null 2>&1";
+    std::string cmdLine = "\"" + parserExe.string() + "\" -i \"" + tjaFile.string() + "\" -o \"" + jsonFile.string() + "\" > /dev/null 2>&1";
     if (std::system(cmdLine.c_str()) != 0)
     {
         return false;
     }
 #endif
 
-    return std::filesystem::exists(jsonFile);
+    return std::filesystem::exists(jsonFile, ec);
 }
 
-std::string SongDatabase::parseTitleFromJson(const std::filesystem::path& jsonFile)
+bool SongDatabase::readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels)
 {
     std::ifstream file(jsonFile);
     if (!file.is_open())
     {
-        return "";
+        return false;
     }
-    json j = json::parse(file);
-    return j.value("title", "");
-}
 
-std::string SongDatabase::parseArtistFromJson(const std::filesystem::path& jsonFile)
-{
-    std::ifstream file(jsonFile);
-    if (!file.is_open())
-    {
-        return "";
-    }
     json j = json::parse(file);
-    std::string subtitle = j.value("subtitle", "");
+
+    outTitle = j.value(JC_TITLE, "");
+    if (outTitle.empty())
+    {
+        return false;
+    }
+
+    std::string subtitle = j.value(JC_SUBTITLE, "");
     if (subtitle.find("--") == 0)
     {
         subtitle = subtitle.substr(2);
     }
-    return subtitle;
-}
+    outArtist = subtitle;
 
-uint16_t SongDatabase::parseLevelsFromJson(const std::filesystem::path& jsonFile)
-{
-    uint16_t levels = 0;
-    std::ifstream file(jsonFile);
-    if (!file.is_open())
+    outLevels = 0;
+    if (j.contains(JC_COURSES) && j[JC_COURSES].is_array())
     {
-        return levels;
-    }
-    json j = json::parse(file);
-    if (j.contains("courses") && j["courses"].is_array())
-    {
-        for (const auto& c : j["courses"])
+        for (const auto& c : j[JC_COURSES])
         {
-            int level = c.value("level", 0);
+            int level = c.value(JC_LEVEL, 0);
             if (level >= 1 && level <= 10)
             {
-                levels |= static_cast<uint16_t>(1 << (level - 1));
+                outLevels |= static_cast<uint16_t>(1 << (level - 1));
             }
         }
     }
-    return levels;
+
+    return true;
 }
 
 bool SongDatabase::loadOrBuild(const std::filesystem::path& songsDirectory)
@@ -206,6 +201,7 @@ void SongDatabase::rebuild()
     folders.clear();
 
     std::error_code ec;
+    std::vector<PendingChart> charts;
     for (const auto& entry : std::filesystem::directory_iterator(songsPath, ec))
     {
         if (!entry.is_directory())
@@ -214,14 +210,20 @@ void SongDatabase::rebuild()
         }
 
         std::string folderName = entry.path().filename().string();
-        int folderIndex = static_cast<int>(folders.size());
 
         FolderEntry folder;
         folder.name = folderName;
         folder.availableLevels = 0;
         folders.push_back(folder);
 
-        scanDirectory(entry.path(), folderName, folderIndex);
+        collectCharts(entry.path(), static_cast<int>(folders.size()) - 1, charts);
+    }
+
+    convertCharts(charts);
+
+    for (size_t i = 0; i < charts.size(); i++)
+    {
+        addChartFromJson(charts[i]);
     }
 
     std::vector<uint8_t> fingerprint;
@@ -269,9 +271,7 @@ void SongDatabase::rebuild()
     MenuCache::save(cachePath, fingerprint, cached);
 }
 
-void SongDatabase::scanDirectory(const std::filesystem::path& dir,
-                                  const std::string& folderName,
-                                  int folderIndex)
+void SongDatabase::collectCharts(const std::filesystem::path& dir, int folderIndex, std::vector<PendingChart>& charts)
 {
     std::error_code ec;
     for (const auto& entry : std::filesystem::recursive_directory_iterator(dir, ec))
@@ -288,49 +288,93 @@ void SongDatabase::scanDirectory(const std::filesystem::path& dir,
             continue;
         }
 
-        if (!ensureJsonForTja(filePath))
-        {
-            continue;
-        }
-
-        std::filesystem::path jsonFile = jsonForTja(filePath);
-        std::string title = parseTitleFromJson(jsonFile);
-        if (title.empty())
-        {
-            continue;
-        }
-
-        std::string artist = parseArtistFromJson(jsonFile);
-        uint16_t levels = parseLevelsFromJson(jsonFile);
-        if (levels == 0)
-        {
-            continue;
-        }
-
-        uint8_t minLevel = 10;
-        for (int l = 1; l <= 10; l++)
-        {
-            if (levels & (1 << (l - 1)))
-            {
-                minLevel = static_cast<uint8_t>(l);
-                break;
-            }
-        }
-
-        SongEntry song;
-        song.title = title;
-        song.artist = artist;
-        song.folderName = folderName;
-        song.folderIndex = folderIndex;
-        song.minLevel = minLevel;
-        song.availableLevels = levels;
-        song.chartPath = jsonFile.string();
-
-        int songIndex = static_cast<int>(songs.size());
-        songs.push_back(song);
-        folders[folderIndex].songIndices.push_back(songIndex);
-        folders[folderIndex].availableLevels |= levels;
+        charts.push_back({filePath, folderIndex});
     }
+}
+
+void SongDatabase::convertCharts(const std::vector<PendingChart>& charts)
+{
+    if (charts.empty())
+    {
+        return;
+    }
+
+    unsigned int workerCount = std::thread::hardware_concurrency();
+    if (workerCount == 0)
+    {
+        workerCount = 1;
+    }
+    workerCount = std::min(workerCount, 32u);
+    workerCount = std::min(static_cast<unsigned int>(charts.size()), workerCount);
+
+    const std::filesystem::path parserExe = tjaParserPath;
+    std::atomic<size_t> nextChart{0};
+
+    // Each worker claims charts one at a time so that a slow chart doesn't strand a
+    // whole fixed-size chunk.
+    auto work = [&charts, &parserExe, &nextChart]()
+    {
+        for (size_t i = nextChart.fetch_add(1); i < charts.size(); i = nextChart.fetch_add(1))
+        {
+            runTjaParser(parserExe, charts[i].tjaFile);
+        }
+    };
+
+    std::vector<std::thread> workers;
+    workers.reserve(workerCount);
+    for (unsigned int i = 0; i < workerCount; i++)
+    {
+        workers.emplace_back(work);
+    }
+    for (std::thread& t : workers)
+    {
+        t.join();
+    }
+}
+
+void SongDatabase::addChartFromJson(const PendingChart& chart)
+{
+    std::filesystem::path jsonFile = jsonForTja(chart.tjaFile);
+    if (!std::filesystem::exists(jsonFile))
+    {
+        return;
+    }
+
+    std::string title;
+    std::string artist;
+    uint16_t levels = 0;
+    if (!readChartMetadata(jsonFile, title, artist, levels))
+    {
+        return;
+    }
+    if (levels == 0)
+    {
+        return;
+    }
+
+    uint8_t minLevel = 10;
+    for (int l = 1; l <= 10; l++)
+    {
+        if (levels & (1 << (l - 1)))
+        {
+            minLevel = static_cast<uint8_t>(l);
+            break;
+        }
+    }
+
+    SongEntry song;
+    song.title = title;
+    song.artist = artist;
+    song.folderName = folders[chart.folderIndex].name;
+    song.folderIndex = chart.folderIndex;
+    song.minLevel = minLevel;
+    song.availableLevels = levels;
+    song.chartPath = jsonFile.string();
+
+    int songIndex = static_cast<int>(songs.size());
+    songs.push_back(song);
+    folders[chart.folderIndex].songIndices.push_back(songIndex);
+    folders[chart.folderIndex].availableLevels |= levels;
 }
 
 std::vector<int> SongDatabase::getAllSongs()
@@ -367,8 +411,7 @@ std::vector<int> SongDatabase::getSongsByLevel(const std::vector<int>& subset, u
     return result;
 }
 
-std::vector<int> SongDatabase::getSongsByGroup(const std::vector<int>& subset,
-                                                const std::string& groupKey)
+std::vector<int> SongDatabase::getSongsByGroup(const std::vector<int>& subset, const std::string& groupKey)
 {
     std::vector<int> result;
     std::string keyLower = lowercaseAscii(groupKey);
@@ -376,8 +419,7 @@ std::vector<int> SongDatabase::getSongsByGroup(const std::vector<int>& subset,
     {
         if (idx >= 0 && idx < static_cast<int>(songs.size()))
         {
-            if (lowercaseAscii(songs[idx].title) == keyLower ||
-                lowercaseAscii(songs[idx].artist) == keyLower)
+            if (lowercaseAscii(songs[idx].title) == keyLower || lowercaseAscii(songs[idx].artist) == keyLower)
             {
                 result.push_back(idx);
             }
@@ -421,7 +463,11 @@ std::vector<std::string> SongDatabase::getTitleGroups(const std::vector<int>& su
                 bool dup = false;
                 for (const std::string& s : seen)
                 {
-                    if (s == key) { dup = true; break; }
+                    if (s == key)
+                    {
+                        dup = true;
+                        break;
+                    }
                 }
                 if (!dup)
                 {
@@ -448,7 +494,11 @@ std::vector<std::string> SongDatabase::getArtistGroups(const std::vector<int>& s
                 bool dup = false;
                 for (const std::string& s : seen)
                 {
-                    if (s == key) { dup = true; break; }
+                    if (s == key)
+                    {
+                        dup = true;
+                        break;
+                    }
                 }
                 if (!dup)
                 {

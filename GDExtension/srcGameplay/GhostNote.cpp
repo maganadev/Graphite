@@ -1,10 +1,8 @@
 #include "GhostNote.hpp"
-#include "GhostNotePrefab.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "GhostNotePrefab.hpp"
 
-GhostNote::GhostNote(const nlohmann::json& j)
-    : timePicoseconds(j["time_picoseconds"])
-    , bpmForScrollDouble(j.value("bpmForScroll_double", 240.0))
+GhostNote::GhostNote(const nlohmann::json& j) : timePicoseconds(j[JC_STARTTIME_PS]), bpmForScrollDouble(j.value(JC_BPMSCROLL_D, 240.0))
 {
 }
 

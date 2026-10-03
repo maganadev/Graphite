@@ -1,20 +1,19 @@
 #ifndef Course_hpp
 #define Course_hpp
 
-#include <cstdint>
-#include <cstdlib>
-#include <string>
-#include <unordered_map>
-#include <variant>
-#include <vector>
-
 #include "../srcThirdParty/json.hpp"
 #include "BlueNote.hpp"
 #include "CompletionList.hpp"
 #include "GhostNote.hpp"
 #include "GreenNote.hpp"
+#include "JsonKeys.hpp"
 #include "RedNote.hpp"
 #include "YellowNote.hpp"
+#include <cstdint>
+#include <cstdlib>
+#include <string>
+#include <variant>
+#include <vector>
 
 void courseLogError(const std::string& message);
 
@@ -44,52 +43,47 @@ public:
 
     static Course FromJson(const nlohmann::json& j)
     {
-        static const std::unordered_map<std::string, std::string> typeToName = {{"1", "red"}, {"2", "blue"}, {"3", "redBig"}, {"4", "blueBig"}, {"5", "yellow"}, {"7", "green"}, {"8", "green"}, {"G", "ghost"}};
-
         Course course;
-        course.courseNumber = j["course"];
-        course.level = j["level"];
+        course.courseNumber = j[JC_COURSE];
+        course.level = j[JC_LEVEL];
 
-        if (j.contains("notes"))
+        auto readNotes = [&course, &j](const std::string& key, const std::string& noteType)
         {
-            for (const auto& e : j["notes"])
+            if (!j.contains(key))
+                return;
+            for (const auto& e : j[key])
             {
-                std::string typeStr = e["type"];
-                auto it = typeToName.find(typeStr);
-                if (it == typeToName.end())
-                {
-                    courseLogError("Unknown note type string \"" + typeStr + "\" at time " + e["time"].get<std::string>());
-                    continue;
-                }
-                const std::string& noteTypeName = it->second;
-
-                if (noteTypeName == "red" || noteTypeName == "redBig")
+                if (noteType == NT_RED)
                 {
                     RedNote* note = new RedNote(e);
                     course.redNotes.push_back(note);
                 }
-                else if (noteTypeName == "blue" || noteTypeName == "blueBig")
+                else if (noteType == NT_BLUE)
                 {
                     BlueNote* note = new BlueNote(e);
                     course.blueNotes.push_back(note);
                 }
-                else if (noteTypeName == "yellow")
+                else if (noteType == NT_YELLOW)
                 {
                     YellowNote* note = new YellowNote(e);
                     course.yellowNotes.push_back(note);
                 }
-                else if (noteTypeName == "green")
+                else if (noteType == NT_GREEN)
                 {
                     GreenNote* note = new GreenNote(e);
                     course.greenNotes.push_back(note);
                 }
-                else if (noteTypeName == "ghost")
-                {
-                    GhostNote* note = new GhostNote(e);
-                    course.ghostNotes.push_back(note);
-                }
             }
-        }
+        };
+
+        readNotes(JC_REDNOTES, NT_RED);
+        readNotes(JC_BLUENOTES, NT_BLUE);
+        readNotes(JC_BIGREDNOTES, NT_RED);
+        readNotes(JC_BIGBLUENOTES, NT_BLUE);
+        readNotes(JC_YELLOWNOTES, NT_YELLOW);
+        readNotes(JC_BIGYELLOWNOTES, NT_YELLOW);
+        readNotes(JC_GREENNOTES, NT_GREEN);
+
         return course;
     }
 

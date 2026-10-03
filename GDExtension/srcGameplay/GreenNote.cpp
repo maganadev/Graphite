@@ -1,10 +1,8 @@
 #include "GreenNote.hpp"
-#include "GreenNotePrefab.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "GreenNotePrefab.hpp"
 
-GreenNote::GreenNote(const nlohmann::json& j)
-    : timePicoseconds(j["time_picoseconds"])
-    , bpmForScrollDouble(j.value("bpmForScroll_double", 240.0))
+GreenNote::GreenNote(const nlohmann::json& j) : timePicoseconds(j[JC_STARTTIME_PS]), bpmForScrollDouble(j.value(JC_BPMSCROLL_D, 240.0))
 {
 }
 
