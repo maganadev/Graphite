@@ -32,6 +32,24 @@ public:
         }
     }
 
+    // File-only write. Safe to call from worker threads: unlike write() this does
+    // not touch UtilityFunctions, which is not thread-safe.
+    static void writeQuiet(const godot::String& p_msg)
+    {
+        std::lock_guard<std::mutex> lock(mtx());
+        if (file())
+        {
+            fprintf(file(), "%s\n", p_msg.utf8().get_data());
+            fflush(file());
+        }
+    }
+
+    static bool isOpen()
+    {
+        std::lock_guard<std::mutex> lock(mtx());
+        return file() != nullptr;
+    }
+
 private:
     static FILE*& file()
     {
