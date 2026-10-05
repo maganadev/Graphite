@@ -15,5 +15,5 @@ input_settings.json
 .vscode/**
 GodotProject/offset_settings.json
 GodotProject/Songs/**
-GodotProject/TJAParser/TJAParser.CSharp.exe
-GodotProject/TJAParser/TJAParser.CSharp.pdb
+GodotProject/TJAtoTJAP/TJAtoTJAP.exe
+GodotProject/TJAtoTJAP/TJAtoTJAP.pdb
