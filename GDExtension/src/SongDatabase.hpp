@@ -40,8 +40,8 @@ public:
     std::vector<SongEntry> songs;
     std::filesystem::path songsPath;
 
-    // Path to the TJAParser executable, relative to the working directory.
-    std::filesystem::path tjaParserPath{"TJAParser/TJAParser.CSharp.exe"};
+    // Path to the TJAtoTJAP executable, relative to the working directory.
+    std::filesystem::path tjaParserPath{"GodotProject/TJAtoTJAP/TJAtoTJAP.exe"};
 
     // Load from cache if valid, otherwise scan from scratch.
     // Returns true on success.

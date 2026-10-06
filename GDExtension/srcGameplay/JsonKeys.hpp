@@ -1,43 +1,56 @@
 #ifndef JsonKeys_hpp
 #define JsonKeys_hpp
 
-class JsonKeys
-{
-public:
-    constexpr const char* title = "a";
-    constexpr const char* subtitle = "b";
-    constexpr const char* wave = "c";
-    constexpr const char* demoStart_fractional = "d";
-    constexpr const char* demoStart_picoseconds = "e";
-    constexpr const char* defaultBpm_fractional = "f";
-    constexpr const char* defaultBpm_double = "g";
-    constexpr const char* defaultOffset_fractional = "h";
-    constexpr const char* defaultOffset_picoseconds = "i";
-    constexpr const char* courses = "j";
-    constexpr const char* course = "k";
-    constexpr const char* level = "l";
-    constexpr const char* bigRedNotes = "m";
-    constexpr const char* bigBlueNotes = "n";
-    constexpr const char* bigGhostNotes = "o";
-    constexpr const char* bigGreenNotes = "p";
-    constexpr const char* bigYellowNotes = "q";
-    constexpr const char* blueNotes = "r";
-    constexpr const char* ghostNotes = "s";
-    constexpr const char* greenNotes = "t";
-    constexpr const char* redNotes = "u";
-    constexpr const char* yellowNotes = "v";
-    constexpr const char* measures = "w";
-    constexpr const char* startTime_fractional = "x";
-    constexpr const char* startTime_picoseconds = "y";
-    constexpr const char* stopTime_fractional = "z";
-    constexpr const char* stopTime_picoseconds = "A";
-    constexpr const char* bpmForScroll_fractional = "B";
-    constexpr const char* bpmForScroll_double = "C";
-    constexpr const char* greenNoteHits = "D";
-    constexpr const char* scroll = "E";
-    constexpr const char* gogo = "F";
-    constexpr const char* barlineVisible = "G";
-    constexpr const char* text = "H";
-};
+// --- Top-level chart keys ---
+static constexpr const char* JC_TITLE = "A";
+static constexpr const char* JC_SUBTITLE = "s";
+static constexpr const char* JC_TITLEJA = "g";
+static constexpr const char* JC_TITLEZH = "k";
+static constexpr const char* JC_SUBTITLEJA = "Z";
+static constexpr const char* JC_SUBTITLEZH = "u";
+static constexpr const char* JC_WAVE = "i";
+static constexpr const char* JC_DEMOSTART_F = "M";
+static constexpr const char* JC_DEFAULTBPM_F = "W";
+static constexpr const char* JC_DEFAULTOFFSET_F = "n";
+static constexpr const char* JC_COURSES = "C";
+
+// --- Per-course keys ---
+static constexpr const char* JC_COURSE = "E";
+static constexpr const char* JC_LEVEL = "V";
+static constexpr const char* JC_SCOREINIT = "y";
+static constexpr const char* JC_SCOREDIFF = "B";
+static constexpr const char* JC_BALLOON = "O";
+
+// --- Note array keys ---
+static constexpr const char* JC_REDNOTES = "p";
+static constexpr const char* JC_BLUENOTES = "j";
+static constexpr const char* JC_YELLOWNOTES = "Y";
+static constexpr const char* JC_GREENNOTES = "J";
+static constexpr const char* JC_GHOSTNOTES = "f";
+static constexpr const char* JC_BIGREDNOTES = "H";
+static constexpr const char* JC_BIGBLUENOTES = "o";
+static constexpr const char* JC_BIGYELLOWNOTES = "a";
+static constexpr const char* JC_BIGGREENNOTES = "Q";
+static constexpr const char* JC_BIGGHOSTNOTES = "R";
+
+// --- Note object keys ---
+static constexpr const char* JC_STARTTIME_F = "l";
+static constexpr const char* JC_STOPTIME_F = "m";
+static constexpr const char* JC_BPMSCROLL_F = "T";
+static constexpr const char* JC_GREENNOTEHITS = "v";
+
+// --- Measure keys ---
+static constexpr const char* JC_MEASURES = "F";
+static constexpr const char* JC_SCROLL = "h";
+static constexpr const char* JC_GOGO = "N";
+static constexpr const char* JC_BARLINE = "x";
+static constexpr const char* JC_TEXT = "z";
+
+// --- Note type identifiers (internal, not JSON keys) ---
+static constexpr const char* NT_RED = "red";
+static constexpr const char* NT_BLUE = "blue";
+static constexpr const char* NT_YELLOW = "yellow";
+static constexpr const char* NT_GREEN = "green";
+static constexpr const char* NT_GHOST = "ghost";
 
 #endif

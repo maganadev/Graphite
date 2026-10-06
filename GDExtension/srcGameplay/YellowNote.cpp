@@ -1,9 +1,32 @@
 #include "YellowNote.hpp"
 #include "../src/GraphiteGlobals.hpp"
+#include "Fraction.hpp"
+#include "JsonKeys.hpp"
 #include "YellowNotePrefab.hpp"
 
-YellowNote::YellowNote(const nlohmann::json& j) : timePicoseconds(j[JC_STARTTIME_PS]), bpmForScrollDouble(j.value(JC_BPMSCROLL_D, 240.0))
+YellowNote::YellowNote(const nlohmann::json& j) : timePicoseconds(0), bpmForScrollDouble(240.0)
 {
+    std::string startStr = j.value(JC_STARTTIME_F, "0/1");
+    bool ok;
+    Fraction f;
+    f.assignFromString(startStr, ok);
+    if (ok)
+    {
+        Fraction ps;
+        ps.assignFromUInt64(1000000000000ULL);
+        f.multiply(ps);
+        bool intOk;
+        timePicoseconds = f.toInt(intOk);
+    }
+    std::string bpmStr = j.value(JC_BPMSCROLL_F, "120/1");
+    ok = false;
+    Fraction bpmFrac;
+    bpmFrac.assignFromString(bpmStr, ok);
+    if (ok)
+    {
+        bool dblOk;
+        bpmForScrollDouble = bpmFrac.toDouble(dblOk);
+    }
 }
 
 YellowNote::~YellowNote()

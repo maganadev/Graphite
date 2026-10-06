@@ -3,6 +3,7 @@
 
 #include "../srcThirdParty/json.hpp"
 #include "Course.hpp"
+#include "Fraction.hpp"
 #include "JsonKeys.hpp"
 #include <cstdint>
 #include <string>
@@ -42,9 +43,23 @@ public:
         chart.title = j.value(JC_TITLE, "");
         chart.wave = j.value(JC_WAVE, "");
         chart.defaultBpm = j.value(JC_DEFAULTBPM_F, "0/1");
-        chart.defaultBpmDouble = j.value(JC_DEFAULTBPM_D, 0.0);
+        bool convOk;
+        Fraction bpmFrac;
+        bpmFrac.assignFromString(chart.defaultBpm, convOk);
+        if (convOk)
+            chart.defaultBpmDouble = bpmFrac.toDouble(convOk);
         chart.defaultOffset = j.value(JC_DEFAULTOFFSET_F, "0/1");
-        chart.defaultOffsetPicoseconds = j.value(JC_DEFAULTOFFSET_PS, static_cast<int64_t>(0));
+        convOk = false;
+        Fraction offFrac;
+        offFrac.assignFromString(chart.defaultOffset, convOk);
+        if (convOk)
+        {
+            Fraction ps;
+            ps.assignFromUInt64(1000000000000ULL);
+            offFrac.multiply(ps);
+            bool intOk;
+            chart.defaultOffsetPicoseconds = offFrac.toInt(intOk);
+        }
         if (j.contains(JC_COURSES))
         {
             for (const auto& c : j[JC_COURSES])

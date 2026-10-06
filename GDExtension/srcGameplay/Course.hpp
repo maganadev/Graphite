@@ -32,6 +32,8 @@ public:
     std::vector<YellowNote*> yellowNotes;
     std::vector<GreenNote*> greenNotes;
     std::vector<GhostNote*> ghostNotes;
+    std::vector<GhostNote*> bigGhostNotes;
+    std::vector<GreenNote*> bigGreenNotes;
 
     ////////////////////////////////////////////////////////////
     //
@@ -73,6 +75,11 @@ public:
                     GreenNote* note = new GreenNote(e);
                     course.greenNotes.push_back(note);
                 }
+                else if (noteType == NT_GHOST)
+                {
+                    GhostNote* note = new GhostNote(e);
+                    course.ghostNotes.push_back(note);
+                }
             }
         };
 
@@ -83,6 +90,9 @@ public:
         readNotes(JC_YELLOWNOTES, NT_YELLOW);
         readNotes(JC_BIGYELLOWNOTES, NT_YELLOW);
         readNotes(JC_GREENNOTES, NT_GREEN);
+        readNotes(JC_GHOSTNOTES, NT_GHOST);
+        readNotes(JC_BIGGHOSTNOTES, NT_GHOST);
+        readNotes(JC_BIGGREENNOTES, NT_GREEN);
 
         return course;
     }
