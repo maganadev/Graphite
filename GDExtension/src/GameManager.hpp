@@ -1,12 +1,12 @@
 #ifndef GameManager_hpp
 #define GameManager_hpp
 
-#include "GraphiteGlobals.hpp"
 #include "../../RhythmAudio/RhythmAudio/LFProtectObj.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 #include "../srcGameplay/Chart.hpp"
 #include "../srcThirdParty/json.hpp"
+#include "GraphiteGlobals.hpp"
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
@@ -49,7 +49,7 @@ public:
     void _exit_tree() override;
     void _process(double delta) override;
 
-    private:
+private:
     bool processFunctionRan = false;
     void initializeInputEngine();
 };

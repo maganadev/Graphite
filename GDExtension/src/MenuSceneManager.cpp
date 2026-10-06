@@ -1,9 +1,9 @@
 #include "MenuSceneManager.hpp"
+#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 #include "MenuTree.hpp"
 #include "SongDatabase.hpp"
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 
 void MenuSceneManager::_bind_methods()
 {
@@ -50,10 +50,7 @@ void MenuSceneManager::buildMenuTree()
         }
     };
 
-    tree.onExit = [this]() -> void
-    {
-        UtilityFunctions::print("Exit requested");
-    };
+    tree.onExit = [this]() -> void { UtilityFunctions::print("Exit requested"); };
 
     tree.build(&database);
     rebuildVisibleWindow();
@@ -73,8 +70,7 @@ void MenuSceneManager::_process(double delta)
         rebuildVisibleWindow();
     }
 
-    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterLeft].timesPressedSinceLastFrame > 0 ||
-        RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterRight].timesPressedSinceLastFrame > 0)
+    if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterLeft].timesPressedSinceLastFrame > 0 || RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterRight].timesPressedSinceLastFrame > 0)
     {
         tree.onEnter();
         rebuildVisibleWindow();

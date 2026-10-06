@@ -140,8 +140,7 @@ int32_t MenuTree::createLevelMenu(int32_t parentId, const std::vector<int>& song
     for (size_t i = 0; i < groups.size(); i++)
     {
         int levelNum = 10 - static_cast<int>(i);
-        std::vector<int> filtered = database->getSongsByLevel(songSubset,
-            static_cast<uint8_t>(levelNum));
+        std::vector<int> filtered = database->getSongsByLevel(songSubset, static_cast<uint8_t>(levelNum));
         int32_t listId = createSongList(-1, filtered, groups[i]);
 
         MenuItem item;
@@ -159,9 +158,7 @@ int32_t MenuTree::createLevelMenu(int32_t parentId, const std::vector<int>& song
     return addNode(node);
 }
 
-int32_t MenuTree::createGroupMenu(int32_t parentId, const std::vector<int>& songSubset,
-                                   const std::vector<std::string>& groups,
-                                   const std::string& groupType)
+int32_t MenuTree::createGroupMenu(int32_t parentId, const std::vector<int>& songSubset, const std::vector<std::string>& groups, const std::string& groupType)
 {
     MenuNode node;
     node.parentNodeId = parentId;
@@ -187,8 +184,7 @@ int32_t MenuTree::createGroupMenu(int32_t parentId, const std::vector<int>& song
     return addNode(node);
 }
 
-int32_t MenuTree::createSongList(int32_t parentId, const std::vector<int>& songSubset,
-                                  const std::string& filterLabel)
+int32_t MenuTree::createSongList(int32_t parentId, const std::vector<int>& songSubset, const std::string& filterLabel)
 {
     MenuNode node;
     node.parentNodeId = parentId;

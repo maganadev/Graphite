@@ -40,25 +40,18 @@ public:
     // Check if a valid cache exists by comparing fingerprints.
     // If fpValid is true the songs dir has not changed.
     // Sets outFingerprint to the current fingerprint.
-    static bool isCacheValid(const std::filesystem::path& cachePath,
-                             const std::filesystem::path& songsDir,
-                             std::vector<uint8_t>& outFingerprint);
+    static bool isCacheValid(const std::filesystem::path& cachePath, const std::filesystem::path& songsDir, std::vector<uint8_t>& outFingerprint);
 
     // Load cached data from disk. Returns false on any error.
     // Does not check fingerprint validity.
-    static bool load(const std::filesystem::path& cachePath,
-                     std::vector<uint8_t>& outFingerprint,
-                     CachedData& outData);
+    static bool load(const std::filesystem::path& cachePath, std::vector<uint8_t>& outFingerprint, CachedData& outData);
 
     // Write cache atomically (write to temp then rename).
-    static void save(const std::filesystem::path& cachePath,
-                     const std::vector<uint8_t>& fingerprint,
-                     const CachedData& data);
+    static void save(const std::filesystem::path& cachePath, const std::vector<uint8_t>& fingerprint, const CachedData& data);
 
     // Compute a fingerprint (hash of file paths, sizes, mtimes) for the
     // songs directory tree. Used to detect changes.
-    static void computeFingerprint(const std::filesystem::path& songsDir,
-                                   std::vector<uint8_t>& outFingerprint);
+    static void computeFingerprint(const std::filesystem::path& songsDir, std::vector<uint8_t>& outFingerprint);
 };
 
 #endif

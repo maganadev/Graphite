@@ -19,14 +19,12 @@ static void hashU64(uint64_t& hash, uint64_t v)
     hashUpdate(hash, reinterpret_cast<const uint8_t*>(&v), sizeof(v));
 }
 
-void MenuCache::computeFingerprint(const std::filesystem::path& songsDir,
-                                    std::vector<uint8_t>& outFingerprint)
+void MenuCache::computeFingerprint(const std::filesystem::path& songsDir, std::vector<uint8_t>& outFingerprint)
 {
     uint64_t hash = 0xCBF29CE484222325ull;
     std::error_code ec;
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(
-             songsDir, std::filesystem::directory_options::skip_permission_denied, ec))
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(songsDir, std::filesystem::directory_options::skip_permission_denied, ec))
     {
         if (!entry.is_regular_file())
         {
@@ -81,9 +79,7 @@ static uint8_t readU8(std::ifstream& file)
     return v;
 }
 
-bool MenuCache::isCacheValid(const std::filesystem::path& cachePath,
-                              const std::filesystem::path& songsDir,
-                              std::vector<uint8_t>& outFingerprint)
+bool MenuCache::isCacheValid(const std::filesystem::path& cachePath, const std::filesystem::path& songsDir, std::vector<uint8_t>& outFingerprint)
 {
     // Build current fingerprint
     computeFingerprint(songsDir, outFingerprint);
@@ -128,9 +124,7 @@ bool MenuCache::isCacheValid(const std::filesystem::path& cachePath,
     return diskFingerprint == outFingerprint;
 }
 
-bool MenuCache::load(const std::filesystem::path& cachePath,
-                      std::vector<uint8_t>& outFingerprint,
-                      CachedData& outData)
+bool MenuCache::load(const std::filesystem::path& cachePath, std::vector<uint8_t>& outFingerprint, CachedData& outData)
 {
     std::ifstream file(cachePath, std::ios::binary);
     if (!file.is_open())
@@ -163,8 +157,7 @@ bool MenuCache::load(const std::filesystem::path& cachePath,
     uint32_t stringCount = readU32(file);
 
     std::vector<uint32_t> stringOffsets(stringCount + 1);
-    readExact(file, reinterpret_cast<uint8_t*>(stringOffsets.data()),
-              (stringCount + 1) * sizeof(uint32_t));
+    readExact(file, reinterpret_cast<uint8_t*>(stringOffsets.data()), (stringCount + 1) * sizeof(uint32_t));
 
     std::vector<uint8_t> rawStrings(stringDataSize);
     if (stringDataSize > 0)
@@ -177,9 +170,7 @@ bool MenuCache::load(const std::filesystem::path& cachePath,
     {
         uint32_t start = stringOffsets[i];
         uint32_t end = stringOffsets[i + 1];
-        outData.stringTable[i] = std::string(
-            reinterpret_cast<const char*>(rawStrings.data()) + start,
-            end - start);
+        outData.stringTable[i] = std::string(reinterpret_cast<const char*>(rawStrings.data()) + start, end - start);
     }
 
     outData.folders.resize(folderCount);
@@ -220,9 +211,7 @@ static void writeU8(std::ofstream& file, uint8_t v)
     file.write(reinterpret_cast<const char*>(&v), sizeof(v));
 }
 
-void MenuCache::save(const std::filesystem::path& cachePath,
-                      const std::vector<uint8_t>& fingerprint,
-                      const CachedData& data)
+void MenuCache::save(const std::filesystem::path& cachePath, const std::vector<uint8_t>& fingerprint, const CachedData& data)
 {
     // Build string table offsets
     std::vector<uint32_t> stringOffsets;
@@ -252,8 +241,7 @@ void MenuCache::save(const std::filesystem::path& cachePath,
     writeU32(file, static_cast<uint32_t>(fingerprint.size()));
     if (!fingerprint.empty())
     {
-        file.write(reinterpret_cast<const char*>(fingerprint.data()),
-                   static_cast<std::streamsize>(fingerprint.size()));
+        file.write(reinterpret_cast<const char*>(fingerprint.data()), static_cast<std::streamsize>(fingerprint.size()));
     }
 
     writeU32(file, static_cast<uint32_t>(data.folders.size()));
@@ -263,12 +251,10 @@ void MenuCache::save(const std::filesystem::path& cachePath,
     writeU32(file, stringDataSize);
     writeU32(file, static_cast<uint32_t>(data.stringTable.size()));
 
-    file.write(reinterpret_cast<const char*>(stringOffsets.data()),
-               static_cast<std::streamsize>(stringOffsets.size() * sizeof(uint32_t)));
+    file.write(reinterpret_cast<const char*>(stringOffsets.data()), static_cast<std::streamsize>(stringOffsets.size() * sizeof(uint32_t)));
     if (stringDataSize > 0)
     {
-        file.write(reinterpret_cast<const char*>(rawStrings.data()),
-                   static_cast<std::streamsize>(stringDataSize));
+        file.write(reinterpret_cast<const char*>(rawStrings.data()), static_cast<std::streamsize>(stringDataSize));
     }
 
     for (const CachedFolder& f : data.folders)

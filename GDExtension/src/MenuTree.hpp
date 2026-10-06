@@ -9,25 +9,25 @@
 
 enum MenuItemType : uint8_t
 {
-    MIT_Back      = 0,
-    MIT_Submenu   = 1,
-    MIT_Action    = 2,
+    MIT_Back = 0,
+    MIT_Submenu = 1,
+    MIT_Action = 2,
 };
 
 enum ActionCode : int32_t
 {
     ACT_PlayMusic = -1,
-    ACT_Settings  = -2,
-    ACT_Exit      = -3,
-    ACT_PlaySong  = -4,
+    ACT_Settings = -2,
+    ACT_Exit = -3,
+    ACT_PlaySong = -4,
 };
 
 struct MenuItem
 {
     std::string label;
     MenuItemType type;
-    int32_t targetNodeId;   // for MIT_Submenu: node to navigate to
-    int32_t actionData;     // for MIT_Action: song index or negative action code
+    int32_t targetNodeId; // for MIT_Submenu: node to navigate to
+    int32_t actionData;   // for MIT_Action: song index or negative action code
 };
 
 struct MenuNode
@@ -84,11 +84,8 @@ private:
     int32_t createFolderSelect();
     int32_t createSortMode(int32_t parentId, const std::vector<int>& songSubset);
     int32_t createLevelMenu(int32_t parentId, const std::vector<int>& songSubset);
-    int32_t createGroupMenu(int32_t parentId, const std::vector<int>& songSubset,
-                            const std::vector<std::string>& groups,
-                            const std::string& groupType);
-    int32_t createSongList(int32_t parentId, const std::vector<int>& songSubset,
-                           const std::string& filterLabel);
+    int32_t createGroupMenu(int32_t parentId, const std::vector<int>& songSubset, const std::vector<std::string>& groups, const std::string& groupType);
+    int32_t createSongList(int32_t parentId, const std::vector<int>& songSubset, const std::string& filterLabel);
 };
 
 #endif
