@@ -27,7 +27,8 @@ public:
     virtual ~HittableNote();
 
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY);
-    virtual NoteGradings getGradingForOfftime(int64_t songPositionPs, const Chart* chart) = 0;
+    virtual void getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime) = 0;
+    virtual void setJudged(NoteGradings grading, int64_t picosecondsOff) = 0;
 };
 
 #endif

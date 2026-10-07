@@ -9,13 +9,6 @@ std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
 std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
-void setNoteJudged(const HittableNoteVariant& noteVariant, NoteGradings grading, int64_t picosecondsOff)
-{
-    noteVariant->grading = grading;
-    noteVariant->picosecondsOff = picosecondsOff;
-    noteVariant->judged.store(true, std::memory_order_release);
-}
-
 void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
@@ -23,7 +16,9 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        NoteGradings grading = (*noteVariant)->getGradingForOfftime(songPositionPs, chart);
+        NoteGradings grading;
+        int64_t offtime;
+        (*noteVariant)->getGradingForOfftime(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Early_OutOfRange)
         {
@@ -32,7 +27,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
-            setNoteJudged(*noteVariant, grading, songPositionPs - (*noteVariant)->timePicoseconds);
+            (*noteVariant)->setJudged(grading, offtime);
             lane.markMostRecentAsCompleted();
             outGrading = grading;
             return;
@@ -49,11 +44,13 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        NoteGradings grading = (*noteVariant)->getGradingForOfftime(songPositionPs, chart);
+        NoteGradings grading;
+        int64_t offtime;
+        (*noteVariant)->getGradingForOfftime(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange, songPositionPs - (*noteVariant)->timePicoseconds);
+            (*noteVariant)->setJudged(NoteGradings::Late_OutOfRange, offtime);
             lane.markMostRecentAsCompleted();
         }
         else

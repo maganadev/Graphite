@@ -22,55 +22,75 @@ void BigBlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visual
     }
 }
 
-NoteGradings BigBlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart)
+void BigBlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t timeDelta = songPositionPs - timePicoseconds;
+    offtime = timeDelta;
     const int64_t absDelta = std::abs(timeDelta);
     const bool isEarly = timeDelta < 0;
 
     if (absDelta > chart->hitWindowAboutToBeOutOfRange)
     {
         if (isEarly)
-            return NoteGradings::Early_OutOfRange;
-        return NoteGradings::Late_OutOfRange;
+            grading = NoteGradings::Early_OutOfRange;
+        else
+            grading = NoteGradings::Late_OutOfRange;
+        return;
     }
 
     if (absDelta > chart->hitWindowFuka && absDelta <= chart->hitWindowAboutToBeOutOfRange)
     {
         if (isEarly)
-            return NoteGradings::Early_AboutToBeOutOfRange;
-        return NoteGradings::Late_AboutToBeOutOfRange;
+            grading = NoteGradings::Early_AboutToBeOutOfRange;
+        else
+            grading = NoteGradings::Late_AboutToBeOutOfRange;
+        return;
     }
 
     if (absDelta > chart->hitWindowKa && absDelta <= chart->hitWindowFuka)
     {
         if (isEarly)
-            return NoteGradings::Early_Fuka;
-        return NoteGradings::Late_Fuka;
+            grading = NoteGradings::Early_Fuka;
+        else
+            grading = NoteGradings::Late_Fuka;
+        return;
     }
 
     if (absDelta > chart->hitWindowRyou && absDelta <= chart->hitWindowKa)
     {
         if (isEarly)
-            return NoteGradings::Early_Ka;
-        return NoteGradings::Late_Ka;
+            grading = NoteGradings::Early_Ka;
+        else
+            grading = NoteGradings::Late_Ka;
+        return;
     }
 
     if (absDelta > chart->hitWindowChou && absDelta <= chart->hitWindowRyou)
     {
         if (isEarly)
-            return NoteGradings::Early_Ryou;
-        return NoteGradings::Late_Ryou;
+            grading = NoteGradings::Early_Ryou;
+        else
+            grading = NoteGradings::Late_Ryou;
+        return;
     }
 
     if (absDelta <= chart->hitWindowChou)
     {
         if (isEarly)
-            return NoteGradings::Early_Chou;
-        if (timeDelta == 0)
-            return NoteGradings::CompletelyPerfect;
-        return NoteGradings::Late_Chou;
+            grading = NoteGradings::Early_Chou;
+        else if (timeDelta == 0)
+            grading = NoteGradings::CompletelyPerfect;
+        else
+            grading = NoteGradings::Late_Chou;
+        return;
     }
 
-    return NoteGradings::Ungraded;
+    grading = NoteGradings::Ungraded;
+}
+
+void BigBlueNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+{
+    this->grading = grading;
+    this->picosecondsOff = picosecondsOff;
+    this->judged.store(true, std::memory_order_release);
 }

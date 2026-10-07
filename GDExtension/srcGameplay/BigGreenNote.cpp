@@ -22,55 +22,16 @@ void BigGreenNote::updatePosition(int64_t songPositionPicoseconds, int64_t visua
     }
 }
 
-NoteGradings BigGreenNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart)
+void BigGreenNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    int64_t timeDelta = songPositionPs - timePicoseconds;
-    const int64_t absDelta = std::abs(timeDelta);
-    const bool isEarly = timeDelta < 0;
+    offtime = 0;
+    grading = NoteGradings::Late_AboutToBeOutOfRange;
+    return;
+}
 
-    if (absDelta > chart->hitWindowAboutToBeOutOfRange)
-    {
-        if (isEarly)
-            return NoteGradings::Early_OutOfRange;
-        return NoteGradings::Late_OutOfRange;
-    }
-
-    if (absDelta > chart->hitWindowFuka && absDelta <= chart->hitWindowAboutToBeOutOfRange)
-    {
-        if (isEarly)
-            return NoteGradings::Early_AboutToBeOutOfRange;
-        return NoteGradings::Late_AboutToBeOutOfRange;
-    }
-
-    if (absDelta > chart->hitWindowKa && absDelta <= chart->hitWindowFuka)
-    {
-        if (isEarly)
-            return NoteGradings::Early_Fuka;
-        return NoteGradings::Late_Fuka;
-    }
-
-    if (absDelta > chart->hitWindowRyou && absDelta <= chart->hitWindowKa)
-    {
-        if (isEarly)
-            return NoteGradings::Early_Ka;
-        return NoteGradings::Late_Ka;
-    }
-
-    if (absDelta > chart->hitWindowChou && absDelta <= chart->hitWindowRyou)
-    {
-        if (isEarly)
-            return NoteGradings::Early_Ryou;
-        return NoteGradings::Late_Ryou;
-    }
-
-    if (absDelta <= chart->hitWindowChou)
-    {
-        if (isEarly)
-            return NoteGradings::Early_Chou;
-        if (timeDelta == 0)
-            return NoteGradings::CompletelyPerfect;
-        return NoteGradings::Late_Chou;
-    }
-
-    return NoteGradings::Ungraded;
+void BigGreenNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+{
+    this->grading = grading;
+    this->picosecondsOff = picosecondsOff;
+    this->judged.store(true, std::memory_order_release);
 }
