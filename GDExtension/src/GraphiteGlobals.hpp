@@ -28,6 +28,7 @@ public:
     static LFProtectObj<Chart> currentChart;
     static int64_t audioOffset;
     static int64_t visualOffset;
+    static int32_t difficulty;
     static std::string currentSongFileName;
 
     // Mods

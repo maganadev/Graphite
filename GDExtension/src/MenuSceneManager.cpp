@@ -56,18 +56,20 @@ void MenuSceneManager::buildMenuTree()
     {
         if (actionData == ACT_VisualCalibration)
         {
-            UtilityFunctions::print("VisualCalibration selected, loading GameplayScene with AutoCalibration.tjap");
+            UtilityFunctions::print("VisualCalibration selected, loading GameplayScene with VisualCalibration.tjap");
             GraphiteGlobals::modVisualOffsetCalibration = true;
             GraphiteGlobals::modAudioOffsetCalibration = false;
-            GraphiteGlobals::currentSongFileName = "AutoCalibration/AutoCalibration.tjap";
+            GraphiteGlobals::difficulty = 0;
+            GraphiteGlobals::currentSongFileName = "AutoCalibration/VisualCalibration.tjap";
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
         }
         else if (actionData == ACT_AudioCalibration)
         {
-            UtilityFunctions::print("AudioCalibration selected, loading GameplayScene with AutoCalibration.tjap");
+            UtilityFunctions::print("AudioCalibration selected, loading GameplayScene with AudioCalibration.tjap");
             GraphiteGlobals::modVisualOffsetCalibration = false;
             GraphiteGlobals::modAudioOffsetCalibration = true;
-            GraphiteGlobals::currentSongFileName = "AutoCalibration/AutoCalibration.tjap";
+            GraphiteGlobals::difficulty = 0;
+            GraphiteGlobals::currentSongFileName = "AutoCalibration/AudioCalibration.tjap";
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
         }
     };

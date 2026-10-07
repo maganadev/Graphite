@@ -65,7 +65,6 @@ GameplaySceneManager::~GameplaySceneManager()
 void GameplaySceneManager::_ready()
 {
     std::string songFileName = GraphiteGlobals::currentSongFileName;
-    int32_t courseDifficulty = (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration) ? 3 : 2;
 
     // Open the song
     std::ifstream ifs(songFileName);
@@ -81,7 +80,7 @@ void GameplaySceneManager::_ready()
     int32_t courseIndex = -1;
     for (int32_t i = 0; i < static_cast<int32_t>(chart.courses.size()); ++i)
     {
-        if (chart.courses[i].courseNumber == courseDifficulty)
+        if (chart.courses[i].courseNumber == GraphiteGlobals::difficulty)
         {
             courseIndex = i;
             break;
@@ -89,7 +88,7 @@ void GameplaySceneManager::_ready()
     }
     if (courseIndex < 0)
     {
-        UtilityFunctions::print("Course not found: ", std::to_string(courseDifficulty).c_str());
+        UtilityFunctions::print("Course not found: ", std::to_string(GraphiteGlobals::difficulty).c_str());
         return;
     }
     Course* targetCourse = &chart.courses[courseIndex];
@@ -337,7 +336,7 @@ void GameplaySceneManager::_ready()
         courseInChart->populateLanes();
 
         size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
-        UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(courseDifficulty).c_str());
+        UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
     }
 
     // Read wave path from the chart via read guard
@@ -356,14 +355,9 @@ void GameplaySceneManager::_ready()
         return;
     }
 
-    // Load the wave file - if visual offset calibration, use silence instead
+    // Load the wave file
     std::filesystem::path audioFilePath = wavePath;
-    if (GraphiteGlobals::modVisualOffsetCalibration)
-    {
-        audioFilePath = std::filesystem::path("GameplaySilence.ogg");
-        UtilityFunctions::print("Visual offset calibration: using GameplaySilence.ogg");
-    }
-    else if (!wavePath.empty())
+    if (!wavePath.empty())
     {
         audioFilePath = std::filesystem::path(songFileName).parent_path() / wavePath;
     }

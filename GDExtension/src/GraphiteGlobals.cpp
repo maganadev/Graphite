@@ -18,6 +18,7 @@ uint64_t GraphiteGlobals::sineWaveHitsoundHandle{0};
 LFProtectObj<Chart> GraphiteGlobals::currentChart{};
 int64_t GraphiteGlobals::audioOffset{0};
 int64_t GraphiteGlobals::visualOffset{0};
+int32_t GraphiteGlobals::difficulty{0};
 std::string GraphiteGlobals::currentSongFileName{""};
 bool GraphiteGlobals::modVisualOffsetCalibration{false};
 bool GraphiteGlobals::modAudioOffsetCalibration{false};
