@@ -43,12 +43,28 @@ public:
     void set_ghost_note_scene(Ref<PackedScene> scene);
     Ref<PackedScene> get_ghost_note_scene() const;
 
+    void set_big_red_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_big_red_note_scene() const;
+    void set_big_blue_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_big_blue_note_scene() const;
+    void set_big_yellow_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_big_yellow_note_scene() const;
+    void set_big_green_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_big_green_note_scene() const;
+    void set_big_ghost_note_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_big_ghost_note_scene() const;
+
 private:
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
     Ref<PackedScene> yellowNoteScene;
     Ref<PackedScene> greenNoteScene;
     Ref<PackedScene> ghostNoteScene;
+    Ref<PackedScene> bigRedNoteScene;
+    Ref<PackedScene> bigBlueNoteScene;
+    Ref<PackedScene> bigYellowNoteScene;
+    Ref<PackedScene> bigGreenNoteScene;
+    Ref<PackedScene> bigGhostNoteScene;
     uint64_t audioTrackHandle{0};
     int64_t effectiveVisualOffset{0};
     int64_t effectiveAudioOffset{0};

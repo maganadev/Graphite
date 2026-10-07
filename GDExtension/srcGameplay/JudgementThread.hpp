@@ -2,17 +2,13 @@
 #define JudgementThread_hpp
 
 #include "../../RhythmAudio/RhythmAudio/QueueSPSC.hpp"
-#include "BlueNote.hpp"
 #include "CompletionList.hpp"
-#include "GreenNote.hpp"
-#include "RedNote.hpp"
+#include "Course.hpp"
 #include "RhythmEnums.hpp"
-#include "YellowNote.hpp"
 #include <atomic>
 #include <cstdint>
 #include <semaphore>
 #include <thread>
-#include <variant>
 #include <vector>
 
 class Chart;
@@ -33,8 +29,8 @@ class JudgementThread
 {
 public:
     static NoteGradings getGradingForOfftime(int64_t timeDelta, const Chart* chart);
-    static void gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
-    static void gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, const Chart* chart);
+    static void gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
+    static void gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart);
 
     // Thread lifecycle
     static void start();

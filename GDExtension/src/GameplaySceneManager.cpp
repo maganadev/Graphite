@@ -1,4 +1,14 @@
 #include "GameplaySceneManager.hpp"
+#include "BigBlueNote.hpp"
+#include "BigBlueNotePrefab.hpp"
+#include "BigGhostNote.hpp"
+#include "BigGhostNotePrefab.hpp"
+#include "BigGreenNote.hpp"
+#include "BigGreenNotePrefab.hpp"
+#include "BigRedNote.hpp"
+#include "BigRedNotePrefab.hpp"
+#include "BigYellowNote.hpp"
+#include "BigYellowNotePrefab.hpp"
 #include "BlueNote.hpp"
 #include "BlueNotePrefab.hpp"
 #include "Course.hpp"
@@ -30,6 +40,16 @@ void GameplaySceneManager::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_green_note_scene"), &GameplaySceneManager::get_green_note_scene);
     ClassDB::bind_method(D_METHOD("set_ghost_note_scene", "scene"), &GameplaySceneManager::set_ghost_note_scene);
     ClassDB::bind_method(D_METHOD("get_ghost_note_scene"), &GameplaySceneManager::get_ghost_note_scene);
+    ClassDB::bind_method(D_METHOD("set_big_red_note_scene", "scene"), &GameplaySceneManager::set_big_red_note_scene);
+    ClassDB::bind_method(D_METHOD("get_big_red_note_scene"), &GameplaySceneManager::get_big_red_note_scene);
+    ClassDB::bind_method(D_METHOD("set_big_blue_note_scene", "scene"), &GameplaySceneManager::set_big_blue_note_scene);
+    ClassDB::bind_method(D_METHOD("get_big_blue_note_scene"), &GameplaySceneManager::get_big_blue_note_scene);
+    ClassDB::bind_method(D_METHOD("set_big_yellow_note_scene", "scene"), &GameplaySceneManager::set_big_yellow_note_scene);
+    ClassDB::bind_method(D_METHOD("get_big_yellow_note_scene"), &GameplaySceneManager::get_big_yellow_note_scene);
+    ClassDB::bind_method(D_METHOD("set_big_green_note_scene", "scene"), &GameplaySceneManager::set_big_green_note_scene);
+    ClassDB::bind_method(D_METHOD("get_big_green_note_scene"), &GameplaySceneManager::get_big_green_note_scene);
+    ClassDB::bind_method(D_METHOD("set_big_ghost_note_scene", "scene"), &GameplaySceneManager::set_big_ghost_note_scene);
+    ClassDB::bind_method(D_METHOD("get_big_ghost_note_scene"), &GameplaySceneManager::get_big_ghost_note_scene);
 }
 
 GameplaySceneManager::GameplaySceneManager()
@@ -136,6 +156,41 @@ void GameplaySceneManager::_ready()
         return;
     }
 
+    bigRedNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigRedNote.tscn");
+    if (bigRedNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BigRedNote scene");
+        return;
+    }
+
+    bigBlueNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigBlueNote.tscn");
+    if (bigBlueNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BigBlueNote scene");
+        return;
+    }
+
+    bigYellowNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigYellowNote.tscn");
+    if (bigYellowNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BigYellowNote scene");
+        return;
+    }
+
+    bigGreenNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigGreenNote.tscn");
+    if (bigGreenNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BigGreenNote scene");
+        return;
+    }
+
+    bigGhostNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigGhostNote.tscn");
+    if (bigGhostNoteScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load BigGhostNote scene");
+        return;
+    }
+
     chart.activeCourseIndex = courseIndex;
 
     // Build the course under write guard so judgment thread can't read it before it's ready
@@ -172,43 +227,65 @@ void GameplaySceneManager::_ready()
                 sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
-        for (BlueNote* note : courseInChart->blueNotes)
-        {
-            Node* instance = blueNoteScene->instantiate();
-            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
-            }
-        }
-        for (YellowNote* note : courseInChart->yellowNotes)
-        {
-            Node* instance = yellowNoteScene->instantiate();
-            YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
-            }
-        }
-        for (GreenNote* note : courseInChart->greenNotes)
-        {
-            Node* instance = greenNoteScene->instantiate();
-            GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
-            }
-        }
         for (GhostNote* note : courseInChart->ghostNotes)
         {
             Node* instance = ghostNoteScene->instantiate();
             GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (BigRedNote* note : courseInChart->bigRedNotes)
+        {
+            Node* instance = bigRedNoteScene->instantiate();
+            BigRedNotePrefab* prefab = Object::cast_to<BigRedNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (BigBlueNote* note : courseInChart->bigBlueNotes)
+        {
+            Node* instance = bigBlueNoteScene->instantiate();
+            BigBlueNotePrefab* prefab = Object::cast_to<BigBlueNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (BigYellowNote* note : courseInChart->bigYellowNotes)
+        {
+            Node* instance = bigYellowNoteScene->instantiate();
+            BigYellowNotePrefab* prefab = Object::cast_to<BigYellowNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (BigGreenNote* note : courseInChart->bigGreenNotes)
+        {
+            Node* instance = bigGreenNoteScene->instantiate();
+            BigGreenNotePrefab* prefab = Object::cast_to<BigGreenNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (BigGhostNote* note : courseInChart->bigGhostNotes)
+        {
+            Node* instance = bigGhostNoteScene->instantiate();
+            BigGhostNotePrefab* prefab = Object::cast_to<BigGhostNotePrefab>(instance);
             if (prefab)
             {
                 note->prefab = prefab;
@@ -333,6 +410,26 @@ void GameplaySceneManager::_process(double delta)
         {
             note->updatePosition(trackPositionPs, effectiveVisualOffset);
         }
+        for (BigRedNote* note : course->bigRedNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (BigBlueNote* note : course->bigBlueNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (BigYellowNote* note : course->bigYellowNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (BigGreenNote* note : course->bigGreenNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+        for (BigGhostNote* note : course->bigGhostNotes)
+        {
+            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
     }
 
     for (RedNote* note : course->redNotes)
@@ -399,6 +496,71 @@ void GameplaySceneManager::_process(double delta)
             }
         }
     }
+    for (BigRedNote* note : course->bigRedNotes)
+    {
+        if (note->judged.load(std::memory_order_acquire))
+        {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
+            BigRedNotePrefab* prefab = note->prefab;
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->prefab = nullptr;
+            }
+        }
+    }
+    for (BigBlueNote* note : course->bigBlueNotes)
+    {
+        if (note->judged.load(std::memory_order_acquire))
+        {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
+            BigBlueNotePrefab* prefab = note->prefab;
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->prefab = nullptr;
+            }
+        }
+    }
+    for (BigYellowNote* note : course->bigYellowNotes)
+    {
+        if (note->judged.load(std::memory_order_acquire))
+        {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
+            BigYellowNotePrefab* prefab = note->prefab;
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->prefab = nullptr;
+            }
+        }
+    }
+    for (BigGreenNote* note : course->bigGreenNotes)
+    {
+        if (note->judged.load(std::memory_order_acquire))
+        {
+            if (note->grading == NoteGradings::Late_OutOfRange)
+            {
+                continue;
+            }
+            BigGreenNotePrefab* prefab = note->prefab;
+            if (prefab && prefab->is_inside_tree())
+            {
+                prefab->queue_free();
+                note->prefab = nullptr;
+            }
+        }
+    }
+    // Ghost notes are purely visual and are never judged, so no cleanup loop.
 
     if (!resultsScreenTriggered)
     {
@@ -436,6 +598,50 @@ void GameplaySceneManager::_process(double delta)
         if (allJudged)
         {
             for (GreenNote* note : course->greenNotes)
+            {
+                if (!note->judged.load(std::memory_order_acquire))
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (BigRedNote* note : course->bigRedNotes)
+            {
+                if (!note->judged.load(std::memory_order_acquire))
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (BigBlueNote* note : course->bigBlueNotes)
+            {
+                if (!note->judged.load(std::memory_order_acquire))
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (BigYellowNote* note : course->bigYellowNotes)
+            {
+                if (!note->judged.load(std::memory_order_acquire))
+                {
+                    allJudged = false;
+                    break;
+                }
+            }
+        }
+        if (allJudged)
+        {
+            for (BigGreenNote* note : course->bigGreenNotes)
             {
                 if (!note->judged.load(std::memory_order_acquire))
                 {
@@ -501,4 +707,54 @@ void GameplaySceneManager::set_ghost_note_scene(Ref<PackedScene> scene)
 Ref<PackedScene> GameplaySceneManager::get_ghost_note_scene() const
 {
     return ghostNoteScene;
+}
+
+void GameplaySceneManager::set_big_red_note_scene(Ref<PackedScene> scene)
+{
+    bigRedNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_big_red_note_scene() const
+{
+    return bigRedNoteScene;
+}
+
+void GameplaySceneManager::set_big_blue_note_scene(Ref<PackedScene> scene)
+{
+    bigBlueNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_big_blue_note_scene() const
+{
+    return bigBlueNoteScene;
+}
+
+void GameplaySceneManager::set_big_yellow_note_scene(Ref<PackedScene> scene)
+{
+    bigYellowNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_big_yellow_note_scene() const
+{
+    return bigYellowNoteScene;
+}
+
+void GameplaySceneManager::set_big_green_note_scene(Ref<PackedScene> scene)
+{
+    bigGreenNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_big_green_note_scene() const
+{
+    return bigGreenNoteScene;
+}
+
+void GameplaySceneManager::set_big_ghost_note_scene(Ref<PackedScene> scene)
+{
+    bigGhostNoteScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_big_ghost_note_scene() const
+{
+    return bigGhostNoteScene;
 }

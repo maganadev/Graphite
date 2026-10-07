@@ -1,16 +1,16 @@
-#include "BlueNote.hpp"
+#include "BigRedNote.hpp"
 #include "../src/GraphiteGlobals.hpp"
-#include "BlueNotePrefab.hpp"
+#include "BigRedNotePrefab.hpp"
 
-BlueNote::BlueNote(const nlohmann::json& j) : HittableNote(j)
+BigRedNote::BigRedNote(const nlohmann::json& j) : HittableNote(j)
 {
 }
 
-BlueNote::~BlueNote()
+BigRedNote::~BigRedNote()
 {
 }
 
-void BlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
+void BigRedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
 {
     double x = 0.0;
     double y = 0.0;

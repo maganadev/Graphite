@@ -9,115 +9,91 @@ std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
 std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
-int64_t getNoteTime(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant)
+int64_t getNoteTime(const HittableNoteVariant& noteVariant)
 {
-    if (auto* note = std::get_if<RedNote*>(&noteVariant))
-        return (*note)->timePicoseconds;
-    if (auto* note = std::get_if<BlueNote*>(&noteVariant))
-        return (*note)->timePicoseconds;
-    if (auto* note = std::get_if<YellowNote*>(&noteVariant))
-        return (*note)->timePicoseconds;
-    if (auto* note = std::get_if<GreenNote*>(&noteVariant))
-        return (*note)->timePicoseconds;
-    return 0;
+    return noteVariant->timePicoseconds;
 }
 
-void setNoteJudged(const std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>& noteVariant, NoteGradings grading, int64_t picosecondsOff)
+void setNoteJudged(const HittableNoteVariant& noteVariant, NoteGradings grading, int64_t picosecondsOff)
 {
-    if (auto* note = std::get_if<RedNote*>(&noteVariant))
-    {
-        (*note)->grading = grading;
-        (*note)->picosecondsOff = picosecondsOff;
-        (*note)->judged.store(true, std::memory_order_release);
-        return;
-    }
-    if (auto* note = std::get_if<BlueNote*>(&noteVariant))
-    {
-        (*note)->grading = grading;
-        (*note)->picosecondsOff = picosecondsOff;
-        (*note)->judged.store(true, std::memory_order_release);
-        return;
-    }
-    if (auto* note = std::get_if<YellowNote*>(&noteVariant))
-    {
-        (*note)->grading = grading;
-        (*note)->picosecondsOff = picosecondsOff;
-        (*note)->judged.store(true, std::memory_order_release);
-        return;
-    }
-    if (auto* note = std::get_if<GreenNote*>(&noteVariant))
-    {
-        (*note)->grading = grading;
-        (*note)->picosecondsOff = picosecondsOff;
-        (*note)->judged.store(true, std::memory_order_release);
-        return;
-    }
+    noteVariant->grading = grading;
+    noteVariant->picosecondsOff = picosecondsOff;
+    noteVariant->judged.store(true, std::memory_order_release);
 }
 
 NoteGradings JudgementThread::getGradingForOfftime(int64_t timeDelta, const Chart* chart)
 {
     const int64_t absDelta = std::abs(timeDelta);
     const bool isEarly = timeDelta < 0;
-    const int64_t hitWindowAboutToBeOutOfRange = chart->hitWindowAboutToBeOutOfRange;
-    const int64_t hitWindowFuka = chart->hitWindowFuka;
-    const int64_t hitWindowKa = chart->hitWindowKa;
-    const int64_t hitWindowRyou = chart->hitWindowRyou;
-    const int64_t hitWindowChou = chart->hitWindowChou;
 
-    if (absDelta == 0)
+    // Out of range early
+    if (absDelta > chart->hitWindowAboutToBeOutOfRange)
     {
-        return NoteGradings::CompletelyPerfect;
+        if (isEarly)
+        {
+            return NoteGradings::Early_OutOfRange;
+        }
+        return NoteGradings::Late_OutOfRange;
     }
-    if (absDelta <= hitWindowChou)
+
+    // About to be out of range
+    if (absDelta > chart->hitWindowFuka && absDelta <= chart->hitWindowAboutToBeOutOfRange)
     {
-        return isEarly ? NoteGradings::Early_Chou : NoteGradings::Late_Chou;
+        if (isEarly)
+        {
+            return NoteGradings::Early_AboutToBeOutOfRange;
+        }
+        return NoteGradings::Late_AboutToBeOutOfRange;
     }
-    if (absDelta <= hitWindowRyou)
+
+    // Fuka
+    if (absDelta > chart->hitWindowKa && absDelta <= chart->hitWindowFuka)
     {
-        return isEarly ? NoteGradings::Early_Ryou : NoteGradings::Late_Ryou;
+        if (isEarly)
+        {
+            return NoteGradings::Early_Fuka;
+        }
+        return NoteGradings::Late_Fuka;
     }
-    if (absDelta <= hitWindowKa)
+
+    // Ka
+    if (absDelta > chart->hitWindowRyou && absDelta <= chart->hitWindowKa)
     {
-        return isEarly ? NoteGradings::Early_Ka : NoteGradings::Late_Ka;
+        if (isEarly)
+        {
+            return NoteGradings::Early_Ka;
+        }
+        return NoteGradings::Late_Ka;
     }
-    if (absDelta <= hitWindowFuka)
+
+    // Ryou
+    if (absDelta > chart->hitWindowChou && absDelta <= chart->hitWindowRyou)
     {
-        return isEarly ? NoteGradings::Early_Fuka : NoteGradings::Late_Fuka;
+        if (isEarly)
+        {
+            return NoteGradings::Early_Ryou;
+        }
+        return NoteGradings::Late_Ryou;
     }
-    if (absDelta <= hitWindowAboutToBeOutOfRange)
+
+    // Chou / Perfect
+    if (absDelta <= chart->hitWindowChou)
     {
-        return isEarly ? NoteGradings::Early_AboutToBeOutOfRange : NoteGradings::Late_AboutToBeOutOfRange;
+        if (isEarly)
+        {
+            return NoteGradings::Early_Chou;
+        }
+        if (timeDelta == 0)
+        {
+            return NoteGradings::CompletelyPerfect;
+        }
+        return NoteGradings::Late_Chou;
     }
-    return isEarly ? NoteGradings::Early_OutOfRange : NoteGradings::Late_OutOfRange;
+
+    return NoteGradings::Ungraded;
 }
 
-void JudgementThread::start()
-{
-    requestShutdown.store(false, std::memory_order_release);
-    thread = std::thread(threadBehavior);
-}
-
-void JudgementThread::stop()
-{
-    if (thread.joinable())
-    {
-        requestShutdown.store(true, std::memory_order_release);
-        semaphore.release();
-        thread.join();
-    }
-}
-
-void JudgementThread::signal()
-{
-    semaphore.release();
-}
-
-bool JudgementThread::isRunning()
-{
-    return thread.joinable() && !requestShutdown.load(std::memory_order_acquire);
-}
-
-void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
+void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -145,7 +121,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<std::variant<RedNote*
     }
 }
 
-void JudgementThread::gradeAllAbandonedNotes(CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane, int64_t songPositionPs, const Chart* chart)
+void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -223,7 +199,7 @@ void JudgementThread::threadBehavior()
 
             Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
-            CompletionList<std::variant<RedNote*, BlueNote*, YellowNote*, GreenNote*>>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
+            CompletionList<HittableNoteVariant>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
             NoteGradings outGrading = NoteGradings::Ungraded;
             gradeNoteIfNoteExists(lane, songPositionPs, outGrading, chartGuard.objRef);
 
@@ -325,4 +301,27 @@ void JudgementThread::threadBehavior()
             gradeAllAbandonedNotes(course->laneBlue, songPositionPs, chartGuard.objRef);
         }
     }
+}
+
+void JudgementThread::start()
+{
+    requestShutdown.store(false, std::memory_order_release);
+    thread = std::thread(threadBehavior);
+    thread.detach();
+}
+
+void JudgementThread::stop()
+{
+    requestShutdown.store(true, std::memory_order_release);
+    signal();
+}
+
+void JudgementThread::signal()
+{
+    semaphore.release();
+}
+
+bool JudgementThread::isRunning()
+{
+    return thread.joinable();
 }
