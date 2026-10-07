@@ -28,7 +28,6 @@ struct InputTimingMessage
 class JudgementThread
 {
 public:
-    static NoteGradings getGradingForOfftime(int64_t timeDelta, const Chart* chart);
     static void gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
     static void gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart);
 

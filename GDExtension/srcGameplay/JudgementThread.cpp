@@ -9,88 +9,11 @@ std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
 std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
-int64_t getNoteTime(const HittableNoteVariant& noteVariant)
-{
-    return noteVariant->timePicoseconds;
-}
-
 void setNoteJudged(const HittableNoteVariant& noteVariant, NoteGradings grading, int64_t picosecondsOff)
 {
     noteVariant->grading = grading;
     noteVariant->picosecondsOff = picosecondsOff;
     noteVariant->judged.store(true, std::memory_order_release);
-}
-
-NoteGradings JudgementThread::getGradingForOfftime(int64_t timeDelta, const Chart* chart)
-{
-    const int64_t absDelta = std::abs(timeDelta);
-    const bool isEarly = timeDelta < 0;
-
-    // Out of range early
-    if (absDelta > chart->hitWindowAboutToBeOutOfRange)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_OutOfRange;
-        }
-        return NoteGradings::Late_OutOfRange;
-    }
-
-    // About to be out of range
-    if (absDelta > chart->hitWindowFuka && absDelta <= chart->hitWindowAboutToBeOutOfRange)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_AboutToBeOutOfRange;
-        }
-        return NoteGradings::Late_AboutToBeOutOfRange;
-    }
-
-    // Fuka
-    if (absDelta > chart->hitWindowKa && absDelta <= chart->hitWindowFuka)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_Fuka;
-        }
-        return NoteGradings::Late_Fuka;
-    }
-
-    // Ka
-    if (absDelta > chart->hitWindowRyou && absDelta <= chart->hitWindowKa)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_Ka;
-        }
-        return NoteGradings::Late_Ka;
-    }
-
-    // Ryou
-    if (absDelta > chart->hitWindowChou && absDelta <= chart->hitWindowRyou)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_Ryou;
-        }
-        return NoteGradings::Late_Ryou;
-    }
-
-    // Chou / Perfect
-    if (absDelta <= chart->hitWindowChou)
-    {
-        if (isEarly)
-        {
-            return NoteGradings::Early_Chou;
-        }
-        if (timeDelta == 0)
-        {
-            return NoteGradings::CompletelyPerfect;
-        }
-        return NoteGradings::Late_Chou;
-    }
-
-    return NoteGradings::Ungraded;
 }
 
 void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
@@ -100,9 +23,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        int64_t noteTime = getNoteTime(*noteVariant);
-        int64_t timeDelta = songPositionPs - noteTime;
-        NoteGradings grading = getGradingForOfftime(timeDelta, chart);
+        NoteGradings grading = (*noteVariant)->getGradingForOfftime(songPositionPs, chart);
 
         if (grading == NoteGradings::Early_OutOfRange)
         {
@@ -111,7 +32,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
-            setNoteJudged(*noteVariant, grading, timeDelta);
+            setNoteJudged(*noteVariant, grading, songPositionPs - (*noteVariant)->timePicoseconds);
             lane.markMostRecentAsCompleted();
             outGrading = grading;
             return;
@@ -128,13 +49,11 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        int64_t noteTime = getNoteTime(*noteVariant);
-        int64_t timeDelta = songPositionPs - noteTime;
-        NoteGradings grading = getGradingForOfftime(timeDelta, chart);
+        NoteGradings grading = (*noteVariant)->getGradingForOfftime(songPositionPs, chart);
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange, timeDelta);
+            setNoteJudged(*noteVariant, NoteGradings::Late_OutOfRange, songPositionPs - (*noteVariant)->timePicoseconds);
             lane.markMostRecentAsCompleted();
         }
         else

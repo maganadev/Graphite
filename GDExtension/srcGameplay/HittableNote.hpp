@@ -7,6 +7,8 @@
 #include <atomic>
 #include <cstdint>
 
+class Chart;
+
 class HittableNote
 {
 public:
@@ -14,8 +16,9 @@ public:
     static constexpr double LANE_Y = 386.0;
     static constexpr double HITZONE_CENTER_X = 618.0;
 
+public:
     int64_t timePicoseconds{0};
-    double bpmForScrollDouble{240.0};
+    double scrollBPM{240.0};
     std::atomic<bool> judged{false};
     NoteGradings grading{NoteGradings::Ungraded};
     int64_t picosecondsOff{0};
@@ -24,6 +27,7 @@ public:
     virtual ~HittableNote();
 
     void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY);
+    virtual NoteGradings getGradingForOfftime(int64_t songPositionPs, const Chart* chart) = 0;
 };
 
 #endif

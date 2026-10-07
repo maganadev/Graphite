@@ -14,6 +14,7 @@ public:
     ~BigGreenNote();
 
     void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds);
+    NoteGradings getGradingForOfftime(int64_t songPositionPs, const Chart* chart) override;
 
     BigGreenNotePrefab* prefab{nullptr};
 };
