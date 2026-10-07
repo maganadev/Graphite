@@ -19,6 +19,7 @@ offset_bottom = 52.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
 [node name="White" type="Panel" parent="."]
+modulate = Color(0.21, 0.21, 0.21, 1)
 offset_left = -48.0
 offset_top = -48.0
 offset_right = 48.0
@@ -26,7 +27,7 @@ offset_bottom = 48.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
 [node name="Ghost" type="Panel" parent="."]
-modulate = Color(0.94509804, 0.20784314, 0.06666667, 1)
+modulate = Color(0.14509805, 0.14509805, 0.14509805, 1)
 offset_left = -40.0
 offset_top = -40.0
 offset_right = 40.0
