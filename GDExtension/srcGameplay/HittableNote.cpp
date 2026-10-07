@@ -33,7 +33,7 @@ HittableNote::~HittableNote()
 
 void HittableNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY)
 {
-    int64_t timeDelta = timePicoseconds - songPositionPicoseconds - visualOffsetPicoseconds;
-    outX = HITZONE_CENTER_X + static_cast<double>(timeDelta * SCROLL_SPEED_FACTOR) / 1000000000000.0;
+    int64_t timeDelta = (timePicoseconds - songPositionPicoseconds) - visualOffsetPicoseconds;
+    outX = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * bpmForScrollDouble);
     outY = LANE_Y;
 }

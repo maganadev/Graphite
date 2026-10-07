@@ -10,9 +10,9 @@
 class HittableNote
 {
 public:
-    static constexpr int64_t SCROLL_SPEED_FACTOR = 3;
-    static constexpr double LANE_Y = 420.0;
-    static constexpr double HITZONE_CENTER_X = 475.0;
+    static constexpr double SCROLL_SPEED_FACTOR = 2000.0 / (240.0 * 1.0e12);
+    static constexpr double LANE_Y = 386.0;
+    static constexpr double HITZONE_CENTER_X = 618.0;
 
     int64_t timePicoseconds{0};
     double bpmForScrollDouble{240.0};

@@ -227,6 +227,39 @@ void GameplaySceneManager::_ready()
                 sortedPrefabs.push_back({note->timePicoseconds, prefab});
             }
         }
+        for (BlueNote* note : courseInChart->blueNotes)
+        {
+            Node* instance = blueNoteScene->instantiate();
+            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (YellowNote* note : courseInChart->yellowNotes)
+        {
+            Node* instance = yellowNoteScene->instantiate();
+            YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
+        for (GreenNote* note : courseInChart->greenNotes)
+        {
+            Node* instance = greenNoteScene->instantiate();
+            GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
+            if (prefab)
+            {
+                note->prefab = prefab;
+                prefab->set_z_index(3);
+                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+            }
+        }
         for (GhostNote* note : courseInChart->ghostNotes)
         {
             Node* instance = ghostNoteScene->instantiate();
@@ -302,9 +335,10 @@ void GameplaySceneManager::_ready()
         }
 
         courseInChart->populateLanes();
-    }
 
-    UtilityFunctions::print("Spawned notes for course: ", std::to_string(courseDifficulty).c_str());
+        size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
+        UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(courseDifficulty).c_str());
+    }
 
     // Read wave path from the chart via read guard
     std::string wavePath;
