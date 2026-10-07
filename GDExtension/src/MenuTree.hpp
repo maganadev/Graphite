@@ -20,6 +20,8 @@ enum ActionCode : int32_t
     ACT_Settings = -2,
     ACT_Exit = -3,
     ACT_PlaySong = -4,
+    ACT_VisualCalibration = -5,
+    ACT_AudioCalibration = -6,
 };
 
 struct MenuItem
@@ -78,9 +80,11 @@ public:
 
     std::function<void(int32_t)> onPlaySong;
     std::function<void()> onExit;
+    std::function<void(int32_t)> onAction;
 
 private:
     int32_t createMainMenu();
+    int32_t createSettingsMenu();
     int32_t createFolderSelect();
     int32_t createSortMode(int32_t parentId, const std::vector<int>& songSubset);
     int32_t createLevelMenu(int32_t parentId, const std::vector<int>& songSubset);

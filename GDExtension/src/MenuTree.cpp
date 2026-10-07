@@ -37,8 +37,8 @@ int32_t MenuTree::createMainMenu()
 
     MenuItem settings;
     settings.label = "Settings";
-    settings.type = MIT_Action;
-    settings.actionData = ACT_Settings;
+    settings.type = MIT_Submenu;
+    settings.targetNodeId = createSettingsMenu();
     node.items.push_back(settings);
 
     MenuItem exit;
@@ -46,6 +46,31 @@ int32_t MenuTree::createMainMenu()
     exit.type = MIT_Action;
     exit.actionData = ACT_Exit;
     node.items.push_back(exit);
+
+    return addNode(node);
+}
+
+int32_t MenuTree::createSettingsMenu()
+{
+    MenuNode node;
+    node.parentNodeId = -1;
+
+    MenuItem visual;
+    visual.label = "Visual Offset";
+    visual.type = MIT_Action;
+    visual.actionData = ACT_VisualCalibration;
+    node.items.push_back(visual);
+
+    MenuItem audio;
+    audio.label = "Audio Offset";
+    audio.type = MIT_Action;
+    audio.actionData = ACT_AudioCalibration;
+    node.items.push_back(audio);
+
+    MenuItem back;
+    back.label = "Back";
+    back.type = MIT_Back;
+    node.items.push_back(back);
 
     return addNode(node);
 }
@@ -350,8 +375,12 @@ void MenuTree::onEnter()
                 onExit();
             }
         }
-        else if (item->actionData == ACT_Settings)
+        else if (item->actionData == ACT_VisualCalibration || item->actionData == ACT_AudioCalibration)
         {
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
         }
         else if (item->actionData >= 0 && onPlaySong)
         {

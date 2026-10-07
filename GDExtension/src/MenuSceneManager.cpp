@@ -52,6 +52,26 @@ void MenuSceneManager::buildMenuTree()
 
     tree.onExit = [this]() -> void { UtilityFunctions::print("Exit requested"); };
 
+    tree.onAction = [this](int32_t actionData) -> void
+    {
+        if (actionData == ACT_VisualCalibration)
+        {
+            UtilityFunctions::print("VisualCalibration selected, loading GameplayScene with AutoCalibration.tjap");
+            GraphiteGlobals::modVisualOffsetCalibration = true;
+            GraphiteGlobals::modAudioOffsetCalibration = false;
+            GraphiteGlobals::currentSongFileName = "AutoCalibration/AutoCalibration.tjap";
+            get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
+        }
+        else if (actionData == ACT_AudioCalibration)
+        {
+            UtilityFunctions::print("AudioCalibration selected, loading GameplayScene with AutoCalibration.tjap");
+            GraphiteGlobals::modVisualOffsetCalibration = false;
+            GraphiteGlobals::modAudioOffsetCalibration = true;
+            GraphiteGlobals::currentSongFileName = "AutoCalibration/AutoCalibration.tjap";
+            get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
+        }
+    };
+
     tree.build(&database);
     rebuildVisibleWindow();
 }
