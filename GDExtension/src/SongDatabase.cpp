@@ -157,7 +157,7 @@ bool SongDatabase::loadOrBuild(const std::filesystem::path& songsDirectory)
     if (MenuCache::isCacheValid(cachePath, songsDirectory, fingerprint))
     {
         CachedData cached;
-        if (MenuCache::load(cachePath, fingerprint, cached))
+        if (MenuCache::load(cachePath, fingerprint, cached) && cached.songs.size() > 0)
         {
             folders.resize(cached.folders.size());
             for (size_t i = 0; i < cached.folders.size(); i++)
@@ -224,6 +224,11 @@ void SongDatabase::rebuild()
     for (size_t i = 0; i < charts.size(); i++)
     {
         addChartFromJson(charts[i]);
+    }
+
+    if (songs.empty())
+    {
+        return;
     }
 
     std::vector<uint8_t> fingerprint;
