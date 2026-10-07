@@ -175,6 +175,6 @@ void ResultsScreenSceneManager::_process(double delta)
 {
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
-        get_tree()->change_scene_to_file("res://Scenes/DebugLauncherScene.tscn");
+        get_tree()->change_scene_to_file("res://Scenes/MenuScene.tscn");
     }
 }

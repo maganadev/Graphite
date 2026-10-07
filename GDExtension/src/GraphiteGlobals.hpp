@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 class GraphiteGlobals
 {
@@ -34,6 +35,14 @@ public:
     // Mods
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
+
+    // Menu navigation state (preserved across scene transitions)
+    static int32_t menuCurrentNodeId;
+    static int32_t menuCurrentItemIndex;
+    static int32_t menuScrollOffset;
+    static std::vector<int32_t> menuNavNodeIds;
+    static std::vector<int32_t> menuNavItemIndices;
+    static std::vector<int32_t> menuNavScrollOffsets;
 };
 
 #endif

@@ -36,6 +36,49 @@ void MenuSceneManager::_ready()
     buildMenuTree();
 }
 
+void MenuSceneManager::saveMenuState()
+{
+    GraphiteGlobals::menuCurrentNodeId = tree.currentNodeId;
+    GraphiteGlobals::menuCurrentItemIndex = tree.currentItemIndex;
+    GraphiteGlobals::menuScrollOffset = tree.scrollOffset;
+
+    GraphiteGlobals::menuNavNodeIds.clear();
+    GraphiteGlobals::menuNavItemIndices.clear();
+    GraphiteGlobals::menuNavScrollOffsets.clear();
+    for (const NavPosition& pos : tree.navStack)
+    {
+        GraphiteGlobals::menuNavNodeIds.push_back(pos.nodeId);
+        GraphiteGlobals::menuNavItemIndices.push_back(pos.itemIndex);
+        GraphiteGlobals::menuNavScrollOffsets.push_back(pos.scrollOffset);
+    }
+}
+
+void MenuSceneManager::restoreMenuState()
+{
+    if (GraphiteGlobals::menuCurrentNodeId < 0)
+    {
+        return;
+    }
+
+    tree.navigateTo(GraphiteGlobals::menuCurrentNodeId, GraphiteGlobals::menuCurrentItemIndex);
+    tree.scrollOffset = GraphiteGlobals::menuScrollOffset;
+
+    tree.navStack.clear();
+    for (size_t i = 0; i < GraphiteGlobals::menuNavNodeIds.size(); i++)
+    {
+        NavPosition pos;
+        pos.nodeId = GraphiteGlobals::menuNavNodeIds[i];
+        pos.itemIndex = GraphiteGlobals::menuNavItemIndices[i];
+        pos.scrollOffset = GraphiteGlobals::menuNavScrollOffsets[i];
+        tree.navStack.push_back(pos);
+    }
+
+    GraphiteGlobals::menuCurrentNodeId = -1;
+    GraphiteGlobals::menuNavNodeIds.clear();
+    GraphiteGlobals::menuNavItemIndices.clear();
+    GraphiteGlobals::menuNavScrollOffsets.clear();
+}
+
 void MenuSceneManager::buildMenuTree()
 {
     database.loadOrBuild("Songs");
@@ -44,6 +87,7 @@ void MenuSceneManager::buildMenuTree()
     {
         if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
         {
+            saveMenuState();
             GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
             UtilityFunctions::print("Playing: ", this->database.songs[songIndex].title.c_str());
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
@@ -56,6 +100,7 @@ void MenuSceneManager::buildMenuTree()
     {
         if (actionData == ACT_VisualCalibration)
         {
+            saveMenuState();
             UtilityFunctions::print("VisualCalibration selected, loading GameplayScene with VisualCalibration.tjap");
             GraphiteGlobals::modVisualOffsetCalibration = true;
             GraphiteGlobals::modAudioOffsetCalibration = false;
@@ -65,6 +110,7 @@ void MenuSceneManager::buildMenuTree()
         }
         else if (actionData == ACT_AudioCalibration)
         {
+            saveMenuState();
             UtilityFunctions::print("AudioCalibration selected, loading GameplayScene with AudioCalibration.tjap");
             GraphiteGlobals::modVisualOffsetCalibration = false;
             GraphiteGlobals::modAudioOffsetCalibration = true;
@@ -75,6 +121,7 @@ void MenuSceneManager::buildMenuTree()
     };
 
     tree.build(&database);
+    restoreMenuState();
     rebuildVisibleWindow();
 }
 

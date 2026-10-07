@@ -28,6 +28,8 @@ public:
 private:
     void rebuildVisibleWindow();
     void buildMenuTree();
+    void saveMenuState();
+    void restoreMenuState();
 
     MenuTree tree;
     SongDatabase database;
