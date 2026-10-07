@@ -41,7 +41,7 @@ public:
     std::filesystem::path songsPath;
 
     // Path to the TJAtoTJAP executable, relative to the working directory.
-    std::filesystem::path tjaParserPath{"GodotProject/TJAtoTJAP/TJAtoTJAP.exe"};
+    std::filesystem::path tjaParserPath{"TJAtoTJAP/TJAtoTJAP.exe"};
 
     // Load from cache if valid, otherwise scan from scratch.
     // Returns true on success.
