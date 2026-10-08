@@ -47,7 +47,7 @@ void ResultsScreenSceneManager::_ready()
 
     auto countNote = [&](auto* note)
     {
-        if (!note || !note->judged.load(std::memory_order_acquire))
+        if (!note || !note->finishedJudging.load(std::memory_order_acquire))
             return;
 
         int64_t rawOff = note->picosecondsOff;
@@ -77,17 +77,13 @@ void ResultsScreenSceneManager::_ready()
         countNote(note);
     for (auto* note : course->blueNotes)
         countNote(note);
-    for (auto* note : course->yellowNotes)
-        countNote(note);
-    for (auto* note : course->greenNotes)
-        countNote(note);
 
     // Calculate average off-time for calibration mods
     int64_t totalOff = 0;
     int64_t judgedCount = 0;
     auto sumOff = [&](auto* note)
     {
-        if (!note || !note->judged.load(std::memory_order_acquire))
+        if (!note || !note->finishedJudging.load(std::memory_order_acquire))
             return;
         int64_t off = note->picosecondsOff;
         if (off < -WINDOW_PS || off > WINDOW_PS)
@@ -98,10 +94,6 @@ void ResultsScreenSceneManager::_ready()
     for (auto* note : course->redNotes)
         sumOff(note);
     for (auto* note : course->blueNotes)
-        sumOff(note);
-    for (auto* note : course->yellowNotes)
-        sumOff(note);
-    for (auto* note : course->greenNotes)
         sumOff(note);
 
     if (judgedCount > 0)

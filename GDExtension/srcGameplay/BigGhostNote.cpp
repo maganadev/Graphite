@@ -3,7 +3,7 @@
 #include "BigGhostNotePrefab.hpp"
 #include "Chart.hpp"
 
-BigGhostNote::BigGhostNote(const nlohmann::json& j) : HittableNote(j)
+BigGhostNote::BigGhostNote()
 {
 }
 
@@ -15,7 +15,7 @@ void BigGhostNote::updatePosition(int64_t songPositionPicoseconds, int64_t visua
 {
     if (prefab)
     {
-        int64_t timeDelta = (timePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
+        int64_t timeDelta = (startTimePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
         double x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
@@ -32,5 +32,11 @@ void BigGhostNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;
-    this->judged.store(true, std::memory_order_release);
+    this->finishedJudging.store(true, std::memory_order_release);
+}
+
+void BigGhostNote::constructor2(const nlohmann::json& j)
+{
+    startTimePicoseconds = parseStartTimePicoseconds(j);
+    scrollBPM = parseScrollBPM(j);
 }

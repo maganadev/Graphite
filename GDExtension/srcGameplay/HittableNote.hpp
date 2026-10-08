@@ -18,19 +18,23 @@ public:
     static constexpr int64_t HIT_SPAM_WINDOW_PS = 250000000000;
 
 public:
-    int64_t timePicoseconds{0};
-    int64_t endTimePicoseconds{0};
+    int64_t startTimePicoseconds{0};
     double scrollBPM{240.0};
-    std::atomic<bool> judged{false};
+    std::atomic<bool> finishedJudging{false};
     NoteGradings grading{NoteGradings::Ungraded};
-    int64_t picosecondsOff{0};
 
-    HittableNote(const nlohmann::json& j);
+    HittableNote();
+    virtual void constructor2(const nlohmann::json& j) = 0;
     virtual ~HittableNote();
 
     virtual void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds) = 0;
     virtual void getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime) = 0;
     virtual void handleGrading(NoteGradings grading, int64_t picosecondsOff) = 0;
+
+protected:
+    static int64_t parseStartTimePicoseconds(const nlohmann::json& j);
+    static double parseScrollBPM(const nlohmann::json& j);
+    static int64_t parseStopTimePicoseconds(const nlohmann::json& j);
 };
 
 #endif

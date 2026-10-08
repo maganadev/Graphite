@@ -3,7 +3,7 @@
 #include "Chart.hpp"
 #include "RedNotePrefab.hpp"
 
-RedNote::RedNote(const nlohmann::json& j) : HittableNote(j)
+RedNote::RedNote()
 {
 }
 
@@ -15,7 +15,7 @@ void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffs
 {
     if (prefab)
     {
-        int64_t timeDelta = (timePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
+        int64_t timeDelta = (startTimePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
         double x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
@@ -23,7 +23,7 @@ void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffs
 
 void RedNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    int64_t timeDelta = songPositionPs - timePicoseconds;
+    int64_t timeDelta = songPositionPs - startTimePicoseconds;
     offtime = timeDelta;
     const int64_t absDelta = std::abs(timeDelta);
     const bool isEarly = timeDelta < 0;
@@ -91,5 +91,11 @@ void RedNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;
-    this->judged.store(true, std::memory_order_release);
+    this->finishedJudging.store(true, std::memory_order_release);
+}
+
+void RedNote::constructor2(const nlohmann::json& j)
+{
+    startTimePicoseconds = parseStartTimePicoseconds(j);
+    scrollBPM = parseScrollBPM(j);
 }

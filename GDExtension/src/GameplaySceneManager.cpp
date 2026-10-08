@@ -229,7 +229,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BlueNote* note : courseInChart->blueNotes)
@@ -240,7 +240,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (YellowNote* note : courseInChart->yellowNotes)
@@ -251,7 +251,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (GreenNote* note : courseInChart->greenNotes)
@@ -262,7 +262,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (GhostNote* note : courseInChart->ghostNotes)
@@ -273,7 +273,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BigRedNote* note : courseInChart->bigRedNotes)
@@ -284,7 +284,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BigBlueNote* note : courseInChart->bigBlueNotes)
@@ -295,7 +295,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BigYellowNote* note : courseInChart->bigYellowNotes)
@@ -306,7 +306,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BigGreenNote* note : courseInChart->bigGreenNotes)
@@ -317,7 +317,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
         for (BigGhostNote* note : courseInChart->bigGhostNotes)
@@ -328,7 +328,7 @@ void GameplaySceneManager::_ready()
             {
                 note->prefab = prefab;
                 prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->timePicoseconds, prefab});
+                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
             }
         }
 
@@ -472,7 +472,7 @@ void GameplaySceneManager::_process(double delta)
             for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
             {
                 HittableNote* note = course->hitSpamNoteList.getAt(i);
-                if (note->judged.load(std::memory_order_acquire))
+                if (note->finishedJudging.load(std::memory_order_acquire))
                 {
                     continue;
                 }
@@ -491,7 +491,7 @@ void GameplaySceneManager::_process(double delta)
 
     for (RedNote* note : course->redNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -507,7 +507,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (BlueNote* note : course->blueNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -523,7 +523,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (YellowNote* note : course->yellowNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -539,7 +539,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (GreenNote* note : course->greenNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -555,7 +555,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (BigRedNote* note : course->bigRedNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -571,7 +571,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (BigBlueNote* note : course->bigBlueNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -587,7 +587,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (BigYellowNote* note : course->bigYellowNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -603,7 +603,7 @@ void GameplaySceneManager::_process(double delta)
     }
     for (BigGreenNote* note : course->bigGreenNotes)
     {
-        if (note->judged.load(std::memory_order_acquire))
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
             if (note->grading == NoteGradings::Late_OutOfRange)
             {
@@ -624,7 +624,7 @@ void GameplaySceneManager::_process(double delta)
         bool allJudged = true;
         for (RedNote* note : course->redNotes)
         {
-            if (!note->judged.load(std::memory_order_acquire))
+            if (!note->finishedJudging.load(std::memory_order_acquire))
             {
                 allJudged = false;
                 break;
@@ -634,7 +634,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BlueNote* note : course->blueNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -645,7 +645,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (YellowNote* note : course->yellowNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -656,7 +656,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (GreenNote* note : course->greenNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -667,7 +667,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BigRedNote* note : course->bigRedNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -678,7 +678,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BigBlueNote* note : course->bigBlueNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -689,7 +689,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BigYellowNote* note : course->bigYellowNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;
@@ -700,7 +700,7 @@ void GameplaySceneManager::_process(double delta)
         {
             for (BigGreenNote* note : course->bigGreenNotes)
             {
-                if (!note->judged.load(std::memory_order_acquire))
+                if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
                     allJudged = false;
                     break;

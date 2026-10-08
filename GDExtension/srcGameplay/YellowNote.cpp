@@ -3,7 +3,7 @@
 #include "Chart.hpp"
 #include "YellowNotePrefab.hpp"
 
-YellowNote::YellowNote(const nlohmann::json& j) : HittableNote(j)
+YellowNote::YellowNote()
 {
 }
 
@@ -15,7 +15,7 @@ void YellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualO
 {
     if (prefab)
     {
-        int64_t timeDelta = (timePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
+        int64_t timeDelta = (startTimePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
         double x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
@@ -23,7 +23,7 @@ void YellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualO
 
 void YellowNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    int64_t startDelta = songPositionPs - timePicoseconds;
+    int64_t startDelta = songPositionPs - startTimePicoseconds;
 
     if (startDelta < -HIT_SPAM_WINDOW_PS)
     {
@@ -60,6 +60,12 @@ void YellowNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* char
 void YellowNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
-    this->picosecondsOff = picosecondsOff;
-    this->judged.store(true, std::memory_order_release);
+    this->finishedJudging.store(true, std::memory_order_release);
+}
+
+void YellowNote::constructor2(const nlohmann::json& j)
+{
+    startTimePicoseconds = parseStartTimePicoseconds(j);
+    scrollBPM = parseScrollBPM(j);
+    endTimePicoseconds = parseStopTimePicoseconds(j);
 }

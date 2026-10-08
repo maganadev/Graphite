@@ -71,16 +71,76 @@ public:
             }
         };
 
-        readNotesFn(JC_REDNOTES, [&course](const nlohmann::json& e) { course.redNotes.push_back(new RedNote(e)); });
-        readNotesFn(JC_BLUENOTES, [&course](const nlohmann::json& e) { course.blueNotes.push_back(new BlueNote(e)); });
-        readNotesFn(JC_BIGREDNOTES, [&course](const nlohmann::json& e) { course.bigRedNotes.push_back(new BigRedNote(e)); });
-        readNotesFn(JC_BIGBLUENOTES, [&course](const nlohmann::json& e) { course.bigBlueNotes.push_back(new BigBlueNote(e)); });
-        readNotesFn(JC_YELLOWNOTES, [&course](const nlohmann::json& e) { course.yellowNotes.push_back(new YellowNote(e)); });
-        readNotesFn(JC_BIGYELLOWNOTES, [&course](const nlohmann::json& e) { course.bigYellowNotes.push_back(new BigYellowNote(e)); });
-        readNotesFn(JC_GREENNOTES, [&course](const nlohmann::json& e) { course.greenNotes.push_back(new GreenNote(e)); });
-        readNotesFn(JC_BIGGREENNOTES, [&course](const nlohmann::json& e) { course.bigGreenNotes.push_back(new BigGreenNote(e)); });
-        readNotesFn(JC_GHOSTNOTES, [&course](const nlohmann::json& e) { course.ghostNotes.push_back(new GhostNote(e)); });
-        readNotesFn(JC_BIGGHOSTNOTES, [&course](const nlohmann::json& e) { course.bigGhostNotes.push_back(new BigGhostNote(e)); });
+        readNotesFn(JC_REDNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        RedNote* note = new RedNote();
+                        note->constructor2(e);
+                        course.redNotes.push_back(note);
+                    });
+        readNotesFn(JC_BLUENOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BlueNote* note = new BlueNote();
+                        note->constructor2(e);
+                        course.blueNotes.push_back(note);
+                    });
+        readNotesFn(JC_BIGREDNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BigRedNote* note = new BigRedNote();
+                        note->constructor2(e);
+                        course.bigRedNotes.push_back(note);
+                    });
+        readNotesFn(JC_BIGBLUENOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BigBlueNote* note = new BigBlueNote();
+                        note->constructor2(e);
+                        course.bigBlueNotes.push_back(note);
+                    });
+        readNotesFn(JC_YELLOWNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        YellowNote* note = new YellowNote();
+                        note->constructor2(e);
+                        course.yellowNotes.push_back(note);
+                    });
+        readNotesFn(JC_BIGYELLOWNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BigYellowNote* note = new BigYellowNote();
+                        note->constructor2(e);
+                        course.bigYellowNotes.push_back(note);
+                    });
+        readNotesFn(JC_GREENNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        GreenNote* note = new GreenNote();
+                        note->constructor2(e);
+                        course.greenNotes.push_back(note);
+                    });
+        readNotesFn(JC_BIGGREENNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BigGreenNote* note = new BigGreenNote();
+                        note->constructor2(e);
+                        course.bigGreenNotes.push_back(note);
+                    });
+        readNotesFn(JC_GHOSTNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        GhostNote* note = new GhostNote();
+                        note->constructor2(e);
+                        course.ghostNotes.push_back(note);
+                    });
+        readNotesFn(JC_BIGGHOSTNOTES,
+                    [&course](const nlohmann::json& e)
+                    {
+                        BigGhostNote* note = new BigGhostNote();
+                        note->constructor2(e);
+                        course.bigGhostNotes.push_back(note);
+                    });
 
         return course;
     }
@@ -120,9 +180,9 @@ public:
         for (auto* note : bigGreenNotes)
             hitSpamNotes.push_back(note);
 
-        std::sort(redLaneNotes.begin(), redLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
-        std::sort(blueLaneNotes.begin(), blueLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
-        std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
+        std::sort(redLaneNotes.begin(), redLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
+        std::sort(blueLaneNotes.begin(), blueLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
+        std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
 
         for (auto* note : redLaneNotes)
             laneRed.push_back(note);
