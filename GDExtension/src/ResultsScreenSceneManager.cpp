@@ -25,8 +25,8 @@ ResultsScreenSceneManager::~ResultsScreenSceneManager()
 
 void ResultsScreenSceneManager::_ready()
 {
-    LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
-    if (!chartGuard.objRef || chartGuard.objRef->activeCourseIndex < 0)
+    LFProtectObjReadGuardLooping<Chart> chartGuard(GraphiteGlobals::currentChart);
+    if (chartGuard.objRef->activeCourseIndex < 0)
     {
         UtilityFunctions::print("ResultsScreen: no active course found");
         return;

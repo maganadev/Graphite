@@ -77,6 +77,12 @@ void JudgementThread::threadBehavior()
                 continue;
             }
 
+            // If the gameplay is not active, we don't want to grade any notes, so we bail here
+            if (!chartGuard.objRef->gameplayActive)
+            {
+                continue;
+            }
+
             // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;

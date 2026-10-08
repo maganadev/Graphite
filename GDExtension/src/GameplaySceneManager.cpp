@@ -194,7 +194,7 @@ void GameplaySceneManager::_ready()
 
     // Build the course under write guard so judgment thread can't read it before it's ready
     {
-        LFProtectObjWriteGuard<Chart> guard(GraphiteGlobals::currentChart, true);
+        LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
         *guard.objRef = std::move(chart);
         if (guard.objRef->activeCourseIndex < 0)
         {
@@ -342,11 +342,8 @@ void GameplaySceneManager::_ready()
     // Read wave path from the chart via read guard
     std::string wavePath;
     {
-        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
-        if (chartGuard.objRef)
-        {
-            wavePath = chartGuard.objRef->wave;
-        }
+        LFProtectObjReadGuardLooping<Chart> chartGuard(GraphiteGlobals::currentChart);
+        wavePath = chartGuard.objRef->wave;
     }
 
     if (wavePath.empty())
@@ -371,12 +368,11 @@ void GameplaySceneManager::_ready()
     GraphiteGlobals::audioEngine.value().playAudioTrack(audioTrackHandle);
     GraphiteGlobals::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
 
+    // Signal that gameplay is active
     {
-        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
-        if (chartGuard.objRef)
-        {
-            UtilityFunctions::print("Loaded song: ", chartGuard.objRef->title.c_str(), " | Wave: ", wavePath.c_str());
-        }
+        LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
+        guard.objRef->gameplayActive = true;
+        UtilityFunctions::print("Loaded song: ", guard.objRef->title.c_str(), " | Wave: ", wavePath.c_str());
     }
 }
 
@@ -397,6 +393,10 @@ void GameplaySceneManager::_process(double delta)
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
         UtilityFunctions::print("Back action detected, loading ResultsScreen");
+        {
+            LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
+            guard.objRef->gameplayActive = false;
+        }
         get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
         return;
     }
@@ -681,6 +681,10 @@ void GameplaySceneManager::_process(double delta)
         if (allJudged)
         {
             resultsScreenTriggered = true;
+            {
+                LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
+                guard.objRef->gameplayActive = false;
+            }
             UtilityFunctions::print("All notes judged, switching to ResultsScreen");
             get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
         }
