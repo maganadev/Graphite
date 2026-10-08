@@ -19,7 +19,7 @@ public:
     void constructor2(const nlohmann::json& j) override;
 
     int64_t endTimePicoseconds{0};
-    int64_t remainingSpamHits{0};
+    std::atomic<int64_t> remainingSpamHits{0};
 
     GreenNotePrefab* prefab{nullptr};
 };
