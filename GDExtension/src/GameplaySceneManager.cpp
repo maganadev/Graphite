@@ -70,6 +70,12 @@ void GameplaySceneManager::_ready()
         UtilityFunctions::print("Failed to find HitCounter node");
     }
 
+    hitSpamCounterLabel = Object::cast_to<Label>(get_node_or_null("../HitCounter/Label"));
+    if (hitSpamCounterLabel == nullptr)
+    {
+        UtilityFunctions::print("Failed to find HitCounter Label");
+    }
+
     std::string songFileName = GraphiteGlobals::currentSongFileName;
 
     // Open the song
@@ -468,6 +474,7 @@ void GameplaySceneManager::_process(double delta)
         if (hitCounter)
         {
             bool hitSpamAvailable = false;
+            HittableNote* currentSpamNote = nullptr;
             int64_t gradedSongPositionPs = trackPositionPs - effectiveJudgementOffset;
             for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
             {
@@ -475,6 +482,10 @@ void GameplaySceneManager::_process(double delta)
                 if (note->finishedJudging.load(std::memory_order_acquire))
                 {
                     continue;
+                }
+                if (currentSpamNote == nullptr)
+                {
+                    currentSpamNote = note;
                 }
                 NoteGradings grading;
                 int64_t offtime;
@@ -486,6 +497,11 @@ void GameplaySceneManager::_process(double delta)
                 }
             }
             hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
+            if (hitSpamCounterLabel)
+            {
+                int64_t count = currentSpamNote ? currentSpamNote->getSpamHitsCount() : 0;
+                hitSpamCounterLabel->set_text(String::num_int64(count));
+            }
         }
     }
 

@@ -2,6 +2,7 @@
 #include "../src/GraphiteGlobals.hpp"
 #include "BigRedNotePrefab.hpp"
 #include "Chart.hpp"
+#include <exception>
 
 BigRedNote::BigRedNote()
 {
@@ -98,4 +99,9 @@ void BigRedNote::constructor2(const nlohmann::json& j)
 {
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
+}
+
+int64_t BigRedNote::getSpamHitsCount() const
+{
+    std::terminate();
 }

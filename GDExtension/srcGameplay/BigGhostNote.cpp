@@ -2,6 +2,7 @@
 #include "../src/GraphiteGlobals.hpp"
 #include "BigGhostNotePrefab.hpp"
 #include "Chart.hpp"
+#include <exception>
 
 BigGhostNote::BigGhostNote()
 {
@@ -39,4 +40,9 @@ void BigGhostNote::constructor2(const nlohmann::json& j)
 {
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
+}
+
+int64_t BigGhostNote::getSpamHitsCount() const
+{
+    std::terminate();
 }

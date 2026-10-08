@@ -2,6 +2,7 @@
 #include "../src/GraphiteGlobals.hpp"
 #include "Chart.hpp"
 #include "RedNotePrefab.hpp"
+#include <exception>
 
 RedNote::RedNote()
 {
@@ -98,4 +99,9 @@ void RedNote::constructor2(const nlohmann::json& j)
 {
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
+}
+
+int64_t RedNote::getSpamHitsCount() const
+{
+    std::terminate();
 }

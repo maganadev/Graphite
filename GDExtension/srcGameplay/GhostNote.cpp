@@ -2,6 +2,7 @@
 #include "../src/GraphiteGlobals.hpp"
 #include "Chart.hpp"
 #include "GhostNotePrefab.hpp"
+#include <exception>
 
 GhostNote::GhostNote()
 {
@@ -39,4 +40,9 @@ void GhostNote::constructor2(const nlohmann::json& j)
 {
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
+}
+
+int64_t GhostNote::getSpamHitsCount() const
+{
+    std::terminate();
 }

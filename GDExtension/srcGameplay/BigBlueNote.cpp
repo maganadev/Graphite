@@ -2,6 +2,7 @@
 #include "../src/GraphiteGlobals.hpp"
 #include "BigBlueNotePrefab.hpp"
 #include "Chart.hpp"
+#include <exception>
 
 BigBlueNote::BigBlueNote()
 {
@@ -98,4 +99,9 @@ void BigBlueNote::constructor2(const nlohmann::json& j)
 {
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
+}
+
+int64_t BigBlueNote::getSpamHitsCount() const
+{
+    std::terminate();
 }

@@ -68,3 +68,8 @@ void BigYellowNote::constructor2(const nlohmann::json& j)
     scrollBPM = parseScrollBPM(j);
     endTimePicoseconds = parseStopTimePicoseconds(j);
 }
+
+int64_t BigYellowNote::getSpamHitsCount() const
+{
+    return spamHits.load(std::memory_order_acquire);
+}

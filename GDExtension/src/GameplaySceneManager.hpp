@@ -9,6 +9,7 @@
 #include <godot_cpp/classes/animation_player.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
+#include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
@@ -72,6 +73,7 @@ private:
     int64_t effectiveJudgementOffset{0};
     bool resultsScreenTriggered{false};
     Node2D* hitCounter{nullptr};
+    Label* hitSpamCounterLabel{nullptr};
 };
 
 #endif
