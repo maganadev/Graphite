@@ -30,7 +30,7 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 color = Color(0, 0, 0, 1)
 
-[node name="P1LaneBackground" type="ColorRect" parent="."]
+[node name="P1LaneGoldOutline" type="ColorRect" parent="."]
 z_index = 1
 offset_left = -1.0
 offset_top = 283.0
@@ -54,3 +54,22 @@ offset_bottom = 436.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_im3oa")
 
 [node name="GameplaySceneManager" type="GameplaySceneManager" parent="."]
+
+[node name="HitCounter" type="Node2D" parent="."]
+position = Vector2(616.825, 146.24)
+
+[node name="HitCounterGoldOutline" type="ColorRect" parent="HitCounter"]
+z_index = 1
+offset_left = -125.0
+offset_top = -87.0
+offset_right = 135.0
+offset_bottom = 93.0
+color = Color(1, 0.72156864, 0, 1)
+
+[node name="HitCounterGrayBackground" type="ColorRect" parent="HitCounter"]
+z_index = 1
+offset_left = -120.0
+offset_top = -83.0
+offset_right = 133.0
+offset_bottom = 89.0
+color = Color(0.101960786, 0.101960786, 0.101960786, 1)

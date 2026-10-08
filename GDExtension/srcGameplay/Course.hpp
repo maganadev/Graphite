@@ -53,6 +53,7 @@ public:
     ////////////////////////////////////////////////////////////
     CompletionList<HittableNoteVariant> laneRed;
     CompletionList<HittableNoteVariant> laneBlue;
+    CompletionList<HittableNoteVariant> hitSpamNoteList;
 
     static Course FromJson(const nlohmann::json& j)
     {
@@ -88,9 +89,11 @@ public:
     {
         laneRed = CompletionList<HittableNoteVariant>();
         laneBlue = CompletionList<HittableNoteVariant>();
+        hitSpamNoteList = CompletionList<HittableNoteVariant>();
 
         std::vector<HittableNoteVariant> redLaneNotes;
         std::vector<HittableNoteVariant> blueLaneNotes;
+        std::vector<HittableNoteVariant> hitSpamNotes;
 
         for (auto* note : redNotes)
             redLaneNotes.push_back(note);
@@ -108,17 +111,29 @@ public:
             redLaneNotes.push_back(note);
         for (auto* note : bigGreenNotes)
             redLaneNotes.push_back(note);
+        for (auto* note : yellowNotes)
+            hitSpamNotes.push_back(note);
+        for (auto* note : greenNotes)
+            hitSpamNotes.push_back(note);
+        for (auto* note : bigYellowNotes)
+            hitSpamNotes.push_back(note);
+        for (auto* note : bigGreenNotes)
+            hitSpamNotes.push_back(note);
 
         std::sort(redLaneNotes.begin(), redLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
         std::sort(blueLaneNotes.begin(), blueLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
+        std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->timePicoseconds < b->timePicoseconds; });
 
         for (auto* note : redLaneNotes)
             laneRed.push_back(note);
         for (auto* note : blueLaneNotes)
             laneBlue.push_back(note);
+        for (auto* note : hitSpamNotes)
+            hitSpamNoteList.push_back(note);
 
         laneRed.resetCompletionStates();
         laneBlue.resetCompletionStates();
+        hitSpamNoteList.resetCompletionStates();
     }
 };
 
