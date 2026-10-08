@@ -22,7 +22,7 @@ void YellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualO
     }
 }
 
-void YellowNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void YellowNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t startDelta = songPositionPs - timePicoseconds;
 
@@ -58,7 +58,7 @@ void YellowNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart
     grading = NoteGradings::Late_OutOfRange;
 }
 
-void YellowNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void YellowNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

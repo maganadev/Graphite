@@ -22,7 +22,7 @@ void BlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOff
     }
 }
 
-void BlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void BlueNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t timeDelta = songPositionPs - timePicoseconds;
     offtime = timeDelta;
@@ -88,7 +88,7 @@ void BlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, 
     grading = NoteGradings::Ungraded;
 }
 
-void BlueNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void BlueNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

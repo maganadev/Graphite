@@ -22,7 +22,7 @@ void RedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffs
     }
 }
 
-void RedNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void RedNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t timeDelta = songPositionPs - timePicoseconds;
     offtime = timeDelta;
@@ -88,7 +88,7 @@ void RedNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, N
     grading = NoteGradings::Ungraded;
 }
 
-void RedNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void RedNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

@@ -18,7 +18,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
     {
         NoteGradings grading;
         int64_t offtime;
-        (*noteVariant)->getGradingForOfftime(songPositionPs, chart, grading, offtime);
+        (*noteVariant)->getWhatGradingWouldBe(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Early_OutOfRange)
         {
@@ -27,7 +27,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
-            (*noteVariant)->setJudged(grading, offtime);
+            (*noteVariant)->handleGrading(grading, offtime);
             lane.markMostRecentAsCompleted();
             outGrading = grading;
             return;
@@ -46,11 +46,11 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
     {
         NoteGradings grading;
         int64_t offtime;
-        (*noteVariant)->getGradingForOfftime(songPositionPs, chart, grading, offtime);
+        (*noteVariant)->getWhatGradingWouldBe(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            (*noteVariant)->setJudged(NoteGradings::Late_OutOfRange, offtime);
+            (*noteVariant)->handleGrading(NoteGradings::Late_OutOfRange, offtime);
             lane.markMostRecentAsCompleted();
         }
         else

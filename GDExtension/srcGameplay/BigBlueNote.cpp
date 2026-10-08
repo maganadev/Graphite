@@ -22,7 +22,7 @@ void BigBlueNote::updatePosition(int64_t songPositionPicoseconds, int64_t visual
     }
 }
 
-void BigBlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void BigBlueNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t timeDelta = songPositionPs - timePicoseconds;
     offtime = timeDelta;
@@ -88,7 +88,7 @@ void BigBlueNote::getGradingForOfftime(int64_t songPositionPs, const Chart* char
     grading = NoteGradings::Ungraded;
 }
 
-void BigBlueNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void BigBlueNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

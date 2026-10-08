@@ -22,14 +22,14 @@ void GhostNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOf
     }
 }
 
-void GhostNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void GhostNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     offtime = 0;
     grading = NoteGradings::Late_AboutToBeOutOfRange;
     return;
 }
 
-void GhostNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void GhostNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

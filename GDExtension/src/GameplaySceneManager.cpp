@@ -478,7 +478,7 @@ void GameplaySceneManager::_process(double delta)
                 }
                 NoteGradings grading;
                 int64_t offtime;
-                note->getGradingForOfftime(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
+                note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
                 if (grading == NoteGradings::CompletelyPerfect)
                 {
                     hitSpamAvailable = true;

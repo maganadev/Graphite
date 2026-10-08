@@ -22,14 +22,14 @@ void BigGhostNote::updatePosition(int64_t songPositionPicoseconds, int64_t visua
     }
 }
 
-void BigGhostNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void BigGhostNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     offtime = 0;
     grading = NoteGradings::Late_AboutToBeOutOfRange;
     return;
 }
 
-void BigGhostNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void BigGhostNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

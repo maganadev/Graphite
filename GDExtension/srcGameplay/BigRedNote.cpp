@@ -22,7 +22,7 @@ void BigRedNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualO
     }
 }
 
-void BigRedNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
+void BigRedNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
     int64_t timeDelta = songPositionPs - timePicoseconds;
     offtime = timeDelta;
@@ -88,7 +88,7 @@ void BigRedNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart
     grading = NoteGradings::Ungraded;
 }
 
-void BigRedNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
+void BigRedNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;
