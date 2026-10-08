@@ -40,6 +40,7 @@ protected:
     static int64_t parseStartTimePicoseconds(const nlohmann::json& j);
     static double parseScrollBPM(const nlohmann::json& j);
     static int64_t parseStopTimePicoseconds(const nlohmann::json& j);
+    static int64_t parseGreenNoteHits(const nlohmann::json& j);
 };
 
 #endif

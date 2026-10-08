@@ -61,3 +61,19 @@ int64_t HittableNote::parseStopTimePicoseconds(const nlohmann::json& j)
     }
     return 0;
 }
+
+int64_t HittableNote::parseGreenNoteHits(const nlohmann::json& j)
+{
+    if (!j.contains(JC_GREENNOTEHITS))
+    {
+        return 0;
+    }
+
+    const auto& value = j[JC_GREENNOTEHITS];
+    if (value.is_number())
+    {
+        return value.get<int64_t>();
+    }
+
+    return 0;
+}

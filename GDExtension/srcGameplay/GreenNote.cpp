@@ -67,6 +67,7 @@ void GreenNote::constructor2(const nlohmann::json& j)
     startTimePicoseconds = parseStartTimePicoseconds(j);
     scrollBPM = parseScrollBPM(j);
     endTimePicoseconds = parseStopTimePicoseconds(j);
+    remainingSpamHits = parseGreenNoteHits(j);
 }
 
 int64_t GreenNote::getSpamHitsCount() const
