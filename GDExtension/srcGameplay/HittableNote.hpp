@@ -28,7 +28,7 @@ public:
     HittableNote(const nlohmann::json& j);
     virtual ~HittableNote();
 
-    void getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY);
+    virtual void updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds) = 0;
     virtual void getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime) = 0;
     virtual void handleGrading(NoteGradings grading, int64_t picosecondsOff) = 0;
 };

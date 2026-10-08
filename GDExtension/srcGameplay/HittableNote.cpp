@@ -45,10 +45,3 @@ HittableNote::HittableNote(const nlohmann::json& j)
 HittableNote::~HittableNote()
 {
 }
-
-void HittableNote::getRenderPosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds, double& outX, double& outY)
-{
-    int64_t timeDelta = (timePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
-    outX = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
-    outY = LANE_Y;
-}
