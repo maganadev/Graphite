@@ -64,6 +64,12 @@ GameplaySceneManager::~GameplaySceneManager()
 
 void GameplaySceneManager::_ready()
 {
+    hitCounter = Object::cast_to<Node2D>(get_node_or_null("../HitCounter"));
+    if (hitCounter == nullptr)
+    {
+        UtilityFunctions::print("Failed to find HitCounter node");
+    }
+
     std::string songFileName = GraphiteGlobals::currentSongFileName;
 
     // Open the song
@@ -457,6 +463,29 @@ void GameplaySceneManager::_process(double delta)
         for (BigGhostNote* note : course->bigGhostNotes)
         {
             note->updatePosition(trackPositionPs, effectiveVisualOffset);
+        }
+
+        if (hitCounter)
+        {
+            bool hitSpamAvailable = false;
+            int64_t gradedSongPositionPs = trackPositionPs - effectiveJudgementOffset;
+            for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
+            {
+                HittableNote* note = course->hitSpamNoteList.getAt(i);
+                if (note->judged.load(std::memory_order_acquire))
+                {
+                    continue;
+                }
+                NoteGradings grading;
+                int64_t offtime;
+                note->getGradingForOfftime(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
+                if (grading == NoteGradings::CompletelyPerfect)
+                {
+                    hitSpamAvailable = true;
+                    break;
+                }
+            }
+            hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
         }
     }
 

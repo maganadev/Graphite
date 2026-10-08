@@ -10,6 +10,7 @@
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/input.hpp>
 #include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/packed_scene.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/resource_loader.hpp>
@@ -70,6 +71,7 @@ private:
     int64_t effectiveAudioOffset{0};
     int64_t effectiveJudgementOffset{0};
     bool resultsScreenTriggered{false};
+    Node2D* hitCounter{nullptr};
 };
 
 #endif

@@ -16,6 +16,21 @@ HittableNote::HittableNote(const nlohmann::json& j)
         bool intOk;
         timePicoseconds = f.toInt(intOk);
     }
+    std::string endStr = j.value(JC_STOPTIME_F, "");
+    if (!endStr.empty())
+    {
+        ok = false;
+        Fraction ef;
+        ef.assignFromString(endStr, ok);
+        if (ok)
+        {
+            Fraction ps;
+            ps.assignFromUInt64(1000000000000ULL);
+            ef.multiply(ps);
+            bool intOk;
+            endTimePicoseconds = ef.toInt(intOk);
+        }
+    }
     std::string bpmStr = j.value(JC_BPMSCROLL_F, "120/1");
     ok = false;
     Fraction bpmFrac;

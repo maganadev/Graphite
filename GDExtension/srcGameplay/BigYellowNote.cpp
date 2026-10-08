@@ -24,9 +24,38 @@ void BigYellowNote::updatePosition(int64_t songPositionPicoseconds, int64_t visu
 
 void BigYellowNote::getGradingForOfftime(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    offtime = 0;
-    grading = NoteGradings::Late_AboutToBeOutOfRange;
-    return;
+    int64_t startDelta = songPositionPs - timePicoseconds;
+
+    if (startDelta < -HIT_SPAM_WINDOW_PS)
+    {
+        offtime = startDelta;
+        grading = NoteGradings::Early_OutOfRange;
+        return;
+    }
+
+    if (startDelta < 0)
+    {
+        offtime = startDelta;
+        grading = NoteGradings::Early_AboutToBeOutOfRange;
+        return;
+    }
+
+    if (songPositionPs <= endTimePicoseconds)
+    {
+        offtime = 0;
+        grading = NoteGradings::CompletelyPerfect;
+        return;
+    }
+
+    int64_t endDelta = songPositionPs - endTimePicoseconds;
+    offtime = endDelta;
+    if (endDelta <= HIT_SPAM_WINDOW_PS)
+    {
+        grading = NoteGradings::Late_AboutToBeOutOfRange;
+        return;
+    }
+
+    grading = NoteGradings::Late_OutOfRange;
 }
 
 void BigYellowNote::setJudged(NoteGradings grading, int64_t picosecondsOff)
