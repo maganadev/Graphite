@@ -31,6 +31,10 @@ public:
     virtual void getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime) = 0;
     virtual void handleGrading(NoteGradings grading, int64_t picosecondsOff) = 0;
     virtual int64_t getSpamHitsCount() const = 0;
+    virtual bool isSpamNote() const
+    {
+        return false;
+    }
 
 protected:
     static int64_t parseStartTimePicoseconds(const nlohmann::json& j);

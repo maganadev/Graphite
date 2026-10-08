@@ -18,6 +18,7 @@ public:
     void handleGrading(NoteGradings grading, int64_t picosecondsOff) override;
     void constructor2(const nlohmann::json& j) override;
     int64_t getSpamHitsCount() const override;
+    bool isSpamNote() const override;
 
     int64_t endTimePicoseconds{0};
     std::atomic<int64_t> remainingSpamHits{0};

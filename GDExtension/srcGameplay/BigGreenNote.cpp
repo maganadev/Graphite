@@ -73,3 +73,8 @@ int64_t BigGreenNote::getSpamHitsCount() const
 {
     return remainingSpamHits.load(std::memory_order_acquire);
 }
+
+bool BigGreenNote::isSpamNote() const
+{
+    return true;
+}

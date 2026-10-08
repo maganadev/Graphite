@@ -483,13 +483,17 @@ void GameplaySceneManager::_process(double delta)
                 {
                     continue;
                 }
+                NoteGradings grading;
+                int64_t offtime;
+                note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
+                if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
                 if (currentSpamNote == nullptr)
                 {
                     currentSpamNote = note;
                 }
-                NoteGradings grading;
-                int64_t offtime;
-                note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
                 if (grading == NoteGradings::CompletelyPerfect)
                 {
                     hitSpamAvailable = true;
