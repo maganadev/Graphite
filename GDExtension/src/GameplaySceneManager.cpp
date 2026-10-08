@@ -413,257 +413,267 @@ void GameplaySceneManager::_process(double delta)
         return;
     }
 
-    LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
-    if (!chartGuard.objRef)
+    // NOTE: The read guard is in a nested scope so it's released before
+    // the all-judged scene transition below (which needs write access).
+    // Deadlock: acquiring a write guard while a read guard is active in the
+    // same thread causes the write guard to loop forever waiting for
+    // threadsReadingObj==0, which can never happen because this function
+    // holds the read guard.
     {
-        return;
-    }
+        UtilityFunctions::print("TRANSITION: _process top, resultsScreenTriggered=", resultsScreenTriggered ? "true" : "false");
 
-    if (chartGuard.objRef->activeCourseIndex < 0)
-    {
-        return;
-    }
+        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
+        if (!chartGuard.objRef)
+        {
+            return;
+        }
 
-    Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
+        if (chartGuard.objRef->activeCourseIndex < 0)
+        {
+            return;
+        }
 
-    int64_t trackPositionPs;
-    uint64_t outHandle;
-    if (GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
-    {
+        Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
+
+        int64_t trackPositionPs;
+        uint64_t outHandle;
+        if (GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+        {
+            for (RedNote* note : course->redNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BlueNote* note : course->blueNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (YellowNote* note : course->yellowNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (GreenNote* note : course->greenNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (GhostNote* note : course->ghostNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BigRedNote* note : course->bigRedNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BigBlueNote* note : course->bigBlueNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BigYellowNote* note : course->bigYellowNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BigGreenNote* note : course->bigGreenNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+            for (BigGhostNote* note : course->bigGhostNotes)
+            {
+                note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            }
+
+            if (hitCounter)
+            {
+                bool hitSpamAvailable = false;
+                HittableNote* currentSpamNote = nullptr;
+                int64_t gradedSongPositionPs = trackPositionPs - effectiveJudgementOffset;
+                for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
+                {
+                    HittableNote* note = course->hitSpamNoteList.getAt(i);
+                    if (note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        continue;
+                    }
+                    NoteGradings grading;
+                    int64_t offtime;
+                    note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
+                    if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
+                    {
+                        continue;
+                    }
+                    if (currentSpamNote == nullptr)
+                    {
+                        currentSpamNote = note;
+                    }
+                    if (grading == NoteGradings::CompletelyPerfect)
+                    {
+                        hitSpamAvailable = true;
+                        break;
+                    }
+                }
+                hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
+                if (hitSpamCounterLabel)
+                {
+                    int64_t count = currentSpamNote ? currentSpamNote->getSpamHitsCount() : 0;
+                    hitSpamCounterLabel->set_text(String::num_int64(count));
+                }
+            }
+        }
+
         for (RedNote* note : course->redNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                RedNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (BlueNote* note : course->blueNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                BlueNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (YellowNote* note : course->yellowNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                YellowNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (GreenNote* note : course->greenNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (GhostNote* note : course->ghostNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                GreenNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (BigRedNote* note : course->bigRedNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                BigRedNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (BigBlueNote* note : course->bigBlueNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                BigBlueNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (BigYellowNote* note : course->bigYellowNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            if (note->finishedJudging.load(std::memory_order_acquire))
+            {
+                if (note->grading == NoteGradings::Late_OutOfRange)
+                {
+                    continue;
+                }
+                BigYellowNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
+                {
+                    prefab->queue_free();
+                    note->prefab = nullptr;
+                }
+            }
         }
         for (BigGreenNote* note : course->bigGreenNotes)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigGhostNote* note : course->bigGhostNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-
-        if (hitCounter)
-        {
-            bool hitSpamAvailable = false;
-            HittableNote* currentSpamNote = nullptr;
-            int64_t gradedSongPositionPs = trackPositionPs - effectiveJudgementOffset;
-            for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
+            if (note->finishedJudging.load(std::memory_order_acquire))
             {
-                HittableNote* note = course->hitSpamNoteList.getAt(i);
-                if (note->finishedJudging.load(std::memory_order_acquire))
+                if (note->grading == NoteGradings::Late_OutOfRange)
                 {
                     continue;
                 }
-                NoteGradings grading;
-                int64_t offtime;
-                note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
-                if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
+                BigGreenNotePrefab* prefab = note->prefab;
+                if (prefab && prefab->is_inside_tree())
                 {
-                    continue;
+                    prefab->queue_free();
+                    note->prefab = nullptr;
                 }
-                if (currentSpamNote == nullptr)
-                {
-                    currentSpamNote = note;
-                }
-                if (grading == NoteGradings::CompletelyPerfect)
-                {
-                    hitSpamAvailable = true;
-                    break;
-                }
-            }
-            hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
-            if (hitSpamCounterLabel)
-            {
-                int64_t count = currentSpamNote ? currentSpamNote->getSpamHitsCount() : 0;
-                hitSpamCounterLabel->set_text(String::num_int64(count));
             }
         }
+        // Ghost notes are purely visual and are never judged, so no cleanup loop.
     }
+    // Read guard is released here — threadsReadingObj == 0, write guard can proceed
 
-    for (RedNote* note : course->redNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            RedNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (BlueNote* note : course->blueNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            BlueNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (YellowNote* note : course->yellowNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            YellowNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (GreenNote* note : course->greenNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            GreenNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (BigRedNote* note : course->bigRedNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            BigRedNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (BigBlueNote* note : course->bigBlueNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            BigBlueNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (BigYellowNote* note : course->bigYellowNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            BigYellowNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    for (BigGreenNote* note : course->bigGreenNotes)
-    {
-        if (note->finishedJudging.load(std::memory_order_acquire))
-        {
-            if (note->grading == NoteGradings::Late_OutOfRange)
-            {
-                continue;
-            }
-            BigGreenNotePrefab* prefab = note->prefab;
-            if (prefab && prefab->is_inside_tree())
-            {
-                prefab->queue_free();
-                note->prefab = nullptr;
-            }
-        }
-    }
-    // Ghost notes are purely visual and are never judged, so no cleanup loop.
+    UtilityFunctions::print("TRANSITION: past read-guard scope, resultsScreenTriggered=", resultsScreenTriggered ? "true" : "false");
 
     if (!resultsScreenTriggered)
     {
+        // Acquire a fresh read guard to read course data for the all-judged check.
+        // This is released before the write guard below, avoiding the deadlock.
         bool allJudged = true;
-        for (RedNote* note : course->redNotes)
         {
-            if (!note->finishedJudging.load(std::memory_order_acquire))
+            LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
+            if (!chartGuard.objRef)
             {
-                allJudged = false;
-                break;
+                return;
             }
-        }
-        if (allJudged)
-        {
-            for (BlueNote* note : course->blueNotes)
+
+            if (chartGuard.objRef->activeCourseIndex < 0)
             {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    allJudged = false;
-                    break;
-                }
+                return;
             }
-        }
-        if (allJudged)
-        {
-            for (YellowNote* note : course->yellowNotes)
+
+            Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
+
+            UtilityFunctions::print("TRANSITION: checking all-judged, course redNotes=", std::to_string(course->redNotes.size()).c_str());
+
+            for (RedNote* note : course->redNotes)
             {
                 if (!note->finishedJudging.load(std::memory_order_acquire))
                 {
@@ -671,71 +681,97 @@ void GameplaySceneManager::_process(double delta)
                     break;
                 }
             }
-        }
-        if (allJudged)
-        {
-            for (GreenNote* note : course->greenNotes)
+            if (allJudged)
             {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
+                for (BlueNote* note : course->blueNotes)
                 {
-                    allJudged = false;
-                    break;
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (YellowNote* note : course->yellowNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (GreenNote* note : course->greenNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (BigRedNote* note : course->bigRedNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (BigBlueNote* note : course->bigBlueNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (BigYellowNote* note : course->bigYellowNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
+                }
+            }
+            if (allJudged)
+            {
+                for (BigGreenNote* note : course->bigGreenNotes)
+                {
+                    if (!note->finishedJudging.load(std::memory_order_acquire))
+                    {
+                        allJudged = false;
+                        break;
+                    }
                 }
             }
         }
+        // Read guard released — no longer blocking the write guard
+
         if (allJudged)
         {
-            for (BigRedNote* note : course->bigRedNotes)
-            {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    allJudged = false;
-                    break;
-                }
-            }
-        }
-        if (allJudged)
-        {
-            for (BigBlueNote* note : course->bigBlueNotes)
-            {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    allJudged = false;
-                    break;
-                }
-            }
-        }
-        if (allJudged)
-        {
-            for (BigYellowNote* note : course->bigYellowNotes)
-            {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    allJudged = false;
-                    break;
-                }
-            }
-        }
-        if (allJudged)
-        {
-            for (BigGreenNote* note : course->bigGreenNotes)
-            {
-                if (!note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    allJudged = false;
-                    break;
-                }
-            }
-        }
-        if (allJudged)
-        {
+            UtilityFunctions::print("TRANSITION: all notes judged, acquiring write guard");
             resultsScreenTriggered = true;
             {
                 LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
                 guard.objRef->gameplayActive = false;
             }
-            UtilityFunctions::print("All notes judged, switching to ResultsScreen");
+            UtilityFunctions::print("TRANSITION: write guard released, switching scene");
             get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
+            UtilityFunctions::print("TRANSITION: change_scene_to_file called");
         }
     }
 }
