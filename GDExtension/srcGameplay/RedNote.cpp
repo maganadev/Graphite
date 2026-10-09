@@ -88,11 +88,12 @@ void RedNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, 
     grading = NoteGradings::Ungraded;
 }
 
-void RedNote::handleStrike(NoteGradings grading, int64_t picosecondsOff)
+bool RedNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;
     this->finishedJudging.store(true, std::memory_order_release);
+    return true;
 }
 
 void RedNote::constructor2(const nlohmann::json& j)

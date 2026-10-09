@@ -29,11 +29,12 @@ void BigGhostNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* ch
     return;
 }
 
-void BigGhostNote::handleStrike(NoteGradings grading, int64_t picosecondsOff)
+bool BigGhostNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;
     this->finishedJudging.store(true, std::memory_order_release);
+    return true;
 }
 
 void BigGhostNote::constructor2(const nlohmann::json& j)
