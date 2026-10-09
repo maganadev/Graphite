@@ -27,7 +27,7 @@ void GreenNote::updatePosition(int64_t correctedSongPositionPs)
         }
         else
         {
-            int64_t timeDelta = startTimePicoseconds - endTimePicoseconds;
+            int64_t timeDelta = endTimePicoseconds - correctedSongPositionPs;
             x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
         }
         prefab->set_position(godot::Vector2(x, LANE_Y));
@@ -36,32 +36,27 @@ void GreenNote::updatePosition(int64_t correctedSongPositionPs)
 
 void GreenNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    int64_t startDelta = songPositionPs - startTimePicoseconds;
+    offtime = 0;
 
-    if (startDelta < -HIT_SPAM_WINDOW_PS)
+    if ((songPositionPs - startTimePicoseconds) < -HIT_SPAM_WINDOW_PS)
     {
-        offtime = startDelta;
         grading = NoteGradings::Early_OutOfRange;
         return;
     }
 
-    if (startDelta < 0)
+    if ((songPositionPs - startTimePicoseconds) < 0)
     {
-        offtime = startDelta;
         grading = NoteGradings::Early_AboutToBeOutOfRange;
         return;
     }
 
     if (songPositionPs <= endTimePicoseconds)
     {
-        offtime = 0;
         grading = NoteGradings::CompletelyPerfect;
         return;
     }
 
-    int64_t endDelta = songPositionPs - endTimePicoseconds;
-    offtime = endDelta;
-    if (endDelta <= HIT_SPAM_WINDOW_PS)
+    if ((songPositionPs - endTimePicoseconds) <= HIT_SPAM_WINDOW_PS)
     {
         grading = NoteGradings::Late_AboutToBeOutOfRange;
         return;

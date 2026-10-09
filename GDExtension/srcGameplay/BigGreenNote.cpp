@@ -36,32 +36,27 @@ void BigGreenNote::updatePosition(int64_t correctedSongPositionPs)
 
 void BigGreenNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart, NoteGradings& grading, int64_t& offtime)
 {
-    int64_t startDelta = songPositionPs - startTimePicoseconds;
+    offtime = 0;
 
-    if (startDelta < -HIT_SPAM_WINDOW_PS)
+    if ((songPositionPs - startTimePicoseconds) < -HIT_SPAM_WINDOW_PS)
     {
-        offtime = startDelta;
         grading = NoteGradings::Early_OutOfRange;
         return;
     }
 
-    if (startDelta < 0)
+    if ((songPositionPs - startTimePicoseconds) < 0)
     {
-        offtime = startDelta;
         grading = NoteGradings::Early_AboutToBeOutOfRange;
         return;
     }
 
     if (songPositionPs <= endTimePicoseconds)
     {
-        offtime = 0;
         grading = NoteGradings::CompletelyPerfect;
         return;
     }
 
-    int64_t endDelta = songPositionPs - endTimePicoseconds;
-    offtime = endDelta;
-    if (endDelta <= HIT_SPAM_WINDOW_PS)
+    if ((songPositionPs - endTimePicoseconds) <= HIT_SPAM_WINDOW_PS)
     {
         grading = NoteGradings::Late_AboutToBeOutOfRange;
         return;
