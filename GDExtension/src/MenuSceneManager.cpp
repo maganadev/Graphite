@@ -98,6 +98,7 @@ void MenuSceneManager::buildMenuTree()
     {
         if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
         {
+            this->tree.navigateBack();
             saveMenuState();
             GraphiteGlobals::difficulty = difficulty;
             GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
