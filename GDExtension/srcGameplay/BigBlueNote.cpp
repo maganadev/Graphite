@@ -88,7 +88,7 @@ void BigBlueNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* cha
     grading = NoteGradings::Ungraded;
 }
 
-void BigBlueNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
+void BigBlueNote::handleStrike(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

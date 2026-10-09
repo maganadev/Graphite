@@ -88,7 +88,7 @@ void BigRedNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* char
     grading = NoteGradings::Ungraded;
 }
 
-void BigRedNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
+void BigRedNote::handleStrike(NoteGradings grading, int64_t picosecondsOff)
 {
     this->grading = grading;
     this->picosecondsOff = picosecondsOff;

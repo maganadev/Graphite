@@ -27,7 +27,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
-            (*noteVariant)->handleGrading(grading, offtime);
+            (*noteVariant)->handleStrike(grading, offtime);
             if (!(*noteVariant)->isSpamNote())
             {
                 lane.markMostRecentAsCompleted();
@@ -59,7 +59,7 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
             }
             else
             {
-                (*noteVariant)->handleGrading(NoteGradings::Late_OutOfRange, offtime);
+                (*noteVariant)->handleStrike(NoteGradings::Late_OutOfRange, offtime);
             }
             lane.markMostRecentAsCompleted();
         }

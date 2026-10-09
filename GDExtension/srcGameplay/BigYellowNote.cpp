@@ -57,7 +57,7 @@ void BigYellowNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* c
     grading = NoteGradings::Late_OutOfRange;
 }
 
-void BigYellowNote::handleGrading(NoteGradings grading, int64_t picosecondsOff)
+void BigYellowNote::handleStrike(NoteGradings grading, int64_t picosecondsOff)
 {
     spamHits.fetch_add(1, std::memory_order_release);
 }
