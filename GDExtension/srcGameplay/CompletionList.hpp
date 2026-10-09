@@ -43,12 +43,12 @@ public:
         elements[index] = element;
     }
 
-    T getAt(size_t index)
+    T getAt(size_t index) const
     {
         return elements[index];
     }
 
-    size_t size()
+    size_t size() const
     {
         return elements.size();
     }
