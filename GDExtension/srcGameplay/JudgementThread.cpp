@@ -53,7 +53,11 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            if (!(*noteVariant)->isSpamNote())
+            if ((*noteVariant)->isSpamNote())
+            {
+                (*noteVariant)->finishedJudging.store(true, std::memory_order_release);
+            }
+            else
             {
                 (*noteVariant)->handleGrading(NoteGradings::Late_OutOfRange, offtime);
             }

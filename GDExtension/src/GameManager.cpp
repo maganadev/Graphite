@@ -65,7 +65,7 @@ void GameManager::_ready()
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedFukaHitsound.ogg", -36, GraphiteGlobals::redFukaHitsoundHandle);
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedChouHitsound.ogg", -36, GraphiteGlobals::redChouHitsoundHandle);
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedAdLibHitsound.ogg", -36, GraphiteGlobals::redAdLibHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplaySineWave.ogg", -6, GraphiteGlobals::sineWaveHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayGreenNoteComplete.ogg", -36, GraphiteGlobals::greenNoteCompleteHitsoundHandle);
 
     UtilityFunctions::print("GraphiteGlobals::blueRyouHitsoundHandle: ", std::to_string(GraphiteGlobals::blueRyouHitsoundHandle).c_str());
 
@@ -110,6 +110,7 @@ void GameManager::_exit_tree()
     freeTrack(GraphiteGlobals::redFukaHitsoundHandle);
     freeTrack(GraphiteGlobals::redChouHitsoundHandle);
     freeTrack(GraphiteGlobals::redAdLibHitsoundHandle);
+    freeTrack(GraphiteGlobals::greenNoteCompleteHitsoundHandle);
 
     JudgementThread::stop();
 }

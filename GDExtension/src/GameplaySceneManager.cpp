@@ -702,8 +702,6 @@ void GameplaySceneManager::allJudgedCheck()
 
         const Course* course = &chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex];
 
-        UtilityFunctions::print("TRANSITION: checking all-judged, course redNotes=", std::to_string(course->redNotes.size()).c_str());
-
         for (RedNote* note : course->redNotes)
         {
             if (!note->finishedJudging.load(std::memory_order_acquire))
@@ -792,15 +790,12 @@ void GameplaySceneManager::allJudgedCheck()
     }
     if (allJudged)
     {
-        UtilityFunctions::print("TRANSITION: all notes judged, acquiring write guard");
         resultsScreenTriggered = true;
         {
             LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
             guard.objRef->gameplayActive = false;
         }
-        UtilityFunctions::print("TRANSITION: write guard released, switching scene");
         get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
-        UtilityFunctions::print("TRANSITION: change_scene_to_file called");
     }
 }
 

@@ -14,7 +14,7 @@ uint64_t GraphiteGlobals::redKaHitsoundHandle{0};
 uint64_t GraphiteGlobals::redFukaHitsoundHandle{0};
 uint64_t GraphiteGlobals::redChouHitsoundHandle{0};
 uint64_t GraphiteGlobals::redAdLibHitsoundHandle{0};
-uint64_t GraphiteGlobals::sineWaveHitsoundHandle{0};
+uint64_t GraphiteGlobals::greenNoteCompleteHitsoundHandle{0};
 LFProtectObj<Chart> GraphiteGlobals::currentChart{};
 int64_t GraphiteGlobals::audioOffset{0};
 int64_t GraphiteGlobals::visualOffset{0};
