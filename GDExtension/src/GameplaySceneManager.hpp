@@ -57,6 +57,35 @@ public:
     Ref<PackedScene> get_big_ghost_note_scene() const;
 
 private:
+    struct ReadyContext
+    {
+        std::string songFileName;
+        Chart chart;
+        std::string wavePath;
+    };
+
+    struct ProcessContext
+    {
+        uint64_t cpuTimePs{0};
+        int64_t trackPositionPs{0};
+    };
+
+    void grabObjects();
+    bool loadChart(ReadyContext& ctx);
+    void calculateOffsets(const ReadyContext& ctx);
+    bool loadNoteScenes();
+    bool buildChartObject(ReadyContext& ctx);
+    bool loadAndPlayAudio(const ReadyContext& ctx);
+    void markGameplayActive(const ReadyContext& ctx);
+
+    void getFrameTime(ProcessContext& ctx);
+    void gradeAbandonedNotes(const ProcessContext& ctx);
+    bool handleKeyPresses();
+    void updateNotePositions(const ProcessContext& ctx, const Chart* chart);
+    void updateHitCounter(const ProcessContext& ctx, const Chart* chart);
+    void removeJudgedNotes(const Chart* chart);
+    void allJudgedCheck();
+
     Ref<PackedScene> redNoteScene;
     Ref<PackedScene> blueNoteScene;
     Ref<PackedScene> yellowNoteScene;

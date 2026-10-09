@@ -62,9 +62,8 @@ GameplaySceneManager::~GameplaySceneManager()
     //
 }
 
-void GameplaySceneManager::_ready()
+void GameplaySceneManager::grabObjects()
 {
-    // FUNCTION: GRAB OBJECTS
     hitCounter = Object::cast_to<Node2D>(get_node_or_null("../HitCounter"));
     if (hitCounter == nullptr)
     {
@@ -76,25 +75,27 @@ void GameplaySceneManager::_ready()
     {
         UtilityFunctions::print("Failed to find HitCounter Label");
     }
+}
 
-    // FUNCTION: LoadChart
-    std::string songFileName = GraphiteGlobals::currentSongFileName;
+bool GameplaySceneManager::loadChart(ReadyContext& ctx)
+{
+    ctx.songFileName = GraphiteGlobals::currentSongFileName;
 
     // Open the song
-    std::ifstream ifs(songFileName);
+    std::ifstream ifs(ctx.songFileName);
     if (!ifs.is_open())
     {
-        UtilityFunctions::print("Failed to open song file: ", songFileName.c_str());
-        return;
+        UtilityFunctions::print("Failed to open song file: ", ctx.songFileName.c_str());
+        return false;
     }
     json songJson = json::parse(ifs);
 
-    Chart chart = Chart::FromJson(songJson);
+    ctx.chart = Chart::FromJson(songJson);
 
     int32_t courseIndex = -1;
-    for (int32_t i = 0; i < static_cast<int32_t>(chart.courses.size()); ++i)
+    for (int32_t i = 0; i < static_cast<int32_t>(ctx.chart.courses.size()); ++i)
     {
-        if (chart.courses[i].courseNumber == GraphiteGlobals::difficulty)
+        if (ctx.chart.courses[i].courseNumber == GraphiteGlobals::difficulty)
         {
             courseIndex = i;
             break;
@@ -103,14 +104,16 @@ void GameplaySceneManager::_ready()
     if (courseIndex < 0)
     {
         UtilityFunctions::print("Course not found: ", std::to_string(GraphiteGlobals::difficulty).c_str());
-        return;
+        return false;
     }
-    Course* targetCourse = &chart.courses[courseIndex];
-    chart.activeCourseIndex = courseIndex;
+    ctx.chart.activeCourseIndex = courseIndex;
+    return true;
+}
 
-    // FUNCTION: Calculate offsets
+void GameplaySceneManager::calculateOffsets(const ReadyContext& ctx)
+{
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
-    int64_t unfilteredAudioOffset = chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
+    int64_t unfilteredAudioOffset = ctx.chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
 
     // If calibration mods are enabled, override the offsets
@@ -133,251 +136,293 @@ void GameplaySceneManager::_ready()
     UtilityFunctions::print("Output Visual Offset: ", std::to_string(effectiveVisualOffset).c_str(), " ps");
     UtilityFunctions::print("Output Audio Offset: ", std::to_string(effectiveAudioOffset).c_str(), " ps");
     UtilityFunctions::print("Output Judgement Offset: ", std::to_string(effectiveJudgementOffset).c_str(), " ps");
+}
 
-    // FUNCTION: Spawn Notes
+bool GameplaySceneManager::loadNoteScenes()
+{
     redNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/RedNote.tscn");
     if (redNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load RedNote scene");
-        return;
+        return false;
     }
 
     blueNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BlueNote.tscn");
     if (blueNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BlueNote scene");
-        return;
+        return false;
     }
 
     yellowNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/YellowNote.tscn");
     if (yellowNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load YellowNote scene");
-        return;
+        return false;
     }
 
     greenNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/GreenNote.tscn");
     if (greenNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load GreenNote scene");
-        return;
+        return false;
     }
 
     ghostNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/GhostNote.tscn");
     if (ghostNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load GhostNote scene");
-        return;
+        return false;
     }
 
     bigRedNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigRedNote.tscn");
     if (bigRedNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BigRedNote scene");
-        return;
+        return false;
     }
 
     bigBlueNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigBlueNote.tscn");
     if (bigBlueNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BigBlueNote scene");
-        return;
+        return false;
     }
 
     bigYellowNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigYellowNote.tscn");
     if (bigYellowNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BigYellowNote scene");
-        return;
+        return false;
     }
 
     bigGreenNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigGreenNote.tscn");
     if (bigGreenNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BigGreenNote scene");
-        return;
+        return false;
     }
 
     bigGhostNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigGhostNote.tscn");
     if (bigGhostNoteScene.is_null())
     {
         UtilityFunctions::print("Failed to load BigGhostNote scene");
-        return;
+        return false;
     }
 
-    // FUNCTION: Build Chart Object
+    return true;
+}
+
+bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
+{
     //  Build the chart under write guard so judgment thread can't read it before it's ready
+    LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
+    *guard.objRef = ctx.chart;
+    if (guard.objRef->activeCourseIndex < 0)
     {
-        LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
-        *guard.objRef = std::move(chart);
-        if (guard.objRef->activeCourseIndex < 0)
-        {
-            UtilityFunctions::print("Failed to find course in chart after move");
-            return;
-        }
-
-        if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
-        {
-            guard.objRef->hitWindowAboutToBeOutOfRange *= 4;
-            guard.objRef->hitWindowFuka *= 4;
-            guard.objRef->hitWindowKa *= 4;
-            guard.objRef->hitWindowRyou *= 4;
-            guard.objRef->hitWindowChou *= 4;
-        }
-
-        Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
-
-        std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
-
-        for (RedNote* note : courseInChart->redNotes)
-        {
-            Node* instance = redNoteScene->instantiate();
-            RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BlueNote* note : courseInChart->blueNotes)
-        {
-            Node* instance = blueNoteScene->instantiate();
-            BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (YellowNote* note : courseInChart->yellowNotes)
-        {
-            Node* instance = yellowNoteScene->instantiate();
-            YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (GreenNote* note : courseInChart->greenNotes)
-        {
-            Node* instance = greenNoteScene->instantiate();
-            GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (GhostNote* note : courseInChart->ghostNotes)
-        {
-            Node* instance = ghostNoteScene->instantiate();
-            GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BigRedNote* note : courseInChart->bigRedNotes)
-        {
-            Node* instance = bigRedNoteScene->instantiate();
-            BigRedNotePrefab* prefab = Object::cast_to<BigRedNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BigBlueNote* note : courseInChart->bigBlueNotes)
-        {
-            Node* instance = bigBlueNoteScene->instantiate();
-            BigBlueNotePrefab* prefab = Object::cast_to<BigBlueNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BigYellowNote* note : courseInChart->bigYellowNotes)
-        {
-            Node* instance = bigYellowNoteScene->instantiate();
-            BigYellowNotePrefab* prefab = Object::cast_to<BigYellowNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BigGreenNote* note : courseInChart->bigGreenNotes)
-        {
-            Node* instance = bigGreenNoteScene->instantiate();
-            BigGreenNotePrefab* prefab = Object::cast_to<BigGreenNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-        for (BigGhostNote* note : courseInChart->bigGhostNotes)
-        {
-            Node* instance = bigGhostNoteScene->instantiate();
-            BigGhostNotePrefab* prefab = Object::cast_to<BigGhostNotePrefab>(instance);
-            if (prefab)
-            {
-                note->prefab = prefab;
-                prefab->set_z_index(3);
-                sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
-            }
-        }
-
-        std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first < b.first; });
-
-        for (auto& entry : sortedPrefabs)
-        {
-            add_child(entry.second);
-        }
-
-        courseInChart->populateLanes();
-
-        size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
-        UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
-
-        wavePath = chartGuard.objRef->wave;
+        UtilityFunctions::print("Failed to find course in chart after move");
+        return false;
     }
 
-    // FUNCTION: LoadAndPlayAudio
-    std::filesystem::path audioFilePath = wavePath;
-    if (!wavePath.empty())
+    if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
     {
-        audioFilePath = std::filesystem::path(songFileName).parent_path() / wavePath;
+        guard.objRef->hitWindowAboutToBeOutOfRange *= 4;
+        guard.objRef->hitWindowFuka *= 4;
+        guard.objRef->hitWindowKa *= 4;
+        guard.objRef->hitWindowRyou *= 4;
+        guard.objRef->hitWindowChou *= 4;
+    }
+
+    Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
+
+    std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
+
+    for (RedNote* note : courseInChart->redNotes)
+    {
+        Node* instance = redNoteScene->instantiate();
+        RedNotePrefab* prefab = Object::cast_to<RedNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BlueNote* note : courseInChart->blueNotes)
+    {
+        Node* instance = blueNoteScene->instantiate();
+        BlueNotePrefab* prefab = Object::cast_to<BlueNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (YellowNote* note : courseInChart->yellowNotes)
+    {
+        Node* instance = yellowNoteScene->instantiate();
+        YellowNotePrefab* prefab = Object::cast_to<YellowNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (GreenNote* note : courseInChart->greenNotes)
+    {
+        Node* instance = greenNoteScene->instantiate();
+        GreenNotePrefab* prefab = Object::cast_to<GreenNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (GhostNote* note : courseInChart->ghostNotes)
+    {
+        Node* instance = ghostNoteScene->instantiate();
+        GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BigRedNote* note : courseInChart->bigRedNotes)
+    {
+        Node* instance = bigRedNoteScene->instantiate();
+        BigRedNotePrefab* prefab = Object::cast_to<BigRedNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BigBlueNote* note : courseInChart->bigBlueNotes)
+    {
+        Node* instance = bigBlueNoteScene->instantiate();
+        BigBlueNotePrefab* prefab = Object::cast_to<BigBlueNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BigYellowNote* note : courseInChart->bigYellowNotes)
+    {
+        Node* instance = bigYellowNoteScene->instantiate();
+        BigYellowNotePrefab* prefab = Object::cast_to<BigYellowNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BigGreenNote* note : courseInChart->bigGreenNotes)
+    {
+        Node* instance = bigGreenNoteScene->instantiate();
+        BigGreenNotePrefab* prefab = Object::cast_to<BigGreenNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (BigGhostNote* note : courseInChart->bigGhostNotes)
+    {
+        Node* instance = bigGhostNoteScene->instantiate();
+        BigGhostNotePrefab* prefab = Object::cast_to<BigGhostNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+
+    std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first < b.first; });
+
+    for (auto& entry : sortedPrefabs)
+    {
+        add_child(entry.second);
+    }
+
+    courseInChart->populateLanes();
+
+    size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
+    UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
+
+    ctx.wavePath = guard.objRef->wave;
+    return true;
+}
+
+bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
+{
+    std::filesystem::path audioFilePath = ctx.wavePath;
+    if (!ctx.wavePath.empty())
+    {
+        audioFilePath = std::filesystem::path(ctx.songFileName).parent_path() / ctx.wavePath;
     }
     if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, audioTrackHandle))
     {
         UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
-        return;
+        return false;
     }
 
     // Play the audio track
     GraphiteGlobals::audioEngine.value().playAudioTrack(audioTrackHandle);
     GraphiteGlobals::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
 
-    // FUNCTION: Mark Gameplay Active
+    return true;
+}
+
+void GameplaySceneManager::markGameplayActive(const ReadyContext& ctx)
+{
     //  Signal that gameplay is active
     {
         LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
         guard.objRef->gameplayActive = true;
-        UtilityFunctions::print("Loaded song: ", guard.objRef->title.c_str(), " | Wave: ", wavePath.c_str());
+        UtilityFunctions::print("Loaded song: ", guard.objRef->title.c_str(), " | Wave: ", ctx.wavePath.c_str());
     }
+}
+
+void GameplaySceneManager::_ready()
+{
+    ReadyContext ctx;
+
+    grabObjects();
+
+    if (!loadChart(ctx))
+    {
+        return;
+    }
+
+    calculateOffsets(ctx);
+
+    if (!loadNoteScenes())
+    {
+        return;
+    }
+
+    if (!buildChartObject(ctx))
+    {
+        return;
+    }
+
+    if (!loadAndPlayAudio(ctx))
+    {
+        return;
+    }
+
+    markGameplayActive(ctx);
 }
 
 void GameplaySceneManager::_exit_tree()
@@ -385,22 +430,24 @@ void GameplaySceneManager::_exit_tree()
     //
 }
 
-void GameplaySceneManager::_process(double delta)
+void GameplaySceneManager::getFrameTime(ProcessContext& ctx)
 {
-    // FUNCTION: Get frame time
-    uint64_t cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
-    int64_t trackPositionPs;
+    ctx.cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
     uint64_t outHandle;
-    if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(cpuTimePs, trackPositionPs, outHandle))
+    if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(ctx.cpuTimePs, ctx.trackPositionPs, outHandle))
     {
         // TODO : Handle audio track position retrieval failure
     }
+}
 
-    // FUNCTION: GradeAbandonedNotes
-    JudgementThread::abandonedCheckQueue.try_enqueue(cpuTimePs);
+void GameplaySceneManager::gradeAbandonedNotes(const ProcessContext& ctx)
+{
+    JudgementThread::abandonedCheckQueue.try_enqueue(ctx.cpuTimePs);
     JudgementThread::signal();
+}
 
-    // FUNCTION: HandleKeyPresses
+bool GameplaySceneManager::handleKeyPresses()
+{
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
         UtilityFunctions::print("Back action detected, loading ResultsScreen");
@@ -409,106 +456,105 @@ void GameplaySceneManager::_process(double delta)
             guard.objRef->gameplayActive = false;
         }
         get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
+        return true;
+    }
+    return false;
+}
+
+void GameplaySceneManager::updateNotePositions(const ProcessContext& ctx, const Chart* chart)
+{
+    const Course* course = &chart->courses[chart->activeCourseIndex];
+
+    for (RedNote* note : course->redNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BlueNote* note : course->blueNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (YellowNote* note : course->yellowNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (GreenNote* note : course->greenNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (GhostNote* note : course->ghostNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BigRedNote* note : course->bigRedNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BigBlueNote* note : course->bigBlueNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BigYellowNote* note : course->bigYellowNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BigGreenNote* note : course->bigGreenNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+    for (BigGhostNote* note : course->bigGhostNotes)
+    {
+        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+    }
+}
+
+void GameplaySceneManager::updateHitCounter(const ProcessContext& ctx, const Chart* chart)
+{
+    if (!hitCounter)
+    {
         return;
     }
 
+    const Course* course = &chart->courses[chart->activeCourseIndex];
+
+    bool hitSpamAvailable = false;
+    HittableNote* currentSpamNote = nullptr;
+    int64_t gradedSongPositionPs = ctx.trackPositionPs - effectiveJudgementOffset;
+    for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
     {
-        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
-        if (!chartGuard.objRef)
+        HittableNote* note = course->hitSpamNoteList.getAt(i);
+        if (note->finishedJudging.load(std::memory_order_acquire))
         {
-            return;
+            continue;
         }
-
-        if (chartGuard.objRef->activeCourseIndex < 0)
+        NoteGradings grading;
+        int64_t offtime;
+        note->getWhatGradingWouldBe(gradedSongPositionPs, chart, grading, offtime);
+        if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
         {
-            return;
+            continue;
         }
-
-#error who the fuck put a const_cast, that should never be necessary, fix the logic flaw
-        Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
-
-        // FUNCTION: Update note positions
-        for (RedNote* note : course->redNotes)
+        if (currentSpamNote == nullptr)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
+            currentSpamNote = note;
         }
-        for (BlueNote* note : course->blueNotes)
+        if (grading == NoteGradings::CompletelyPerfect)
         {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (YellowNote* note : course->yellowNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (GreenNote* note : course->greenNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (GhostNote* note : course->ghostNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigRedNote* note : course->bigRedNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigBlueNote* note : course->bigBlueNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigYellowNote* note : course->bigYellowNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigGreenNote* note : course->bigGreenNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-        for (BigGhostNote* note : course->bigGhostNotes)
-        {
-            note->updatePosition(trackPositionPs, effectiveVisualOffset);
-        }
-
-        // FUNCTION: Update Hit Counter
-        if (hitCounter)
-        {
-            bool hitSpamAvailable = false;
-            HittableNote* currentSpamNote = nullptr;
-            int64_t gradedSongPositionPs = trackPositionPs - effectiveJudgementOffset;
-            for (size_t i = 0; i < course->hitSpamNoteList.size(); ++i)
-            {
-                HittableNote* note = course->hitSpamNoteList.getAt(i);
-                if (note->finishedJudging.load(std::memory_order_acquire))
-                {
-                    continue;
-                }
-                NoteGradings grading;
-                int64_t offtime;
-                note->getWhatGradingWouldBe(gradedSongPositionPs, chartGuard.objRef, grading, offtime);
-                if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
-                {
-                    continue;
-                }
-                if (currentSpamNote == nullptr)
-                {
-                    currentSpamNote = note;
-                }
-                if (grading == NoteGradings::CompletelyPerfect)
-                {
-                    hitSpamAvailable = true;
-                    break;
-                }
-            }
-            hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
-            if (hitSpamCounterLabel)
-            {
-                int64_t count = currentSpamNote ? currentSpamNote->getSpamHitsCount() : 0;
-                hitSpamCounterLabel->set_text(String::num_int64(count));
-            }
+            hitSpamAvailable = true;
+            break;
         }
     }
+    hitCounter->set_modulate(Color(1, 1, 1, hitSpamAvailable ? 1.0f : 0.0f));
+    if (hitSpamCounterLabel)
+    {
+        int64_t count = currentSpamNote ? currentSpamNote->getSpamHitsCount() : 0;
+        hitSpamCounterLabel->set_text(String::num_int64(count));
+    }
+}
 
-    // FUNCTION: RemoveJudgedNotes
+void GameplaySceneManager::removeJudgedNotes(const Chart* chart)
+{
+    const Course* course = &chart->courses[chart->activeCourseIndex];
+
     for (RedNote* note : course->redNotes)
     {
         if (note->finishedJudging.load(std::memory_order_acquire))
@@ -637,8 +683,10 @@ void GameplaySceneManager::_process(double delta)
             }
         }
     }
+}
 
-    // FUNCTION: AllJudgedCheck
+void GameplaySceneManager::allJudgedCheck()
+{
     bool allJudged = true;
     {
         LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
@@ -652,7 +700,7 @@ void GameplaySceneManager::_process(double delta)
             return;
         }
 
-        Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
+        const Course* course = &chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex];
 
         UtilityFunctions::print("TRANSITION: checking all-judged, course redNotes=", std::to_string(course->redNotes.size()).c_str());
 
@@ -754,6 +802,38 @@ void GameplaySceneManager::_process(double delta)
         get_tree()->change_scene_to_file("res://Scenes/ResultsScreen.tscn");
         UtilityFunctions::print("TRANSITION: change_scene_to_file called");
     }
+}
+
+void GameplaySceneManager::_process(double delta)
+{
+    ProcessContext ctx;
+
+    getFrameTime(ctx);
+    gradeAbandonedNotes(ctx);
+
+    if (handleKeyPresses())
+    {
+        return;
+    }
+
+    {
+        LFProtectObjReadGuard<Chart> chartGuard(GraphiteGlobals::currentChart);
+        if (!chartGuard.objRef)
+        {
+            return;
+        }
+
+        if (chartGuard.objRef->activeCourseIndex < 0)
+        {
+            return;
+        }
+
+        updateNotePositions(ctx, chartGuard.objRef);
+        updateHitCounter(ctx, chartGuard.objRef);
+        removeJudgedNotes(chartGuard.objRef);
+    }
+
+    allJudgedCheck();
 }
 
 void GameplaySceneManager::set_red_note_scene(Ref<PackedScene> scene)
