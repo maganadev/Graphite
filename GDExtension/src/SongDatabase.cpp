@@ -54,7 +54,7 @@ static std::string lowercaseAscii(const std::string& s)
 static std::filesystem::path jsonForTja(const std::filesystem::path& tjaFile)
 {
     std::filesystem::path dir = tjaFile.parent_path();
-    std::string filename = tjaFile.filename().string() + ".json";
+    std::string filename = tjaFile.stem().string() + ".tjap";
     return dir / filename;
 }
 
@@ -62,7 +62,7 @@ bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const st
 {
     std::filesystem::path jsonFile = jsonForTja(tjaFile);
 
-    // If the .json already exists and is newer than the .tja, skip conversion.
+    // If the .tjap already exists and is newer than the .tja, skip conversion.
     // Uses the error_code overloads throughout: this runs on worker threads, and
     // the extension is built with exceptions disabled.
     std::error_code ec;
@@ -76,7 +76,7 @@ bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const st
         }
     }
 
-    // Run TJAParser to convert .tja -> .json, without showing a window.
+    // Run TJAParser to convert .tja -> .tjap, without showing a window.
 #ifdef _WIN32
     std::string exePath = parserExe.string();
     std::string inPath = tjaFile.string();
