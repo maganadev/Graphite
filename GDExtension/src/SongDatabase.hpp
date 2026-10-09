@@ -7,6 +7,13 @@
 #include <string>
 #include <vector>
 
+struct CourseEntry
+{
+    std::string name;
+    uint8_t level;
+    int courseId;
+};
+
 struct SongEntry
 {
     std::string title;
@@ -15,6 +22,7 @@ struct SongEntry
     int folderIndex;
     uint8_t minLevel;
     uint16_t availableLevels;
+    std::vector<CourseEntry> courses;
     std::string chartPath;
 };
 
@@ -88,10 +96,10 @@ private:
     // Safe to call from multiple threads at once.
     static bool runTjaParser(const std::filesystem::path& parserExe, const std::filesystem::path& tjaFile);
 
-    // Read a chart's title, artist and level mask from its .json in one pass.
+    // Read a chart's title, artist, level mask and course data from its .json in one pass.
     // TJAParser emits the compact single-letter keys (see JsonKeys.hpp).
     // Returns false if the document is unreadable or has no title.
-    static bool readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels);
+    static bool readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses);
 };
 
 #endif

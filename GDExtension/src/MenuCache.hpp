@@ -6,6 +6,13 @@
 #include <string>
 #include <vector>
 
+struct CachedCourse
+{
+    uint32_t nameIndex;
+    uint8_t level;
+    uint16_t courseId;
+};
+
 struct CachedFolder
 {
     uint32_t nameIndex;
@@ -22,6 +29,8 @@ struct CachedSong
     uint8_t minLevel;
     uint16_t availableLevels;
     uint32_t chartPathIndex;
+    uint16_t courseCount;
+    uint32_t courseStart;
 };
 
 struct CachedData
@@ -29,13 +38,14 @@ struct CachedData
     std::vector<std::string> stringTable;
     std::vector<CachedFolder> folders;
     std::vector<CachedSong> songs;
+    std::vector<CachedCourse> courses;
 };
 
 class MenuCache
 {
 public:
     static constexpr uint32_t MAGIC = 0x4D454E55;
-    static constexpr uint32_t VERSION = 1;
+    static constexpr uint32_t VERSION = 2;
 
     // Check if a valid cache exists by comparing fingerprints.
     // If fpValid is true the songs dir has not changed.

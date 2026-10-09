@@ -25,6 +25,25 @@
 
 using json = nlohmann::json;
 
+static std::string courseIdToName(int id)
+{
+    switch (id)
+    {
+    case 0:
+        return "Easy";
+    case 1:
+        return "Normal";
+    case 2:
+        return "Hard";
+    case 3:
+        return "Oni";
+    case 4:
+        return "Ura Oni";
+    default:
+        return "Course " + std::to_string(id);
+    }
+}
+
 static std::string trim(const std::string& s)
 {
     size_t start = 0;
@@ -109,7 +128,7 @@ bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const st
     return std::filesystem::exists(jsonFile, ec);
 }
 
-bool SongDatabase::readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels)
+bool SongDatabase::readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses)
 {
     std::ifstream file(jsonFile);
     if (!file.is_open())
@@ -133,14 +152,21 @@ bool SongDatabase::readChartMetadata(const std::filesystem::path& jsonFile, std:
     outArtist = subtitle;
 
     outLevels = 0;
+    outCourses.clear();
     if (j.contains(JC_COURSES) && j[JC_COURSES].is_array())
     {
         for (const auto& c : j[JC_COURSES])
         {
+            int courseId = c.value(JC_COURSE, 0);
             int level = c.value(JC_LEVEL, 0);
             if (level >= 1 && level <= 10)
             {
                 outLevels |= static_cast<uint16_t>(1 << (level - 1));
+                CourseEntry entry;
+                entry.name = courseIdToName(courseId);
+                entry.level = static_cast<uint8_t>(level);
+                entry.courseId = courseId;
+                outCourses.push_back(entry);
             }
         }
     }
@@ -176,6 +202,16 @@ bool SongDatabase::loadOrBuild(const std::filesystem::path& songsDirectory)
                 songs[i].minLevel = cached.songs[i].minLevel;
                 songs[i].availableLevels = cached.songs[i].availableLevels;
                 songs[i].chartPath = cached.stringTable[cached.songs[i].chartPathIndex];
+                songs[i].courses.reserve(cached.songs[i].courseCount);
+                for (uint16_t ci = 0; ci < cached.songs[i].courseCount; ci++)
+                {
+                    uint32_t idx = cached.songs[i].courseStart + ci;
+                    CourseEntry ce;
+                    ce.name = cached.stringTable[cached.courses[idx].nameIndex];
+                    ce.level = cached.courses[idx].level;
+                    ce.courseId = cached.courses[idx].courseId;
+                    songs[i].courses.push_back(ce);
+                }
             }
 
             for (size_t si = 0; si < songs.size(); si++)
@@ -261,6 +297,7 @@ void SongDatabase::rebuild()
     }
 
     cached.songs.reserve(songs.size());
+    uint32_t courseWriteIndex = 0;
     for (const SongEntry& s : songs)
     {
         CachedSong cs;
@@ -270,7 +307,19 @@ void SongDatabase::rebuild()
         cs.minLevel = s.minLevel;
         cs.availableLevels = s.availableLevels;
         cs.chartPathIndex = getOrAddString(s.chartPath);
+        cs.courseCount = static_cast<uint16_t>(s.courses.size());
+        cs.courseStart = courseWriteIndex;
         cached.songs.push_back(cs);
+
+        for (const CourseEntry& ce : s.courses)
+        {
+            CachedCourse cc;
+            cc.nameIndex = getOrAddString(ce.name);
+            cc.level = ce.level;
+            cc.courseId = static_cast<uint16_t>(ce.courseId);
+            cached.courses.push_back(cc);
+        }
+        courseWriteIndex += static_cast<uint32_t>(s.courses.size());
     }
 
     MenuCache::save(cachePath, fingerprint, cached);
@@ -348,7 +397,8 @@ void SongDatabase::addChartFromJson(const PendingChart& chart)
     std::string title;
     std::string artist;
     uint16_t levels = 0;
-    if (!readChartMetadata(jsonFile, title, artist, levels))
+    std::vector<CourseEntry> courses;
+    if (!readChartMetadata(jsonFile, title, artist, levels, courses))
     {
         return;
     }
@@ -374,6 +424,7 @@ void SongDatabase::addChartFromJson(const PendingChart& chart)
     song.folderIndex = chart.folderIndex;
     song.minLevel = minLevel;
     song.availableLevels = levels;
+    song.courses = std::move(courses);
     song.chartPath = jsonFile.string();
 
     int songIndex = static_cast<int>(songs.size());

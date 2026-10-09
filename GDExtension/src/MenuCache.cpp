@@ -191,6 +191,17 @@ bool MenuCache::load(const std::filesystem::path& cachePath, std::vector<uint8_t
         outData.songs[i].minLevel = readU8(file);
         outData.songs[i].availableLevels = readU16(file);
         outData.songs[i].chartPathIndex = readU32(file);
+        outData.songs[i].courseCount = readU16(file);
+        outData.songs[i].courseStart = readU32(file);
+    }
+
+    uint32_t courseCount = readU32(file);
+    outData.courses.resize(courseCount);
+    for (uint32_t i = 0; i < courseCount; i++)
+    {
+        outData.courses[i].nameIndex = readU32(file);
+        outData.courses[i].level = readU8(file);
+        outData.courses[i].courseId = readU16(file);
     }
 
     return true;
@@ -273,6 +284,16 @@ void MenuCache::save(const std::filesystem::path& cachePath, const std::vector<u
         writeU8(file, s.minLevel);
         writeU16(file, s.availableLevels);
         writeU32(file, s.chartPathIndex);
+        writeU16(file, s.courseCount);
+        writeU32(file, s.courseStart);
+    }
+
+    writeU32(file, static_cast<uint32_t>(data.courses.size()));
+    for (const CachedCourse& c : data.courses)
+    {
+        writeU32(file, c.nameIndex);
+        writeU8(file, c.level);
+        writeU16(file, c.courseId);
     }
 
     file.close();

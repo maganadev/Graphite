@@ -58,6 +58,8 @@ public:
 
     SongDatabase* database = nullptr;
 
+    int32_t pendingSongIndex = -1;
+
     void build(SongDatabase* db);
 
     int32_t addNode(MenuNode node);
@@ -79,6 +81,7 @@ public:
     void onEnter();
 
     std::function<void(int32_t)> onPlaySong;
+    std::function<void(int32_t, int32_t)> onPlaySongWithDifficulty;
     std::function<void()> onExit;
     std::function<void(int32_t)> onAction;
 
@@ -90,6 +93,7 @@ private:
     int32_t createLevelMenu(int32_t parentId, const std::vector<int>& songSubset);
     int32_t createGroupMenu(int32_t parentId, const std::vector<int>& songSubset, const std::vector<std::string>& groups, const std::string& groupType);
     int32_t createSongList(int32_t parentId, const std::vector<int>& songSubset, const std::string& filterLabel);
+    int32_t createDifficultySelectForSong(int32_t parentId, int songIndex);
 };
 
 #endif

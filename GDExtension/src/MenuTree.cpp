@@ -12,6 +12,7 @@ void MenuTree::build(SongDatabase* db)
     currentNodeId = -1;
     currentItemIndex = 0;
     scrollOffset = 0;
+    pendingSongIndex = -1;
 
     int32_t mainId = createMainMenu();
     navigateTo(mainId, 0);
@@ -219,10 +220,37 @@ int32_t MenuTree::createSongList(int32_t parentId, const std::vector<int>& songS
     {
         if (idx >= 0 && idx < static_cast<int>(database->songs.size()))
         {
+            int32_t diffNodeId = createDifficultySelectForSong(-1, idx);
             MenuItem item;
             item.label = database->songs[idx].title;
-            item.type = MIT_Action;
+            item.type = MIT_Submenu;
+            item.targetNodeId = diffNodeId;
             item.actionData = idx;
+            node.items.push_back(item);
+        }
+    }
+
+    MenuItem back;
+    back.label = "Back";
+    back.type = MIT_Back;
+    node.items.push_back(back);
+
+    return addNode(node);
+}
+
+int32_t MenuTree::createDifficultySelectForSong(int32_t parentId, int songIndex)
+{
+    MenuNode node;
+    node.parentNodeId = parentId;
+
+    if (songIndex >= 0 && songIndex < static_cast<int>(database->songs.size()))
+    {
+        for (const CourseEntry& ce : database->songs[songIndex].courses)
+        {
+            MenuItem item;
+            item.label = std::to_string(ce.level) + "* " + ce.name;
+            item.type = MIT_Action;
+            item.actionData = ce.courseId;
             node.items.push_back(item);
         }
     }
@@ -263,6 +291,7 @@ void MenuTree::navigateBack()
     {
         return;
     }
+    pendingSongIndex = -1;
     NavPosition prev = navStack.back();
     navStack.pop_back();
     navigateTo(prev.nodeId, prev.itemIndex);
@@ -359,11 +388,16 @@ void MenuTree::onEnter()
 
     if (item->type == MIT_Submenu)
     {
+        if (item->actionData >= 0)
+        {
+            pendingSongIndex = item->actionData;
+        }
         navStack.push_back(pos);
         navigateTo(item->targetNodeId, 0);
     }
     else if (item->type == MIT_Back)
     {
+        pendingSongIndex = -1;
         navigateBack();
     }
     else if (item->type == MIT_Action)
@@ -382,9 +416,21 @@ void MenuTree::onEnter()
                 onAction(item->actionData);
             }
         }
-        else if (item->actionData >= 0 && onPlaySong)
+        else if (item->actionData >= 0)
         {
-            onPlaySong(item->actionData);
+            if (pendingSongIndex >= 0)
+            {
+                int32_t songIdx = pendingSongIndex;
+                pendingSongIndex = -1;
+                if (onPlaySongWithDifficulty)
+                {
+                    onPlaySongWithDifficulty(songIdx, item->actionData);
+                }
+            }
+            else if (onPlaySong)
+            {
+                onPlaySong(item->actionData);
+            }
         }
     }
 }

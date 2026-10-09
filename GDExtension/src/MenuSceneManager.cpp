@@ -94,6 +94,18 @@ void MenuSceneManager::buildMenuTree()
         }
     };
 
+    tree.onPlaySongWithDifficulty = [this](int32_t songIndex, int32_t difficulty) -> void
+    {
+        if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
+        {
+            saveMenuState();
+            GraphiteGlobals::difficulty = difficulty;
+            GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
+            UtilityFunctions::print("Playing: ", this->database.songs[songIndex].title.c_str(), " (difficulty ", std::to_string(difficulty).c_str(), ")");
+            get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
+        }
+    };
+
     tree.onExit = [this]() -> void { UtilityFunctions::print("Exit requested"); };
 
     tree.onAction = [this](int32_t actionData) -> void
