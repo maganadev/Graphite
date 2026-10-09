@@ -11,12 +11,25 @@ GreenNote::~GreenNote()
 {
 }
 
-void GreenNote::updatePosition(int64_t songPositionPicoseconds, int64_t visualOffsetPicoseconds)
+void GreenNote::updatePosition(int64_t correctedSongPositionPs)
 {
     if (prefab)
     {
-        int64_t timeDelta = (startTimePicoseconds - songPositionPicoseconds) + visualOffsetPicoseconds;
-        double x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
+        double x;
+        if (correctedSongPositionPs < startTimePicoseconds)
+        {
+            int64_t timeDelta = startTimePicoseconds - correctedSongPositionPs;
+            x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
+        }
+        else if (correctedSongPositionPs <= endTimePicoseconds)
+        {
+            x = HITZONE_CENTER_X;
+        }
+        else
+        {
+            int64_t timeDelta = startTimePicoseconds - endTimePicoseconds;
+            x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
+        }
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
 }

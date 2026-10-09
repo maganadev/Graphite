@@ -464,46 +464,47 @@ bool GameplaySceneManager::handleKeyPresses()
 void GameplaySceneManager::updateNotePositions(const ProcessContext& ctx, const Chart* chart)
 {
     const Course* course = &chart->courses[chart->activeCourseIndex];
+    int64_t correctedPositionPs = ctx.trackPositionPs - effectiveVisualOffset;
 
     for (RedNote* note : course->redNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BlueNote* note : course->blueNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (YellowNote* note : course->yellowNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (GreenNote* note : course->greenNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (GhostNote* note : course->ghostNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BigRedNote* note : course->bigRedNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BigBlueNote* note : course->bigBlueNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BigYellowNote* note : course->bigYellowNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BigGreenNote* note : course->bigGreenNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
     for (BigGhostNote* note : course->bigGhostNotes)
     {
-        note->updatePosition(ctx.trackPositionPs, effectiveVisualOffset);
+        note->updatePosition(correctedPositionPs);
     }
 }
 
