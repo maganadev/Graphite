@@ -41,7 +41,7 @@ void ResultsScreenSceneManager::_ready()
 
     int chouCount = 0, ryouCount = 0, kaCount = 0, fukaCount = 0;
 
-    constexpr int BAR_COUNT = 45;
+    constexpr int BAR_COUNT = 25;
     const int64_t WINDOW_PS = chartGuard.objRef->hitWindowFuka;
     std::vector<int> histogram(BAR_COUNT, 0);
 
@@ -140,7 +140,7 @@ void ResultsScreenSceneManager::_ready()
         if (c > maxCount)
             maxCount = c;
 
-    constexpr double MAX_HEIGHT = 400.0;
+    constexpr double MAX_HEIGHT = 420.0;
 
     Node2D* colorbars = get_node<Node2D>(NodePath(String("..") + "/Colorbars"));
     if (!colorbars)
@@ -151,7 +151,7 @@ void ResultsScreenSceneManager::_ready()
 
     for (int i = 0; i < BAR_COUNT; i++)
     {
-        String barName = String("ColorRect") + String::num_int64(i);
+        String barName = String("Bar") + String::num_int64(i);
         ColorRect* bar = colorbars->get_node<ColorRect>(NodePath(barName));
         if (!bar)
             continue;
