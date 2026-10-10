@@ -224,19 +224,45 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         return false;
     }
 
-    if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
-    {
-        guard.objRef->hitWindowAboutToBeOutOfRange *= 4;
-        guard.objRef->hitWindowFuka *= 4;
-        guard.objRef->hitWindowKa *= 4;
-        guard.objRef->hitWindowRyou *= 4;
-        guard.objRef->hitWindowChou *= 4;
-    }
-
     Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
 
-    std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
+    // Increase hit windows if calibration mods are enabled
+    if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
+    {
+        guard.objRef->hitWindowAboutToBeOutOfRange *= 2;
+        guard.objRef->hitWindowFuka *= 2;
+        guard.objRef->hitWindowKa *= 2;
+        guard.objRef->hitWindowRyou *= 2;
+        guard.objRef->hitWindowChou *= 2;
+    }
 
+    // Make scrolling notes slower if audio offset calibration mod is enabled
+    if (GraphiteGlobals::modAudioOffsetCalibration)
+    {
+        auto slowScroll = [](auto* note) { note->scrollBPM /= 8.0; };
+        for (auto* note : courseInChart->redNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->blueNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->yellowNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->greenNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->ghostNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->bigRedNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->bigBlueNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->bigYellowNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->bigGreenNotes)
+            slowScroll(note);
+        for (auto* note : courseInChart->bigGhostNotes)
+            slowScroll(note);
+    }
+
+    std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
     for (RedNote* note : courseInChart->redNotes)
     {
         Node* instance = redNoteScene->instantiate();
