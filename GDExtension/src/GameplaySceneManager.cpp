@@ -374,7 +374,7 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         }
     }
 
-    std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first < b.first; });
+    std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first > b.first; });
 
     for (auto& entry : sortedPrefabs)
     {
