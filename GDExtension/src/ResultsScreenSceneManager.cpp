@@ -77,6 +77,10 @@ void ResultsScreenSceneManager::_ready()
         countNote(note);
     for (auto* note : course->blueNotes)
         countNote(note);
+    for (auto* note : course->bigRedNotes)
+        countNote(note);
+    for (auto* note : course->bigBlueNotes)
+        countNote(note);
 
     // Calculate average off-time for calibration mods
     int64_t totalOff = 0;
@@ -94,6 +98,10 @@ void ResultsScreenSceneManager::_ready()
     for (auto* note : course->redNotes)
         sumOff(note);
     for (auto* note : course->blueNotes)
+        sumOff(note);
+    for (auto* note : course->bigRedNotes)
+        sumOff(note);
+    for (auto* note : course->bigBlueNotes)
         sumOff(note);
 
     if (judgedCount > 0)
