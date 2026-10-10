@@ -87,6 +87,8 @@ void MenuSceneManager::buildMenuTree()
     {
         if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
         {
+            GraphiteGlobals::modVisualOffsetCalibration = false;
+            GraphiteGlobals::modAudioOffsetCalibration = false;
             saveMenuState();
             GraphiteGlobals::currentSongFileName = this->database.songs[songIndex].chartPath;
             UtilityFunctions::print("Playing: ", this->database.songs[songIndex].title.c_str());
@@ -98,6 +100,8 @@ void MenuSceneManager::buildMenuTree()
     {
         if (songIndex >= 0 && songIndex < static_cast<int32_t>(this->database.songs.size()))
         {
+            GraphiteGlobals::modVisualOffsetCalibration = false;
+            GraphiteGlobals::modAudioOffsetCalibration = false;
             this->tree.navigateBack();
             saveMenuState();
             GraphiteGlobals::difficulty = difficulty;
