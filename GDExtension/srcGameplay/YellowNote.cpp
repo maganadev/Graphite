@@ -18,6 +18,9 @@ void YellowNote::updatePosition(int64_t correctedSongPositionPs)
         int64_t timeDelta = startTimePicoseconds - correctedSongPositionPs;
         double x = HITZONE_CENTER_X + static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM;
         prefab->set_position(godot::Vector2(x, LANE_Y));
+
+        double tailX = static_cast<double>(endTimePicoseconds - startTimePicoseconds) * SCROLL_SPEED_FACTOR * scrollBPM;
+        prefab->elongateTo(tailX);
     }
 }
 
