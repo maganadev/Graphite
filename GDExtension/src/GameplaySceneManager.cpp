@@ -113,7 +113,7 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
 void GameplaySceneManager::calculateOffsets(const ReadyContext& ctx)
 {
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
-    int64_t unfilteredAudioOffset = ctx.chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
+    int64_t unfilteredAudioOffset = (GraphiteGlobals::playbackRate != 1.0) ? static_cast<int64_t>(ctx.chart.defaultOffsetPicoseconds / GraphiteGlobals::playbackRate) + GraphiteGlobals::audioOffset : ctx.chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
     int64_t unfilteredJudgementOffset = 0;
 
     // If calibration mods are enabled, override the offsets
@@ -397,7 +397,7 @@ bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
     {
         audioFilePath = std::filesystem::path(ctx.songFileName).parent_path() / ctx.wavePath;
     }
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, audioTrackHandle))
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, audioTrackHandle, GraphiteGlobals::playbackRate))
     {
         UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
         return false;

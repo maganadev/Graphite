@@ -1,4 +1,5 @@
 #include "HittableNote.hpp"
+#include "../src/GraphiteGlobals.hpp"
 #include "Fraction.hpp"
 #include "JsonKeys.hpp"
 
@@ -22,7 +23,10 @@ int64_t HittableNote::parseStartTimePicoseconds(const nlohmann::json& j)
         ps.assignFromUInt64(1000000000000ULL);
         f.multiply(ps);
         bool intOk;
-        return f.toInt(intOk);
+        int64_t result = f.toInt(intOk);
+        if (GraphiteGlobals::playbackRate != 1.0)
+            return static_cast<int64_t>(result / GraphiteGlobals::playbackRate);
+        return result;
     }
     return 0;
 }
@@ -36,7 +40,10 @@ double HittableNote::parseScrollBPM(const nlohmann::json& j)
     if (ok)
     {
         bool dblOk;
-        return bpmFrac.toDouble(dblOk);
+        double result = bpmFrac.toDouble(dblOk);
+        if (GraphiteGlobals::playbackRate != 1.0)
+            return result * GraphiteGlobals::playbackRate;
+        return result;
     }
     return 240.0;
 }
@@ -57,7 +64,10 @@ int64_t HittableNote::parseStopTimePicoseconds(const nlohmann::json& j)
         ps.assignFromUInt64(1000000000000ULL);
         ef.multiply(ps);
         bool intOk;
-        return ef.toInt(intOk);
+        int64_t result = ef.toInt(intOk);
+        if (GraphiteGlobals::playbackRate != 1.0)
+            return static_cast<int64_t>(result / GraphiteGlobals::playbackRate);
+        return result;
     }
     return 0;
 }

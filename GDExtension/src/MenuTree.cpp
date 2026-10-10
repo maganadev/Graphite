@@ -1,4 +1,5 @@
 #include "MenuTree.hpp"
+#include "GraphiteGlobals.hpp"
 #include "SongDatabase.hpp"
 #include <cstdint>
 #include <string>
@@ -67,6 +68,44 @@ int32_t MenuTree::createSettingsMenu()
     audio.type = MIT_Action;
     audio.actionData = ACT_AudioCalibration;
     node.items.push_back(audio);
+
+    {
+        int32_t speedNodeId = createPlaybackSpeedMenu();
+        MenuItem speed;
+        speed.label = "Playback Speed";
+        speed.type = MIT_Submenu;
+        speed.targetNodeId = speedNodeId;
+        node.items.push_back(speed);
+    }
+
+    MenuItem back;
+    back.label = "Back";
+    back.type = MIT_Back;
+    node.items.push_back(back);
+
+    return addNode(node);
+}
+
+int32_t MenuTree::createPlaybackSpeedMenu()
+{
+    MenuNode node;
+    node.parentNodeId = -1;
+
+    auto addSpeed = [&](const std::string& label, double rate)
+    {
+        MenuItem item;
+        item.label = label;
+        item.type = MIT_Action;
+        item.actionData = ACT_PlaybackSpeed;
+        int32_t encodedRate = static_cast<int32_t>(rate * 100.0 + 0.5);
+        item.targetNodeId = encodedRate;
+        node.items.push_back(item);
+    };
+
+    addSpeed("0.5x (Slow)", 0.5);
+    addSpeed("0.75x (Medium)", 0.75);
+    addSpeed("1.0x (Normal)", 1.0);
+    addSpeed("1.5x (Fast)", 1.5);
 
     MenuItem back;
     back.label = "Back";
@@ -415,6 +454,11 @@ void MenuTree::onEnter()
             {
                 onAction(item->actionData);
             }
+        }
+        else if (item->actionData == ACT_PlaybackSpeed)
+        {
+            GraphiteGlobals::playbackRate = static_cast<double>(item->targetNodeId) / 100.0;
+            navigateBack();
         }
         else if (item->actionData >= 0)
         {
