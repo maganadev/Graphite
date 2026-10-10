@@ -14,6 +14,7 @@
 #include "Course.hpp"
 #include "GhostNote.hpp"
 #include "GhostNotePrefab.hpp"
+#include "GraphiteGlobals.hpp"
 #include "GreenNote.hpp"
 #include "GreenNotePrefab.hpp"
 #include "RedNote.hpp"
@@ -113,7 +114,15 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
 void GameplaySceneManager::calculateOffsets(const ReadyContext& ctx)
 {
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
-    int64_t unfilteredAudioOffset = (GraphiteGlobals::playbackRate != 1.0) ? static_cast<int64_t>(ctx.chart.defaultOffsetPicoseconds / GraphiteGlobals::playbackRate) + GraphiteGlobals::audioOffset : ctx.chart.defaultOffsetPicoseconds + GraphiteGlobals::audioOffset;
+    int64_t unfilteredAudioOffset = GraphiteGlobals::audioOffset;
+    if (GraphiteGlobals::playbackRate != 1.0)
+    {
+        unfilteredAudioOffset += static_cast<int64_t>(static_cast<double>(ctx.chart.defaultOffsetPicoseconds) / GraphiteGlobals::playbackRate);
+    }
+    else
+    {
+        unfilteredAudioOffset += ctx.chart.defaultOffsetPicoseconds;
+    }
     int64_t unfilteredJudgementOffset = 0;
 
     // If calibration mods are enabled, override the offsets
@@ -129,13 +138,6 @@ void GameplaySceneManager::calculateOffsets(const ReadyContext& ctx)
     effectiveAudioOffset = unfilteredAudioOffset - unfilteredAudioOffset;
     effectiveJudgementOffset = unfilteredJudgementOffset - unfilteredAudioOffset;
     JudgementThread::judgementOffset.store(effectiveJudgementOffset, std::memory_order_release);
-
-    UtilityFunctions::print("Input Visual Offset: ", std::to_string(unfilteredVisualOffset).c_str(), " ps");
-    UtilityFunctions::print("Input Audio Offset: ", std::to_string(unfilteredAudioOffset).c_str(), " ps");
-    UtilityFunctions::print("Input Judgement Offset: ", std::to_string(unfilteredJudgementOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Visual Offset: ", std::to_string(effectiveVisualOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Audio Offset: ", std::to_string(effectiveAudioOffset).c_str(), " ps");
-    UtilityFunctions::print("Output Judgement Offset: ", std::to_string(effectiveJudgementOffset).c_str(), " ps");
 }
 
 bool GameplaySceneManager::loadNoteScenes()
@@ -397,15 +399,21 @@ bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
     {
         audioFilePath = std::filesystem::path(ctx.songFileName).parent_path() / ctx.wavePath;
     }
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, audioTrackHandle, GraphiteGlobals::playbackRate))
+
+    // Free any old existing song
+    GraphiteGlobals::audioEngine.value().freeAudioTrack(GraphiteGlobals::audioTrackHandle);
+    GraphiteGlobals::audioEngine.value().flushDeletedAudio();
+
+    // Load new song
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, GraphiteGlobals::audioTrackHandle, GraphiteGlobals::playbackRate))
     {
         UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
         return false;
     }
 
     // Play the audio track
-    GraphiteGlobals::audioEngine.value().playAudioTrack(audioTrackHandle);
-    GraphiteGlobals::audioEngine.value().setTimedAudioTrack(audioTrackHandle);
+    GraphiteGlobals::audioEngine.value().playAudioTrack(GraphiteGlobals::audioTrackHandle);
+    GraphiteGlobals::audioEngine.value().setTimedAudioTrack(GraphiteGlobals::audioTrackHandle);
 
     return true;
 }

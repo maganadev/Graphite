@@ -15,6 +15,8 @@ class GraphiteGlobals
 public:
     static std::optional<RhythmAudio::RhythmAudioEngine> audioEngine;
     static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
+
+public:
     static uint64_t blueRyouHitsoundHandle;
     static uint64_t blueKaHitsoundHandle;
     static uint64_t blueFukaHitsoundHandle;
@@ -26,17 +28,30 @@ public:
     static uint64_t redChouHitsoundHandle;
     static uint64_t redAdLibHitsoundHandle;
     static uint64_t greenNoteCompleteHitsoundHandle;
+
+public:
     static LFProtectObj<Chart> currentChart;
+
+public:
+    // Audio track handle for the currently playing song
+    static uint64_t audioTrackHandle;
+
+public:
     static int64_t audioOffset;
     static int64_t visualOffset;
-    static double playbackRate;
+
+public:
+    // Loading into gameplay state
     static int32_t difficulty;
     static std::string currentSongFileName;
 
+public:
     // Mods
+    static double playbackRate;
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
 
+public:
     // Menu navigation state (preserved across scene transitions)
     static int32_t menuCurrentNodeId;
     static int32_t menuCurrentItemIndex;

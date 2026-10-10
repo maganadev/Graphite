@@ -96,7 +96,6 @@ private:
     Ref<PackedScene> bigYellowNoteScene;
     Ref<PackedScene> bigGreenNoteScene;
     Ref<PackedScene> bigGhostNoteScene;
-    uint64_t audioTrackHandle{0};
     int64_t effectiveVisualOffset{0};
     int64_t effectiveAudioOffset{0};
     int64_t effectiveJudgementOffset{0};
