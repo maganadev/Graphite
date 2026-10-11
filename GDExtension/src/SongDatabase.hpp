@@ -48,8 +48,8 @@ public:
     std::vector<SongEntry> songs;
     std::filesystem::path songsPath;
 
-    // Path to the TJAtoTJAP executable, relative to the working directory.
-    std::filesystem::path tjaParserPath{"TJAtoTJAP/TJAtoTJAP.exe"};
+    // Path to the TJAtoTJAU executable, relative to the working directory.
+    std::filesystem::path tjaToTjauPath{"TJAtoTJAU/TJAtoTJAU.exe"};
 
     // Load from cache if valid, otherwise scan from scratch.
     // Returns true on success.
@@ -86,20 +86,19 @@ private:
     // Phase 1: record every .tja chart under a folder, in scan order.
     void collectCharts(const std::filesystem::path& dir, int folderIndex, std::vector<PendingChart>& charts);
 
-    // Phase 2: convert every collected chart to .json, using all available cores.
+    // Phase 2: pre-process every collected chart into a UTF-8 .tjau file, using all available cores.
     void convertCharts(const std::vector<PendingChart>& charts);
 
-    // Phase 3: read a chart's .json metadata and add it to the database.
-    void addChartFromJson(const PendingChart& chart);
+    // Phase 3: read a chart's .tjau metadata and add it to the database.
+    void addChartFromTjau(const PendingChart& chart);
 
-    // Invoke TJAParser on a single chart, unless a newer .json already exists.
+    // Invoke TJAtoTJAU on a single chart, unless a newer .tjau already exists.
     // Safe to call from multiple threads at once.
-    static bool runTjaParser(const std::filesystem::path& parserExe, const std::filesystem::path& tjaFile);
+    static bool runTjauConverter(const std::filesystem::path& converterExe, const std::filesystem::path& tjaFile);
 
-    // Read a chart's title, artist, level mask and course data from its .json in one pass.
-    // TJAParser emits the compact single-letter keys (see JsonKeys.hpp).
+    // Read a chart's title, artist, level mask and course data from its .tjau in one pass.
     // Returns false if the document is unreadable or has no title.
-    static bool readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses);
+    static bool readTjauMetadata(const std::filesystem::path& tjauFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses);
 };
 
 #endif

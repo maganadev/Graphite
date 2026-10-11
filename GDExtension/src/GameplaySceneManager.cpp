@@ -20,6 +20,7 @@
 #include "RedNote.hpp"
 #include "RedNotePrefab.hpp"
 #include "TimingOSSingletons.hpp"
+#include "TjauParser.hpp"
 #include "YellowNote.hpp"
 #include "YellowNotePrefab.hpp"
 #include <algorithm>
@@ -82,16 +83,13 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
 {
     ctx.songFileName = GraphiteGlobals::currentSongFileName;
 
-    // Open the song
-    std::ifstream ifs(ctx.songFileName);
-    if (!ifs.is_open())
+    // Parse the clean UTF-8 .tjau chart directly with the in-engine loader.
+    std::string parseError;
+    if (!parseTjauFile(ctx.songFileName, ctx.chart, parseError))
     {
-        UtilityFunctions::print("Failed to open song file: ", ctx.songFileName.c_str());
+        UtilityFunctions::print("Failed to parse chart file: ", ctx.songFileName.c_str(), " | ", parseError.c_str());
         return false;
     }
-    json songJson = json::parse(ifs);
-
-    ctx.chart = Chart::FromJson(songJson);
 
     int32_t courseIndex = -1;
     for (int32_t i = 0; i < static_cast<int32_t>(ctx.chart.courses.size()); ++i)

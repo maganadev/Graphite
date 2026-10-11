@@ -45,7 +45,7 @@ class MenuCache
 {
 public:
     static constexpr uint32_t MAGIC = 0x4D454E55;
-    static constexpr uint32_t VERSION = 2;
+    static constexpr uint32_t VERSION = 3;
 
     // Check if a valid cache exists by comparing fingerprints.
     // If fpValid is true the songs dir has not changed.

@@ -1,6 +1,5 @@
 #include "SongDatabase.hpp"
-#include "../srcGameplay/JsonKeys.hpp"
-#include "../srcThirdParty/json.hpp"
+#include "../srcGameplay/TjauParser.hpp"
 #include "MenuCache.hpp"
 #include <algorithm>
 #include <atomic>
@@ -22,8 +21,6 @@
 #endif
 #include <Windows.h>
 #endif
-
-using json = nlohmann::json;
 
 static std::string courseIdToName(int id)
 {
@@ -70,36 +67,36 @@ static std::string lowercaseAscii(const std::string& s)
     return r;
 }
 
-static std::filesystem::path jsonForTja(const std::filesystem::path& tjaFile)
+static std::filesystem::path tjauForTja(const std::filesystem::path& tjaFile)
 {
     std::filesystem::path dir = tjaFile.parent_path();
-    std::string filename = tjaFile.stem().string() + ".tjap";
+    std::string filename = tjaFile.stem().string() + ".tjau";
     return dir / filename;
 }
 
-bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const std::filesystem::path& tjaFile)
+bool SongDatabase::runTjauConverter(const std::filesystem::path& converterExe, const std::filesystem::path& tjaFile)
 {
-    std::filesystem::path jsonFile = jsonForTja(tjaFile);
+    std::filesystem::path tjauFile = tjauForTja(tjaFile);
 
-    // If the .tjap already exists and is newer than the .tja, skip conversion.
+    // If the .tjau already exists and is newer than the .tja, skip conversion.
     // Uses the error_code overloads throughout: this runs on worker threads, and
     // the extension is built with exceptions disabled.
     std::error_code ec;
-    auto jsonTime = std::filesystem::last_write_time(jsonFile, ec);
+    auto tjauTime = std::filesystem::last_write_time(tjauFile, ec);
     if (!ec)
     {
         auto tjaTime = std::filesystem::last_write_time(tjaFile, ec);
-        if (!ec && jsonTime >= tjaTime)
+        if (!ec && tjauTime >= tjaTime)
         {
             return true;
         }
     }
 
-    // Run TJAParser to convert .tja -> .tjap, without showing a window.
+    // Run TJAtoTJAU to re-encode .tja -> UTF-8 .tjau, without showing a window.
 #ifdef _WIN32
-    std::string exePath = parserExe.string();
+    std::string exePath = converterExe.string();
     std::string inPath = tjaFile.string();
-    std::string outPath = jsonFile.string();
+    std::string outPath = tjauFile.string();
     std::string cmdLine = "\"" + exePath + "\" -i \"" + inPath + "\" -o \"" + outPath + "\"";
     std::vector<char> cmdBuf(cmdLine.begin(), cmdLine.end());
     cmdBuf.push_back('\0');
@@ -118,56 +115,44 @@ bool SongDatabase::runTjaParser(const std::filesystem::path& parserExe, const st
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
 #else
-    std::string cmdLine = "\"" + parserExe.string() + "\" -i \"" + tjaFile.string() + "\" -o \"" + jsonFile.string() + "\" > /dev/null 2>&1";
+    std::string cmdLine = "\"" + converterExe.string() + "\" -i \"" + tjaFile.string() + "\" -o \"" + tjauFile.string() + "\" > /dev/null 2>&1";
     if (std::system(cmdLine.c_str()) != 0)
     {
         return false;
     }
 #endif
 
-    return std::filesystem::exists(jsonFile, ec);
+    return std::filesystem::exists(tjauFile, ec);
 }
 
-bool SongDatabase::readChartMetadata(const std::filesystem::path& jsonFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses)
+bool SongDatabase::readTjauMetadata(const std::filesystem::path& tjauFile, std::string& outTitle, std::string& outArtist, uint16_t& outLevels, std::vector<CourseEntry>& outCourses)
 {
-    std::ifstream file(jsonFile);
-    if (!file.is_open())
+    TjauMetadata meta;
+    std::string error;
+    if (!readTjauMetadataFile(tjauFile.string(), meta, error))
     {
         return false;
     }
 
-    json j = json::parse(file);
-
-    outTitle = j.value(JC_TITLE, "");
-    if (outTitle.empty())
+    outTitle = meta.title;
+    outArtist = meta.subtitle;
+    if (outArtist.find("--") == 0)
     {
-        return false;
+        outArtist = outArtist.substr(2);
     }
-
-    std::string subtitle = j.value(JC_SUBTITLE, "");
-    if (subtitle.find("--") == 0)
-    {
-        subtitle = subtitle.substr(2);
-    }
-    outArtist = subtitle;
 
     outLevels = 0;
     outCourses.clear();
-    if (j.contains(JC_COURSES) && j[JC_COURSES].is_array())
+    for (const TjauMetadataCourse& c : meta.courses)
     {
-        for (const auto& c : j[JC_COURSES])
+        if (c.level >= 1 && c.level <= 10)
         {
-            int courseId = c.value(JC_COURSE, 0);
-            int level = c.value(JC_LEVEL, 0);
-            if (level >= 1 && level <= 10)
-            {
-                outLevels |= static_cast<uint16_t>(1 << (level - 1));
-                CourseEntry entry;
-                entry.name = courseIdToName(courseId);
-                entry.level = static_cast<uint8_t>(level);
-                entry.courseId = courseId;
-                outCourses.push_back(entry);
-            }
+            outLevels |= static_cast<uint16_t>(1 << (c.level - 1));
+            CourseEntry entry;
+            entry.name = courseIdToName(c.courseId);
+            entry.level = static_cast<uint8_t>(c.level);
+            entry.courseId = c.courseId;
+            outCourses.push_back(entry);
         }
     }
 
@@ -259,7 +244,7 @@ void SongDatabase::rebuild()
 
     for (size_t i = 0; i < charts.size(); i++)
     {
-        addChartFromJson(charts[i]);
+        addChartFromTjau(charts[i]);
     }
 
     if (songs.empty())
@@ -361,16 +346,16 @@ void SongDatabase::convertCharts(const std::vector<PendingChart>& charts)
     workerCount = std::min(workerCount, 32u);
     workerCount = std::min(static_cast<unsigned int>(charts.size()), workerCount);
 
-    const std::filesystem::path parserExe = tjaParserPath;
+    const std::filesystem::path converterExe = tjaToTjauPath;
     std::atomic<size_t> nextChart{0};
 
     // Each worker claims charts one at a time so that a slow chart doesn't strand a
     // whole fixed-size chunk.
-    auto work = [&charts, &parserExe, &nextChart]()
+    auto work = [&charts, &converterExe, &nextChart]()
     {
         for (size_t i = nextChart.fetch_add(1); i < charts.size(); i = nextChart.fetch_add(1))
         {
-            runTjaParser(parserExe, charts[i].tjaFile);
+            runTjauConverter(converterExe, charts[i].tjaFile);
         }
     };
 
@@ -386,10 +371,10 @@ void SongDatabase::convertCharts(const std::vector<PendingChart>& charts)
     }
 }
 
-void SongDatabase::addChartFromJson(const PendingChart& chart)
+void SongDatabase::addChartFromTjau(const PendingChart& chart)
 {
-    std::filesystem::path jsonFile = jsonForTja(chart.tjaFile);
-    if (!std::filesystem::exists(jsonFile))
+    std::filesystem::path tjauFile = tjauForTja(chart.tjaFile);
+    if (!std::filesystem::exists(tjauFile))
     {
         return;
     }
@@ -398,7 +383,7 @@ void SongDatabase::addChartFromJson(const PendingChart& chart)
     std::string artist;
     uint16_t levels = 0;
     std::vector<CourseEntry> courses;
-    if (!readChartMetadata(jsonFile, title, artist, levels, courses))
+    if (!readTjauMetadata(tjauFile, title, artist, levels, courses))
     {
         return;
     }
@@ -425,7 +410,7 @@ void SongDatabase::addChartFromJson(const PendingChart& chart)
     song.minLevel = minLevel;
     song.availableLevels = levels;
     song.courses = std::move(courses);
-    song.chartPath = jsonFile.string();
+    song.chartPath = tjauFile.string();
 
     int songIndex = static_cast<int>(songs.size());
     songs.push_back(song);
