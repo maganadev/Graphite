@@ -12,6 +12,7 @@
 #include "GreenNote.hpp"
 #include "RedNote.hpp"
 #include "YellowNote.hpp"
+#include "../src/GraphiteGlobals.hpp"
 
 #include <cctype>
 #include <cerrno>
@@ -325,6 +326,13 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
     int64_t stopPs = FractionToPicoseconds(stopTimeSec);
     double scrollBpm = FractionToDouble(bpm);
 
+    if (GraphiteGlobals::playbackRate != 1.0)
+    {
+        startPs = static_cast<int64_t>(static_cast<double>(startPs) / GraphiteGlobals::playbackRate);
+        stopPs = static_cast<int64_t>(static_cast<double>(stopPs) / GraphiteGlobals::playbackRate);
+        scrollBpm *= GraphiteGlobals::playbackRate;
+    }
+
     switch (type)
     {
     case '1':
@@ -438,6 +446,11 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
         Barline* barline = new Barline();
         barline->startTimePicoseconds = FractionToPicoseconds(st.time);
         barline->scrollBPM = measure.lastBpm;
+        if (GraphiteGlobals::playbackRate != 1.0)
+        {
+            barline->startTimePicoseconds = static_cast<int64_t>(static_cast<double>(barline->startTimePicoseconds) / GraphiteGlobals::playbackRate);
+            barline->scrollBPM *= GraphiteGlobals::playbackRate;
+        }
         course.barlineNotes.push_back(barline);
     }
 
