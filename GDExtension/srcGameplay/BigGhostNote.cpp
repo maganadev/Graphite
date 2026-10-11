@@ -37,12 +37,6 @@ bool BigGhostNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t pic
     return true;
 }
 
-void BigGhostNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-}
-
 int64_t BigGhostNote::getSpamHitsCount() const
 {
     std::terminate();

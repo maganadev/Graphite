@@ -37,12 +37,6 @@ bool Barline::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picoseco
     return true;
 }
 
-void Barline::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-}
-
 int64_t Barline::getSpamHitsCount() const
 {
     std::terminate();

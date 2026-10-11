@@ -77,14 +77,6 @@ bool BigGreenNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t pic
     return false;
 }
 
-void BigGreenNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-    endTimePicoseconds = parseStopTimePicoseconds(j);
-    remainingSpamHits = parseGreenNoteHits(j);
-}
-
 int64_t BigGreenNote::getSpamHitsCount() const
 {
     return remainingSpamHits.load(std::memory_order_acquire);

@@ -66,13 +66,6 @@ bool YellowNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picos
     return false;
 }
 
-void YellowNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-    endTimePicoseconds = parseStopTimePicoseconds(j);
-}
-
 int64_t YellowNote::getSpamHitsCount() const
 {
     return spamHits.load(std::memory_order_acquire);

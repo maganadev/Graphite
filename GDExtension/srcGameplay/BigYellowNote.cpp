@@ -66,13 +66,6 @@ bool BigYellowNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t pi
     return false;
 }
 
-void BigYellowNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-    endTimePicoseconds = parseStopTimePicoseconds(j);
-}
-
 int64_t BigYellowNote::getSpamHitsCount() const
 {
     return spamHits.load(std::memory_order_acquire);

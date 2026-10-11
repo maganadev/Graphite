@@ -96,12 +96,6 @@ bool BlueNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picosec
     return true;
 }
 
-void BlueNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-}
-
 int64_t BlueNote::getSpamHitsCount() const
 {
     std::terminate();

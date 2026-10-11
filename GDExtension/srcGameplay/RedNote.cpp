@@ -96,12 +96,6 @@ bool RedNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picoseco
     return true;
 }
 
-void RedNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-}
-
 int64_t RedNote::getSpamHitsCount() const
 {
     std::terminate();

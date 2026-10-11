@@ -96,12 +96,6 @@ bool BigRedNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t picos
     return true;
 }
 
-void BigRedNote::constructor2(const nlohmann::json& j)
-{
-    startTimePicoseconds = parseStartTimePicoseconds(j);
-    scrollBPM = parseScrollBPM(j);
-}
-
 int64_t BigRedNote::getSpamHitsCount() const
 {
     std::terminate();
