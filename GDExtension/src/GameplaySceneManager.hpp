@@ -44,6 +44,8 @@ public:
     Ref<PackedScene> get_green_note_scene() const;
     void set_ghost_note_scene(Ref<PackedScene> scene);
     Ref<PackedScene> get_ghost_note_scene() const;
+    void set_barline_scene(Ref<PackedScene> scene);
+    Ref<PackedScene> get_barline_scene() const;
 
     void set_big_red_note_scene(Ref<PackedScene> scene);
     Ref<PackedScene> get_big_red_note_scene() const;
@@ -91,6 +93,7 @@ private:
     Ref<PackedScene> yellowNoteScene;
     Ref<PackedScene> greenNoteScene;
     Ref<PackedScene> ghostNoteScene;
+    Ref<PackedScene> barlineScene;
     Ref<PackedScene> bigRedNoteScene;
     Ref<PackedScene> bigBlueNoteScene;
     Ref<PackedScene> bigYellowNoteScene;

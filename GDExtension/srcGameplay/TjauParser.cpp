@@ -1,5 +1,6 @@
 #include "TjauParser.hpp"
 
+#include "Barline.hpp"
 #include "BigBlueNote.hpp"
 #include "BigGhostNote.hpp"
 #include "BigGreenNote.hpp"
@@ -431,6 +432,14 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
     measure.lastScrollMultiplier = st.scroll;
     measure.lastBpm = FractionToDouble(st.bpm);
     course.measures.push_back(measure);
+
+    if (st.barlineVisible)
+    {
+        Barline* barline = new Barline();
+        barline->startTimePicoseconds = FractionToPicoseconds(st.time);
+        barline->scrollBPM = measure.lastBpm;
+        course.barlineNotes.push_back(barline);
+    }
 
     for (size_t i = 0; i < buffer.size(); i++)
     {

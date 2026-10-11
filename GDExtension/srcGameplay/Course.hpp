@@ -2,6 +2,7 @@
 #define Course_hpp
 
 #include "../srcThirdParty/json.hpp"
+#include "Barline.hpp"
 #include "BigBlueNote.hpp"
 #include "BigGhostNote.hpp"
 #include "BigGreenNote.hpp"
@@ -52,6 +53,8 @@ public:
     std::vector<BigYellowNote*> bigYellowNotes;
     std::vector<BigGreenNote*> bigGreenNotes;
     std::vector<BigGhostNote*> bigGhostNotes;
+
+    std::vector<Barline*> barlineNotes;
 
     std::vector<Measure> measures;
 

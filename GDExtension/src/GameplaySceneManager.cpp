@@ -1,4 +1,6 @@
 #include "GameplaySceneManager.hpp"
+#include "Barline.hpp"
+#include "BarlinePrefab.hpp"
 #include "BigBlueNote.hpp"
 #include "BigBlueNotePrefab.hpp"
 #include "BigGhostNote.hpp"
@@ -42,6 +44,8 @@ void GameplaySceneManager::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_green_note_scene"), &GameplaySceneManager::get_green_note_scene);
     ClassDB::bind_method(D_METHOD("set_ghost_note_scene", "scene"), &GameplaySceneManager::set_ghost_note_scene);
     ClassDB::bind_method(D_METHOD("get_ghost_note_scene"), &GameplaySceneManager::get_ghost_note_scene);
+    ClassDB::bind_method(D_METHOD("set_barline_scene", "scene"), &GameplaySceneManager::set_barline_scene);
+    ClassDB::bind_method(D_METHOD("get_barline_scene"), &GameplaySceneManager::get_barline_scene);
     ClassDB::bind_method(D_METHOD("set_big_red_note_scene", "scene"), &GameplaySceneManager::set_big_red_note_scene);
     ClassDB::bind_method(D_METHOD("get_big_red_note_scene"), &GameplaySceneManager::get_big_red_note_scene);
     ClassDB::bind_method(D_METHOD("set_big_blue_note_scene", "scene"), &GameplaySceneManager::set_big_blue_note_scene);
@@ -182,6 +186,13 @@ bool GameplaySceneManager::loadNoteScenes()
         return false;
     }
 
+    barlineScene = ResourceLoader::get_singleton()->load("res://Prefabs/Barline.tscn");
+    if (barlineScene.is_null())
+    {
+        UtilityFunctions::print("Failed to load Barline scene");
+        return false;
+    }
+
     bigRedNoteScene = ResourceLoader::get_singleton()->load("res://Prefabs/BigRedNote.tscn");
     if (bigRedNoteScene.is_null())
     {
@@ -257,6 +268,8 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
             slowScroll(note);
         for (auto* note : courseInChart->ghostNotes)
             slowScroll(note);
+        for (auto* note : courseInChart->barlineNotes)
+            slowScroll(note);
         for (auto* note : courseInChart->bigRedNotes)
             slowScroll(note);
         for (auto* note : courseInChart->bigBlueNotes)
@@ -318,6 +331,17 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
     {
         Node* instance = ghostNoteScene->instantiate();
         GhostNotePrefab* prefab = Object::cast_to<GhostNotePrefab>(instance);
+        if (prefab)
+        {
+            note->prefab = prefab;
+            prefab->set_z_index(3);
+            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+        }
+    }
+    for (Barline* note : courseInChart->barlineNotes)
+    {
+        Node* instance = barlineScene->instantiate();
+        BarlinePrefab* prefab = Object::cast_to<BarlinePrefab>(instance);
         if (prefab)
         {
             note->prefab = prefab;
@@ -390,7 +414,7 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
 
     courseInChart->populateLanes();
 
-    size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
+    size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->barlineNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
     UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
 
     ctx.wavePath = guard.objRef->wave;
@@ -522,6 +546,10 @@ void GameplaySceneManager::updateNotePositions(const ProcessContext& ctx, const 
         note->updatePosition(correctedPositionPs);
     }
     for (GhostNote* note : course->ghostNotes)
+    {
+        note->updatePosition(correctedPositionPs);
+    }
+    for (Barline* note : course->barlineNotes)
     {
         note->updatePosition(correctedPositionPs);
     }
@@ -919,6 +947,16 @@ void GameplaySceneManager::set_ghost_note_scene(Ref<PackedScene> scene)
 Ref<PackedScene> GameplaySceneManager::get_ghost_note_scene() const
 {
     return ghostNoteScene;
+}
+
+void GameplaySceneManager::set_barline_scene(Ref<PackedScene> scene)
+{
+    barlineScene = scene;
+}
+
+Ref<PackedScene> GameplaySceneManager::get_barline_scene() const
+{
+    return barlineScene;
 }
 
 void GameplaySceneManager::set_big_red_note_scene(Ref<PackedScene> scene)

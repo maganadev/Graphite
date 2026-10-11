@@ -1,5 +1,6 @@
 #include <Windows.h>
 #define DO_NOT_REORDER_ABOVE
+#include "BarlinePrefab.hpp"
 #include "BigBlueNotePrefab.hpp"
 #include "BigGhostNotePrefab.hpp"
 #include "BigGreenNotePrefab.hpp"
@@ -38,6 +39,7 @@ void initialize_module(ModuleInitializationLevel p_level)
     GDREGISTER_RUNTIME_CLASS(YellowNotePrefab);
     GDREGISTER_RUNTIME_CLASS(GreenNotePrefab);
     GDREGISTER_RUNTIME_CLASS(GhostNotePrefab);
+    GDREGISTER_RUNTIME_CLASS(BarlinePrefab);
     GDREGISTER_RUNTIME_CLASS(BigRedNotePrefab);
     GDREGISTER_RUNTIME_CLASS(BigBlueNotePrefab);
     GDREGISTER_RUNTIME_CLASS(BigYellowNotePrefab);
