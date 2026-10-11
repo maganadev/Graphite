@@ -440,10 +440,22 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
 static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Course& course)
 {
     int N = 0;
+    size_t firstNoteIndex = buffer.size();
     for (size_t i = 0; i < buffer.size(); i++)
     {
         if (!buffer[i].isCommand)
+        {
+            if (N == 0)
+                firstNoteIndex = i;
             N++;
+        }
+    }
+
+    for (size_t i = 0; i < firstNoteIndex; i++)
+    {
+        Token& t = buffer[i];
+        if (t.isCommand)
+            ApplyCommand(st, t.cmd, t.arg);
     }
 
     Measure measure;
@@ -466,7 +478,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
         course.barlineNotes.push_back(barline);
     }
 
-    for (size_t i = 0; i < buffer.size(); i++)
+    for (size_t i = firstNoteIndex; i < buffer.size(); i++)
     {
         Token& t = buffer[i];
         if (t.isCommand)
