@@ -20,6 +20,7 @@ public:
 public:
     int64_t startTimePicoseconds{0};
     double scrollBPM{240.0};
+    double scrollMultiplier{1.0};
     std::atomic<bool> finishedJudging{false};
     NoteGradings grading{NoteGradings::Ungraded};
 

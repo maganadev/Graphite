@@ -1,5 +1,6 @@
 #include "TjauParser.hpp"
 
+#include "../src/GraphiteGlobals.hpp"
 #include "Barline.hpp"
 #include "BigBlueNote.hpp"
 #include "BigGhostNote.hpp"
@@ -12,7 +13,6 @@
 #include "GreenNote.hpp"
 #include "RedNote.hpp"
 #include "YellowNote.hpp"
-#include "../src/GraphiteGlobals.hpp"
 
 #include <cctype>
 #include <cerrno>
@@ -217,8 +217,9 @@ struct PendingNote
     Fraction startTime;
     Fraction bpm;
     int greenNoteHits;
+    double scrollMultiplier;
 
-    PendingNote() : active(false), type('0'), greenNoteHits(0)
+    PendingNote() : active(false), type('0'), greenNoteHits(0), scrollMultiplier(1.0)
     {
     }
 };
@@ -320,7 +321,7 @@ static Fraction MeasureDurationSeconds(ParserState& st, int divisions)
     return beats;
 }
 
-static void AddNoteToCourse(Course& course, char type, const Fraction& startTimeSec, const Fraction& stopTimeSec, const Fraction& bpm, int greenNoteHits)
+static void AddNoteToCourse(Course& course, char type, const Fraction& startTimeSec, const Fraction& stopTimeSec, const Fraction& bpm, int greenNoteHits, double scrollMultiplier)
 {
     int64_t startPs = FractionToPicoseconds(startTimeSec);
     int64_t stopPs = FractionToPicoseconds(stopTimeSec);
@@ -340,6 +341,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         RedNote* note = new RedNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.redNotes.push_back(note);
         break;
     }
@@ -348,6 +350,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         BlueNote* note = new BlueNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.blueNotes.push_back(note);
         break;
     }
@@ -356,6 +359,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         BigRedNote* note = new BigRedNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.bigRedNotes.push_back(note);
         break;
     }
@@ -364,6 +368,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         BigBlueNote* note = new BigBlueNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.bigBlueNotes.push_back(note);
         break;
     }
@@ -373,6 +378,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         note->startTimePicoseconds = startPs;
         note->endTimePicoseconds = stopPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.yellowNotes.push_back(note);
         break;
     }
@@ -382,6 +388,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         note->startTimePicoseconds = startPs;
         note->endTimePicoseconds = stopPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.bigYellowNotes.push_back(note);
         break;
     }
@@ -391,6 +398,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         note->startTimePicoseconds = startPs;
         note->endTimePicoseconds = stopPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         note->remainingSpamHits = greenNoteHits;
         course.greenNotes.push_back(note);
         break;
@@ -401,6 +409,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         note->startTimePicoseconds = startPs;
         note->endTimePicoseconds = stopPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         note->remainingSpamHits = greenNoteHits;
         course.bigGreenNotes.push_back(note);
         break;
@@ -410,6 +419,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         GhostNote* note = new GhostNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.ghostNotes.push_back(note);
         break;
     }
@@ -418,6 +428,7 @@ static void AddNoteToCourse(Course& course, char type, const Fraction& startTime
         BigGhostNote* note = new BigGhostNote();
         note->startTimePicoseconds = startPs;
         note->scrollBPM = scrollBpm;
+        note->scrollMultiplier = scrollMultiplier;
         course.bigGhostNotes.push_back(note);
         break;
     }
@@ -446,6 +457,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
         Barline* barline = new Barline();
         barline->startTimePicoseconds = FractionToPicoseconds(st.time);
         barline->scrollBPM = measure.lastBpm;
+        barline->scrollMultiplier = st.scroll;
         if (GraphiteGlobals::playbackRate != 1.0)
         {
             barline->startTimePicoseconds = static_cast<int64_t>(static_cast<double>(barline->startTimePicoseconds) / GraphiteGlobals::playbackRate);
@@ -468,13 +480,13 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
             {
                 if (st.pendingNote.active)
                 {
-                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits);
+                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
                     st.pendingNote.active = false;
                 }
             }
             else if (c == '9' && st.pendingNote.active && st.pendingNote.type == '9')
             {
-                AddNoteToCourse(course, '9', st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits);
+                AddNoteToCourse(course, '9', st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
                 st.pendingNote.active = false;
             }
             else
@@ -487,7 +499,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
                 case '4':
                 case 'g':
                 case 'G':
-                    AddNoteToCourse(course, c, st.time, st.time, st.bpm, 0);
+                    AddNoteToCourse(course, c, st.time, st.time, st.bpm, 0, st.scroll);
                     break;
                 case '5':
                 case '6':
@@ -496,6 +508,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
                     st.pendingNote.startTime = st.time;
                     st.pendingNote.bpm = st.bpm;
                     st.pendingNote.greenNoteHits = 0;
+                    st.pendingNote.scrollMultiplier = st.scroll;
                     break;
                 case '7':
                 case '9':
@@ -508,6 +521,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
                     st.pendingNote.startTime = st.time;
                     st.pendingNote.bpm = st.bpm;
                     st.pendingNote.greenNoteHits = hits;
+                    st.pendingNote.scrollMultiplier = st.scroll;
                     break;
                 }
                 default:
@@ -557,7 +571,7 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
                 // Flush any pending note spanning across the course end
                 if (st.pendingNote.active)
                 {
-                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits);
+                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
                     st.pendingNote.active = false;
                 }
                 return idx + 1;
@@ -622,7 +636,7 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
     // Flush any pending note at end of course body
     if (st.pendingNote.active)
     {
-        AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits);
+        AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
         st.pendingNote.active = false;
     }
     return idx;
