@@ -105,6 +105,8 @@ private:
     bool resultsScreenTriggered{false};
     Node2D* hitCounter{nullptr};
     Label* hitSpamCounterLabel{nullptr};
+    Node2D* p1NotesParent{nullptr};
+    Node2D* p1BarlinesParent{nullptr};
 };
 
 #endif

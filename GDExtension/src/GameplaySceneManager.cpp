@@ -70,16 +70,28 @@ GameplaySceneManager::~GameplaySceneManager()
 
 void GameplaySceneManager::grabObjects()
 {
-    hitCounter = Object::cast_to<Node2D>(get_node_or_null("../HitCounter"));
+    hitCounter = Object::cast_to<Node2D>(get_node_or_null("../HitCounterParent"));
     if (hitCounter == nullptr)
     {
-        UtilityFunctions::print("Failed to find HitCounter node");
+        UtilityFunctions::print("Failed to find HitCounterParent node");
     }
 
-    hitSpamCounterLabel = Object::cast_to<Label>(get_node_or_null("../HitCounter/Label"));
+    hitSpamCounterLabel = Object::cast_to<Label>(get_node_or_null("../HitCounterParent/Label"));
     if (hitSpamCounterLabel == nullptr)
     {
-        UtilityFunctions::print("Failed to find HitCounter Label");
+        UtilityFunctions::print("Failed to find HitCounterParent Label");
+    }
+
+    p1NotesParent = Object::cast_to<Node2D>(get_node_or_null("../P1NotesParent"));
+    if (p1NotesParent == nullptr)
+    {
+        UtilityFunctions::print("Failed to find P1NotesParent node");
+    }
+
+    p1BarlinesParent = Object::cast_to<Node2D>(get_node_or_null("../P1BarlinesParent"));
+    if (p1BarlinesParent == nullptr)
+    {
+        UtilityFunctions::print("Failed to find P1BarlinesParent node");
     }
 }
 
@@ -283,6 +295,7 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
     }
 
     std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
+    std::vector<std::pair<int64_t, Node*>> sortedBarlinePrefabs;
     for (RedNote* note : courseInChart->redNotes)
     {
         Node* instance = redNoteScene->instantiate();
@@ -290,7 +303,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -301,7 +313,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -312,7 +323,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -323,7 +333,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -334,7 +343,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -345,8 +353,7 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
-            sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
+            sortedBarlinePrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
     for (BigRedNote* note : courseInChart->bigRedNotes)
@@ -356,7 +363,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -367,7 +373,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -378,7 +383,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -389,7 +393,6 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
@@ -400,16 +403,27 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
         if (prefab)
         {
             note->prefab = prefab;
-            prefab->set_z_index(3);
             sortedPrefabs.push_back({note->startTimePicoseconds, prefab});
         }
     }
 
+    if (p1NotesParent == nullptr || p1BarlinesParent == nullptr)
+    {
+        UtilityFunctions::print("Failed to attach notes/barlines: P1NotesParent or P1BarlinesParent missing");
+        return false;
+    }
+
     std::sort(sortedPrefabs.begin(), sortedPrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first > b.first; });
+    std::sort(sortedBarlinePrefabs.begin(), sortedBarlinePrefabs.end(), [](const std::pair<int64_t, Node*>& a, const std::pair<int64_t, Node*>& b) { return a.first > b.first; });
 
     for (auto& entry : sortedPrefabs)
     {
-        add_child(entry.second);
+        p1NotesParent->add_child(entry.second);
+    }
+
+    for (auto& entry : sortedBarlinePrefabs)
+    {
+        p1BarlinesParent->add_child(entry.second);
     }
 
     courseInChart->populateLanes();
