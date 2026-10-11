@@ -106,6 +106,13 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
         return false;
     }
     ctx.chart.activeCourseIndex = courseIndex;
+
+    const Course& measuresCourse = ctx.chart.courses[courseIndex];
+    UtilityFunctions::print("Measures for course ", std::to_string(GraphiteGlobals::difficulty).c_str(), ": ", std::to_string(measuresCourse.measures.size()).c_str());
+    for (const Measure& measure : measuresCourse.measures)
+    {
+        UtilityFunctions::print("  Measure ", std::to_string(measure.measureIndex).c_str(), " | scroll x", std::to_string(measure.lastScrollMultiplier).c_str(), " | BPM ", std::to_string(measure.lastBpm).c_str());
+    }
     return true;
 }
 

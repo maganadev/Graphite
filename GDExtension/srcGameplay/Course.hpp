@@ -25,6 +25,13 @@ void courseLogError(const std::string& message);
 
 typedef HittableNote* HittableNoteVariant;
 
+struct Measure
+{
+    int measureIndex{0};
+    double lastScrollMultiplier{1.0};
+    double lastBpm{0.0};
+};
+
 class Course
 {
 public:
@@ -45,6 +52,8 @@ public:
     std::vector<BigYellowNote*> bigYellowNotes;
     std::vector<BigGreenNote*> bigGreenNotes;
     std::vector<BigGhostNote*> bigGhostNotes;
+
+    std::vector<Measure> measures;
 
     ////////////////////////////////////////////////////////////
     //

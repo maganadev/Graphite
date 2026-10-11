@@ -426,6 +426,12 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
             N++;
     }
 
+    Measure measure;
+    measure.measureIndex = st.measureIndex++;
+    measure.lastScrollMultiplier = st.scroll;
+    measure.lastBpm = FractionToDouble(st.bpm);
+    course.measures.push_back(measure);
+
     for (size_t i = 0; i < buffer.size(); i++)
     {
         Token& t = buffer[i];
