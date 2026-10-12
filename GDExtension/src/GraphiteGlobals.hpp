@@ -48,6 +48,7 @@ public:
 public:
     // Mods
     static double playbackRate;
+    static double userScrollModifier;
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
 

@@ -6,6 +6,7 @@ LFProtectObj<Chart> GraphiteGlobals::currentChart{};
 bool GraphiteGlobals::modAudioOffsetCalibration{false};
 bool GraphiteGlobals::modVisualOffsetCalibration{false};
 double GraphiteGlobals::playbackRate{1.0};
+double GraphiteGlobals::userScrollModifier{1.0};
 int32_t GraphiteGlobals::difficulty{0};
 int32_t GraphiteGlobals::menuCurrentItemIndex{0};
 int32_t GraphiteGlobals::menuCurrentNodeId{-1};
