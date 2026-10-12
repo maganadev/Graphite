@@ -271,27 +271,49 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
     {
         auto slowScroll = [](auto* note) { note->scrollBPM /= 8.0; };
         for (auto* note : courseInChart->redNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->blueNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->yellowNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->greenNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->ghostNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->barlineNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->bigRedNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->bigBlueNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->bigYellowNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->bigGreenNotes)
+        {
             slowScroll(note);
+        }
         for (auto* note : courseInChart->bigGhostNotes)
+        {
             slowScroll(note);
+        }
     }
 
     std::vector<std::pair<int64_t, Node*>> sortedPrefabs;
@@ -510,7 +532,7 @@ void GameplaySceneManager::_exit_tree()
 void GameplaySceneManager::getFrameTime(ProcessContext& ctx)
 {
     ctx.cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
-    uint64_t outHandle;
+    uint64_t outHandle = 0;
     if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(ctx.cpuTimePs, ctx.trackPositionPs, outHandle))
     {
         // TODO : Handle audio track position retrieval failure
@@ -608,8 +630,8 @@ void GameplaySceneManager::updateHitCounter(const ProcessContext& ctx, const Cha
         {
             continue;
         }
-        NoteGradings grading;
-        int64_t offtime;
+        NoteGradings grading{NoteGradings::Ungraded};
+        int64_t offtime = 0;
         note->getWhatGradingWouldBe(gradedSongPositionPs, chart, grading, offtime);
         if (grading == NoteGradings::Early_OutOfRange || grading == NoteGradings::Late_OutOfRange)
         {

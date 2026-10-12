@@ -101,7 +101,9 @@ public:
     void markMostRecentAsCompleted()
     {
         if (current == NONE)
+        {
             return;
+        }
         if (previous != NONE)
         {
             indexPointingTo[previous] = next;

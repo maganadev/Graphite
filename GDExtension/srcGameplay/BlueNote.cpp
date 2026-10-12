@@ -32,56 +32,82 @@ void BlueNote::getWhatGradingWouldBe(int64_t songPositionPs, const Chart* chart,
     if (absDelta > chart->hitWindowAboutToBeOutOfRange)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_OutOfRange;
+        }
         else
+        {
             grading = NoteGradings::Late_OutOfRange;
+        }
         return;
     }
 
     if (absDelta > chart->hitWindowFuka && absDelta <= chart->hitWindowAboutToBeOutOfRange)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_AboutToBeOutOfRange;
+        }
         else
+        {
             grading = NoteGradings::Late_AboutToBeOutOfRange;
+        }
         return;
     }
 
     if (absDelta > chart->hitWindowKa && absDelta <= chart->hitWindowFuka)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_Fuka;
+        }
         else
+        {
             grading = NoteGradings::Late_Fuka;
+        }
         return;
     }
 
     if (absDelta > chart->hitWindowRyou && absDelta <= chart->hitWindowKa)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_Ka;
+        }
         else
+        {
             grading = NoteGradings::Late_Ka;
+        }
         return;
     }
 
     if (absDelta > chart->hitWindowChou && absDelta <= chart->hitWindowRyou)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_Ryou;
+        }
         else
+        {
             grading = NoteGradings::Late_Ryou;
+        }
         return;
     }
 
     if (absDelta <= chart->hitWindowChou)
     {
         if (isEarly)
+        {
             grading = NoteGradings::Early_Chou;
+        }
         else if (timeDelta == 0)
+        {
             grading = NoteGradings::CompletelyPerfect;
+        }
         else
+        {
             grading = NoteGradings::Late_Chou;
+        }
         return;
     }
 

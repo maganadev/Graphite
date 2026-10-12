@@ -39,7 +39,10 @@ void ResultsScreenSceneManager::_ready()
     auto isKa = [](NoteGradings g) { return g == NoteGradings::Early_Ka || g == NoteGradings::Late_Ka; };
     auto isFuka = [](NoteGradings g) { return g == NoteGradings::Early_Fuka || g == NoteGradings::Late_Fuka; };
 
-    int chouCount = 0, ryouCount = 0, kaCount = 0, fukaCount = 0;
+    int chouCount = 0;
+    int ryouCount = 0;
+    int kaCount = 0;
+    int fukaCount = 0;
 
     constexpr int BAR_COUNT = 25;
     const int64_t WINDOW_PS = chartGuard.objRef->hitWindowFuka;
@@ -48,39 +51,63 @@ void ResultsScreenSceneManager::_ready()
     auto countNote = [&](auto* note)
     {
         if (!note || !note->finishedJudging.load(std::memory_order_acquire))
+        {
             return;
+        }
 
         int64_t rawOff = note->picosecondsOff;
         if (rawOff < -WINDOW_PS || rawOff > WINDOW_PS)
+        {
             return;
+        }
 
         NoteGradings g = note->grading;
         if (isChou(g))
+        {
             chouCount++;
+        }
         else if (isRyou(g))
+        {
             ryouCount++;
+        }
         else if (isKa(g))
+        {
             kaCount++;
+        }
         else if (isFuka(g))
+        {
             fukaCount++;
+        }
 
         int bucket = static_cast<int>((rawOff + WINDOW_PS) * BAR_COUNT / (2 * WINDOW_PS));
         if (bucket < 0)
+        {
             bucket = 0;
+        }
         if (bucket >= BAR_COUNT)
+        {
             bucket = BAR_COUNT - 1;
+        }
         histogram[bucket]++;
         UtilityFunctions::print("Note rawOff=", std::to_string(rawOff).c_str(), " ps -> bucket=", bucket);
     };
 
     for (auto* note : course->redNotes)
+    {
         countNote(note);
+    }
     for (auto* note : course->blueNotes)
+    {
         countNote(note);
+    }
     for (auto* note : course->bigRedNotes)
+    {
         countNote(note);
+    }
     for (auto* note : course->bigBlueNotes)
+    {
         countNote(note);
+    }
 
     // Calculate average off-time for calibration mods
     int64_t totalOff = 0;
@@ -88,21 +115,33 @@ void ResultsScreenSceneManager::_ready()
     auto sumOff = [&](auto* note)
     {
         if (!note || !note->finishedJudging.load(std::memory_order_acquire))
+        {
             return;
+        }
         int64_t off = note->picosecondsOff;
         if (off < -WINDOW_PS || off > WINDOW_PS)
+        {
             return;
+        }
         totalOff += off;
         judgedCount++;
     };
     for (auto* note : course->redNotes)
+    {
         sumOff(note);
+    }
     for (auto* note : course->blueNotes)
+    {
         sumOff(note);
+    }
     for (auto* note : course->bigRedNotes)
+    {
         sumOff(note);
+    }
     for (auto* note : course->bigBlueNotes)
+    {
         sumOff(note);
+    }
 
     if (judgedCount > 0)
     {
@@ -135,7 +174,9 @@ void ResultsScreenSceneManager::_ready()
     {
         Label* label = get_node<Label>(NodePath(String("..") + "/" + name));
         if (label)
+        {
             label->set_text(text);
+        }
     };
 
     setLabelText("ChouCount", String::num_int64(chouCount));
@@ -145,8 +186,12 @@ void ResultsScreenSceneManager::_ready()
 
     int maxCount = 1;
     for (int c : histogram)
+    {
         if (c > maxCount)
+        {
             maxCount = c;
+        }
+    }
 
     constexpr double MAX_HEIGHT = 420.0;
 
@@ -162,7 +207,9 @@ void ResultsScreenSceneManager::_ready()
         String barName = String("Bar") + String::num_int64(i);
         ColorRect* bar = colorbars->get_node<ColorRect>(NodePath(barName));
         if (!bar)
+        {
             continue;
+        }
 
         double heightRatio = static_cast<double>(histogram[i]) / static_cast<double>(maxCount);
         double barHeight = heightRatio * MAX_HEIGHT;

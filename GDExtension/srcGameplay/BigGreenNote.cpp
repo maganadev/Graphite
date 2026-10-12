@@ -15,7 +15,7 @@ void BigGreenNote::updatePosition(int64_t correctedSongPositionPs)
 {
     if (prefab)
     {
-        double x;
+        double x = 0;
         if (correctedSongPositionPs < startTimePicoseconds)
         {
             int64_t timeDelta = startTimePicoseconds - correctedSongPositionPs;

@@ -75,40 +75,70 @@ public:
         std::vector<HittableNoteVariant> hitSpamNotes;
 
         for (auto* note : redNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : blueNotes)
+        {
             blueLaneNotes.push_back(note);
+        }
         for (auto* note : yellowNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : greenNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : bigRedNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : bigBlueNotes)
+        {
             blueLaneNotes.push_back(note);
+        }
         for (auto* note : bigYellowNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : bigGreenNotes)
+        {
             redLaneNotes.push_back(note);
+        }
         for (auto* note : yellowNotes)
+        {
             hitSpamNotes.push_back(note);
+        }
         for (auto* note : greenNotes)
+        {
             hitSpamNotes.push_back(note);
+        }
         for (auto* note : bigYellowNotes)
+        {
             hitSpamNotes.push_back(note);
+        }
         for (auto* note : bigGreenNotes)
+        {
             hitSpamNotes.push_back(note);
+        }
 
         std::sort(redLaneNotes.begin(), redLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
         std::sort(blueLaneNotes.begin(), blueLaneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
         std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
 
         for (auto* note : redLaneNotes)
+        {
             laneRed.push_back(note);
+        }
         for (auto* note : blueLaneNotes)
+        {
             laneBlue.push_back(note);
+        }
         for (auto* note : hitSpamNotes)
+        {
             hitSpamNoteList.push_back(note);
+        }
 
         laneRed.resetCompletionStates();
         laneBlue.resetCompletionStates();

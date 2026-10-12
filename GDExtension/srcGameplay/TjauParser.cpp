@@ -29,7 +29,9 @@ static std::string Trim(const std::string& s)
 {
     size_t b = s.find_first_not_of(" \t\r\n");
     if (b == std::string::npos)
+    {
         return "";
+    }
     size_t e = s.find_last_not_of(" \t\r\n");
     return s.substr(b, e - b + 1);
 }
@@ -44,18 +46,24 @@ static std::string ToUpper(const std::string& s)
 {
     std::string r = s;
     for (size_t i = 0; i < r.size(); i++)
+    {
         r[i] = static_cast<char>(std::toupper(static_cast<unsigned char>(r[i])));
+    }
     return r;
 }
 
 static bool StartsWithCI(const std::string& s, const std::string& p)
 {
     if (s.size() < p.size())
+    {
         return false;
+    }
     for (size_t i = 0; i < p.size(); i++)
     {
         if (std::toupper(static_cast<unsigned char>(s[i])) != std::toupper(static_cast<unsigned char>(p[i])))
+        {
             return false;
+        }
     }
     return true;
 }
@@ -78,7 +86,9 @@ static std::vector<std::string> SplitLines(const std::string& content)
         }
     }
     if (!cur.empty())
+    {
         lines.push_back(cur);
+    }
     return lines;
 }
 
@@ -92,14 +102,20 @@ static bool ParseFraction(const std::string& s, Fraction& result)
 static bool TryParseInt(const std::string& s, int& value)
 {
     if (s.empty())
+    {
         return false;
+    }
     errno = 0;
     char* end = nullptr;
     long v = std::strtol(s.c_str(), &end, 10);
     if (errno != 0 || end != s.c_str() + s.size())
+    {
         return false;
+    }
     if (v < INT32_MIN || v > INT32_MAX)
+    {
         return false;
+    }
     value = static_cast<int>(v);
     return true;
 }
@@ -114,15 +130,25 @@ static int ParseCourseName(const std::string& name)
 {
     std::string n = ToUpper(Trim(name));
     if (n == "EASY" || n == "0")
+    {
         return 0;
+    }
     if (n == "NORMAL" || n == "1")
+    {
         return 1;
+    }
     if (n == "HARD" || n == "2")
+    {
         return 2;
+    }
     if (n == "ONI" || n == "3")
+    {
         return 3;
+    }
     if (n == "EDIT" || n == "4" || n == "URA")
+    {
         return 4;
+    }
     return -1;
 }
 
@@ -145,12 +171,16 @@ static void ParseCommandLine(const std::string& line, std::string& cmd, std::str
     std::string body = line.substr(1);
     size_t i = 0;
     while (i < body.size() && (std::isalpha(static_cast<unsigned char>(body[i])) || std::isdigit(static_cast<unsigned char>(body[i]))))
+    {
         i++;
+    }
     cmd = ToUpper(body.substr(0, i));
     std::string rest = body.substr(i);
     size_t j = 0;
     while (j < rest.size() && (rest[j] == ':' || std::isspace(static_cast<unsigned char>(rest[j]))))
+    {
         j++;
+    }
     arg = Trim(rest.substr(j));
 }
 
@@ -250,7 +280,9 @@ static void ApplyCommand(ParserState& st, const std::string& cmd, const std::str
     {
         Fraction v;
         if (ParseFraction(arg, v) && v.greaterThan(ZeroFraction()))
+        {
             st.bpm = v;
+        }
     }
     else if (cmd == "MEASURE")
     {
@@ -272,21 +304,33 @@ static void ApplyCommand(ParserState& st, const std::string& cmd, const std::str
         char* end = nullptr;
         double scrollVal = std::strtod(arg.c_str(), &end);
         if (errno == 0 && end == arg.c_str() + arg.size())
+        {
             st.scroll = scrollVal;
+        }
     }
     else if (cmd == "GOGOSTART")
+    {
         st.gogo = true;
+    }
     else if (cmd == "GOGOEND")
+    {
         st.gogo = false;
+    }
     else if (cmd == "BARLINEON")
+    {
         st.barlineVisible = true;
+    }
     else if (cmd == "BARLINEOFF")
+    {
         st.barlineVisible = false;
+    }
     else if (cmd == "DELAY")
     {
         Fraction v;
         if (ParseFraction(arg, v))
+        {
             st.time.add(v);
+        }
     }
 }
 
@@ -446,7 +490,9 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
         if (!buffer[i].isCommand)
         {
             if (N == 0)
+            {
                 firstNoteIndex = i;
+            }
             N++;
         }
     }
@@ -455,7 +501,9 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
     {
         Token& t = buffer[i];
         if (t.isCommand)
+        {
             ApplyCommand(st, t.cmd, t.arg);
+        }
     }
 
     Measure measure;
@@ -527,7 +575,9 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
                 {
                     int hits = 0;
                     if (st.greenNoteIndex < static_cast<int>(st.greenNoteValues.size()))
+                    {
                         hits = st.greenNoteValues[st.greenNoteIndex++];
+                    }
                     st.pendingNote.active = true;
                     st.pendingNote.type = c;
                     st.pendingNote.startTime = st.time;
@@ -563,11 +613,14 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
         std::string raw = StripComment(lines[idx]);
         std::string line = Trim(raw);
         if (line.empty())
+        {
             continue;
+        }
 
         if (line[0] == '#')
         {
-            std::string cmd, arg;
+            std::string cmd;
+            std::string arg;
             ParseCommandLine(line, cmd, arg);
 
             if (cmd == "END")
@@ -615,20 +668,26 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
             }
 
             if (skipBranch)
+            {
                 continue;
+            }
 
             buffer.emplace_back(true, cmd, arg, '0');
             continue;
         }
 
         if (skipBranch)
+        {
             continue;
+        }
 
         for (size_t ci = 0; ci < line.size(); ci++)
         {
             char c = line[ci];
             if (std::isspace(static_cast<unsigned char>(c)))
+            {
                 continue;
+            }
             if (c == ',')
             {
                 ProcessMeasureBuffer(buffer, st, course);
@@ -660,7 +719,9 @@ static std::string ReadAllText(const std::string& path)
 {
     std::ifstream f(path, std::ios::binary);
     if (!f)
+    {
         return "";
+    }
     std::ostringstream ss;
     ss << f.rdbuf();
     return ss.str();
@@ -686,34 +747,61 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
     {
         std::string line = Trim(StripComment(lines[idx]));
         if (line.empty())
+        {
             continue;
+        }
         if (StartsWithCI(line, "COURSE:") || StartsWithCI(line, "#START"))
+        {
             break;
+        }
 
-        std::string key, val;
+        std::string key;
+        std::string val;
         if (!SplitKeyValue(line, key, val))
+        {
             continue;
+        }
 
         if (key == "TITLE")
+        {
             meta.title = val;
+        }
         else if (key == "TITLEJA")
+        {
             meta.titleJa = val;
+        }
         else if (key == "TITLEZH")
+        {
             meta.titleZh = val;
+        }
         else if (key == "SUBTITLE")
+        {
             meta.subtitle = val;
+        }
         else if (key == "SUBTITLEJA")
+        {
             meta.subtitleJa = val;
+        }
         else if (key == "SUBTITLEZH")
+        {
             meta.subtitleZh = val;
+        }
         else if (key == "WAVE")
+        {
             meta.wave = val;
+        }
         else if (key == "LEVEL")
+        {
             meta.level = ToInt(val, 0);
+        }
         else if (key == "BPM")
+        {
             ParseFraction(val, meta.bpm);
+        }
         else if (key == "OFFSET")
+        {
             ParseFraction(val, meta.offset);
+        }
     }
 
     outChart = Chart();
@@ -742,7 +830,9 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
         {
             pendingCourseId = ParseCourseName(Trim(line.substr(7)));
             if (pendingCourseId < 0)
+            {
                 pendingCourseId = -1;
+            }
             pendingLevel = meta.level;
             pendingBalloon.clear();
             idx++;
@@ -760,15 +850,20 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
                 {
                     std::string l2 = Trim(StripComment(lines[idx]));
                     if (StartsWithCI(l2, "#START"))
+                    {
                         depth++;
+                    }
                     else if (StartsWithCI(l2, "#END"))
+                    {
                         depth--;
+                    }
                     idx++;
                 }
                 continue;
             }
 
-            std::string cmd, arg;
+            std::string cmd;
+            std::string arg;
             ParseCommandLine(line, cmd, arg);
             bool isP2 = ToUpper(arg) == "P2";
             idx++;
@@ -780,9 +875,13 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
                 {
                     std::string l2 = Trim(StripComment(lines[idx]));
                     if (StartsWithCI(l2, "#START"))
+                    {
                         depth++;
+                    }
                     else if (StartsWithCI(l2, "#END"))
+                    {
                         depth--;
+                    }
                     idx++;
                 }
                 continue;
@@ -801,11 +900,14 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
             continue;
         }
 
-        std::string k, v;
+        std::string k;
+        std::string v;
         if (SplitKeyValue(line, k, v))
         {
             if (k == "LEVEL")
+            {
                 pendingLevel = ToInt(v, 0);
+            }
             else if (k == "BALLOON")
             {
                 pendingBalloon.clear();
@@ -814,13 +916,19 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
                 {
                     size_t comma = v.find(',', start);
                     if (comma == std::string::npos)
+                    {
                         comma = v.size();
+                    }
                     std::string part = Trim(v.substr(start, comma - start));
                     int bv = 0;
                     if (TryParseInt(part, bv))
+                    {
                         pendingBalloon.push_back(bv);
+                    }
                     if (comma == v.size())
+                    {
                         break;
+                    }
                     start = comma + 1;
                 }
             }
@@ -860,20 +968,33 @@ bool readTjauMetadataContent(const std::string& content, TjauMetadata& outMeta, 
     {
         std::string line = Trim(StripComment(lines[idx]));
         if (line.empty())
+        {
             continue;
+        }
         if (StartsWithCI(line, "COURSE:") || StartsWithCI(line, "#START"))
+        {
             break;
+        }
 
-        std::string key, val;
+        std::string key;
+        std::string val;
         if (!SplitKeyValue(line, key, val))
+        {
             continue;
+        }
 
         if (key == "TITLE")
+        {
             outMeta.title = val;
+        }
         else if (key == "SUBTITLE")
+        {
             outMeta.subtitle = val;
+        }
         else if (key == "LEVEL")
+        {
             globalLevel = ToInt(val, 0);
+        }
     }
 
     std::vector<TjauMetadataCourse> courses;
@@ -893,7 +1014,9 @@ bool readTjauMetadataContent(const std::string& content, TjauMetadata& outMeta, 
         {
             pendingCourseId = ParseCourseName(Trim(line.substr(7)));
             if (pendingCourseId < 0)
+            {
                 pendingCourseId = -1;
+            }
             pendingLevel = globalLevel;
             idx++;
             continue;
@@ -901,7 +1024,8 @@ bool readTjauMetadataContent(const std::string& content, TjauMetadata& outMeta, 
 
         if (StartsWithCI(line, "#START"))
         {
-            std::string cmd, arg;
+            std::string cmd;
+            std::string arg;
             ParseCommandLine(line, cmd, arg);
             bool isP2 = ToUpper(arg) == "P2";
             idx++;
@@ -920,19 +1044,26 @@ bool readTjauMetadataContent(const std::string& content, TjauMetadata& outMeta, 
             {
                 std::string l2 = Trim(StripComment(lines[idx]));
                 if (StartsWithCI(l2, "#START"))
+                {
                     depth++;
+                }
                 else if (StartsWithCI(l2, "#END"))
+                {
                     depth--;
+                }
                 idx++;
             }
             continue;
         }
 
-        std::string k, v;
+        std::string k;
+        std::string v;
         if (SplitKeyValue(line, k, v))
         {
             if (k == "LEVEL")
+            {
                 pendingLevel = ToInt(v, 0);
+            }
         }
         idx++;
     }

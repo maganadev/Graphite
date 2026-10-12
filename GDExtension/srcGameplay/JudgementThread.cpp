@@ -16,8 +16,8 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        NoteGradings grading;
-        int64_t offtime;
+        NoteGradings grading{NoteGradings::Ungraded};
+        int64_t offtime = 0;
         (*noteVariant)->getWhatGradingWouldBe(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Early_OutOfRange)
@@ -46,8 +46,8 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
-        NoteGradings grading;
-        int64_t offtime;
+        NoteGradings grading{NoteGradings::Ungraded};
+        int64_t offtime = 0;
         (*noteVariant)->getWhatGradingWouldBe(songPositionPs, chart, grading, offtime);
 
         if (grading == NoteGradings::Late_OutOfRange)
