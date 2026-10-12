@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://dueyonk6p51if"]
+[gd_scene load_steps=8 format=3 uid="uid://dueyonk6p51if"]
 
 [ext_resource type="Shader" uid="uid://d3ma4lusweii3" path="res://Background.gdshader" id="1_im3oa"]
-[ext_resource type="Shader" uid="uid://d0chovtwrn0bl" path="res://Shaders/Circle.gdshader" id="2_eq42f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mukr0"]
 shader = ExtResource("1_im3oa")
@@ -19,9 +18,60 @@ shader_parameter/wave_dir = Vector2(-1, 0.5)
 [sub_resource type="LabelSettings" id="LabelSettings_mukr0"]
 font_size = 120
 
+[sub_resource type="Shader" id="Shader_mukr0"]
+code = "shader_type canvas_item;
+
+uniform vec4 circle_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float radius : hint_range(0.0, 0.5) = 0.50; // Leaves room for anti-aliasing
+
+void fragment() {
+    // Center UV coordinates to [-0.5, 0.5]
+    vec2 center_uv = UV - vec2(0.5);
+    
+    // Calculate Euclidean distance from center
+    float dist = length(center_uv);
+    
+    // Compute screen-space derivative for scale-independent 1-pixel AA
+    float delta = fwidth(dist);
+    
+    // Smooth transition across the circle boundary
+    float alpha = 1.0 - smoothstep(radius - delta, radius + delta, dist);
+    
+    // Multiply by the incoming color so node modulate still applies
+    COLOR *= vec4(circle_color.rgb, circle_color.a * alpha);
+}"
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_eq42f"]
-shader = ExtResource("2_eq42f")
-shader_parameter/circle_color = Color(0.79, 0.68479836, 0.41869998, 1)
+shader = SubResource("Shader_mukr0")
+shader_parameter/circle_color = Color(1, 0.72156864, 0, 1)
+shader_parameter/radius = 0.5
+
+[sub_resource type="Shader" id="Shader_eq42f"]
+code = "shader_type canvas_item;
+
+uniform vec4 circle_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float radius : hint_range(0.0, 0.5) = 0.50; // Leaves room for anti-aliasing
+
+void fragment() {
+    // Center UV coordinates to [-0.5, 0.5]
+    vec2 center_uv = UV - vec2(0.5);
+    
+    // Calculate Euclidean distance from center
+    float dist = length(center_uv);
+    
+    // Compute screen-space derivative for scale-independent 1-pixel AA
+    float delta = fwidth(dist);
+    
+    // Smooth transition across the circle boundary
+    float alpha = 1.0 - smoothstep(radius - delta, radius + delta, dist);
+    
+    // Multiply by the incoming color so node modulate still applies
+    COLOR *= vec4(circle_color.rgb, circle_color.a * alpha);
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g00u0"]
+shader = SubResource("Shader_eq42f")
+shader_parameter/circle_color = Color(0.7019608, 0.5019608, 0, 1)
 shader_parameter/radius = 0.5
 
 [node name="GameplayScene" type="Node2D"]
@@ -65,16 +115,15 @@ vertical_alignment = 1
 position = Vector2(0, 288)
 
 [node name="P1LaneGoldOutline" type="ColorRect" parent="P1LaneParent"]
-offset_left = -1.0
 offset_top = -5.0
-offset_right = 1919.0
+offset_right = 1920.0
 offset_bottom = 201.0
 color = Color(1, 0.72156864, 0, 1)
 
 [node name="P1Lane" type="ColorRect" parent="P1LaneParent"]
 offset_right = 1920.0
 offset_bottom = 196.0
-color = Color(0.101960786, 0.101960786, 0.101960786, 1)
+color = Color(0.08, 0.08, 0.08, 1)
 
 [node name="P1BarlinesParent" type="Node2D" parent="."]
 
@@ -86,3 +135,16 @@ offset_left = 568.0
 offset_top = 336.0
 offset_right = 668.0
 offset_bottom = 436.0
+
+[node name="HitzoneInner" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_g00u0")
+offset_left = 572.0
+offset_top = 340.0
+offset_right = 664.0
+offset_bottom = 432.0
+
+[node name="LeftBlocker" type="ColorRect" parent="."]
+offset_top = 288.0
+offset_right = 520.0
+offset_bottom = 484.0
+color = Color(0.7019608, 0.5019608, 0, 1)
