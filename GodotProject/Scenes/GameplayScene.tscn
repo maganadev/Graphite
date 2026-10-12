@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dueyonk6p51if"]
+[gd_scene load_steps=6 format=3 uid="uid://dueyonk6p51if"]
 
 [ext_resource type="Shader" uid="uid://d3ma4lusweii3" path="res://Background.gdshader" id="1_im3oa"]
+[ext_resource type="Shader" uid="uid://d0chovtwrn0bl" path="res://Shaders/Circle.gdshader" id="2_eq42f"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mukr0"]
 shader = ExtResource("1_im3oa")
@@ -18,13 +19,10 @@ shader_parameter/wave_dir = Vector2(-1, 0.5)
 [sub_resource type="LabelSettings" id="LabelSettings_mukr0"]
 font_size = 120
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_im3oa"]
-bg_color = Color(0.61112785, 0.60908324, 0.5003366, 1)
-corner_radius_top_left = 1024
-corner_radius_top_right = 1024
-corner_radius_bottom_right = 1024
-corner_radius_bottom_left = 1024
-corner_detail = 16
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eq42f"]
+shader = ExtResource("2_eq42f")
+shader_parameter/circle_color = Color(0.79, 0.68479836, 0.41869998, 1)
+shader_parameter/radius = 0.5
 
 [node name="GameplayScene" type="Node2D"]
 
@@ -82,9 +80,9 @@ color = Color(0.101960786, 0.101960786, 0.101960786, 1)
 
 [node name="P1NotesParent" type="Node2D" parent="."]
 
-[node name="Hitzone" type="Panel" parent="."]
+[node name="Hitzone" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_eq42f")
 offset_left = 568.0
 offset_top = 336.0
 offset_right = 668.0
 offset_bottom = 436.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_im3oa")
