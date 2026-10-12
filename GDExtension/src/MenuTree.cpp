@@ -69,15 +69,6 @@ int32_t MenuTree::createSettingsMenu()
     audio.actionData = ACT_AudioCalibration;
     node.items.push_back(audio);
 
-    {
-        int32_t speedNodeId = createPlaybackSpeedMenu();
-        MenuItem speed;
-        speed.label = "Playback Speed";
-        speed.type = MIT_Submenu;
-        speed.targetNodeId = speedNodeId;
-        node.items.push_back(speed);
-    }
-
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -294,6 +285,16 @@ int32_t MenuTree::createDifficultySelectForSong(int32_t parentId, int songIndex)
         }
     }
 
+    {
+        int32_t speedNodeId = createPlaybackSpeedMenu();
+        MenuItem speed;
+        speed.label = "Playback Speed";
+        speed.type = MIT_Submenu;
+        speed.targetNodeId = speedNodeId;
+        speed.actionData = ACT_PlayMusic;
+        node.items.push_back(speed);
+    }
+
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -458,7 +459,9 @@ void MenuTree::onEnter()
         else if (item->actionData == ACT_PlaybackSpeed)
         {
             GraphiteGlobals::playbackRate = static_cast<double>(item->targetNodeId) / 100.0;
+            int32_t savedSongIndex = pendingSongIndex;
             navigateBack();
+            pendingSongIndex = savedSongIndex;
         }
         else if (item->actionData >= 0)
         {
