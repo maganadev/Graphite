@@ -1,6 +1,6 @@
 #!/bin/bash
 export PATH="/ucrt64/bin:/usr/bin:/bin:$PATH"
-cd "$(cygpath 'C:\Users\WindowsUser\Repos\GraphiteClangCheck\Demo\')"
+cd "$(dirname "$0")/Demo"
 
 pwd
 rm -f ./build/WindowsNormalDebug/GraphiteClangCheck.exe
