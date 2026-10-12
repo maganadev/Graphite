@@ -1,30 +1,29 @@
-[gd_scene load_steps=2 format=3 uid="uid://dqrfar8eqjouo"]
+[gd_scene load_steps=3 format=3 uid="uid://dqrfar8eqjouo"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5qqdg"]
-bg_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 1024
-corner_radius_top_right = 1024
-corner_radius_bottom_right = 1024
-corner_radius_bottom_left = 1024
-corner_detail = 16
+[ext_resource type="Shader" uid="uid://d0chovtwrn0bl" path="res://Shaders/Circle.gdshader" id="1_5qqdg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5qqdg"]
+shader = ExtResource("1_5qqdg")
+shader_parameter/circle_color = Color(1, 1, 1, 1)
+shader_parameter/radius = 0.5
 
 [node name="YellowNote" type="YellowNotePrefab"]
 
-[node name="RightBlack" type="Panel" parent="."]
+[node name="RightBlack" type="ColorRect" parent="."]
 modulate = Color(0.14509805, 0.14509805, 0.14509805, 1)
+material = SubResource("ShaderMaterial_5qqdg")
 offset_left = 248.0
 offset_top = -52.0
 offset_right = 352
 offset_bottom = 52.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
-[node name="RightYellow" type="Panel" parent="."]
+[node name="RightYellow" type="ColorRect" parent="."]
 modulate = Color(0.9607843, 0.7137255, 0.003921569, 1)
+material = SubResource("ShaderMaterial_5qqdg")
 offset_left = 252.0
 offset_top = -48.0
 offset_right = 348
 offset_bottom = 48.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
 [node name="MidBlack" type="ColorRect" parent="."]
 offset_top = -52.0
@@ -38,25 +37,25 @@ offset_right = 300.0
 offset_bottom = 48.0
 color = Color(0.9607843, 0.7137255, 0.003921569, 1)
 
-[node name="LeftBlack" type="Panel" parent="."]
+[node name="LeftBlack" type="ColorRect" parent="."]
 modulate = Color(0.14509805, 0.14509805, 0.14509805, 1)
+material = SubResource("ShaderMaterial_5qqdg")
 offset_left = -52.0
 offset_top = -52.0
 offset_right = 52.0
 offset_bottom = 52.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
-[node name="LeftWhite" type="Panel" parent="."]
+[node name="LeftWhite" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_5qqdg")
 offset_left = -48.0
 offset_top = -48.0
 offset_right = 48.0
 offset_bottom = 48.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")
 
-[node name="LeftYellow" type="Panel" parent="."]
+[node name="LeftYellow" type="ColorRect" parent="."]
 modulate = Color(0.9607843, 0.7137255, 0.003921569, 1)
+material = SubResource("ShaderMaterial_5qqdg")
 offset_left = -40.0
 offset_top = -40.0
 offset_right = 40.0
 offset_bottom = 40.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_5qqdg")

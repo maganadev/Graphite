@@ -16,5 +16,6 @@ void fragment() {
     // Smooth transition across the circle boundary
     float alpha = 1.0 - smoothstep(radius - delta, radius + delta, dist);
     
-    COLOR = vec4(circle_color.rgb, circle_color.a * alpha);
+    // Multiply by the incoming color so node modulate still applies
+    COLOR *= vec4(circle_color.rgb, circle_color.a * alpha);
 }
