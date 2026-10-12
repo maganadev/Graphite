@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <type_traits>
 
 #include "../srcThirdParty/json.hpp"
 
@@ -16,36 +17,56 @@ class SettingsFile
 private:
     std::string filepath = "";
     uint64_t loadTimeHash = 0;
-
-public:
     json jsonObj{};
 
+    template <typename T>
+    static bool matchesType(const json& value)
+    {
+        if constexpr (std::is_same_v<T, std::string>)
+        {
+            return value.is_string();
+        }
+        else if constexpr (std::is_same_v<T, bool>)
+        {
+            return value.is_boolean();
+        }
+        else if constexpr (std::is_integral_v<T>)
+        {
+            return value.is_number_integer();
+        }
+        else if constexpr (std::is_floating_point_v<T>)
+        {
+            return value.is_number();
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+public:
     SettingsFile(std::string pFilepath);
     void load();
     void save();
 
-    void ensureContainsInteger(string key, int64_t defaultValue)
+    // Reads the stored value for key, falling back to defaultValue when the key
+    // is missing or holds an incompatible type. Missing keys are written back so
+    // that save() persists the default, keeping memory and storage in sync.
+    template <typename T>
+    T get(const std::string& key, const T& defaultValue)
     {
-        if (!jsonObj.contains(key) || !jsonObj[key].is_number_integer())
+        if (!jsonObj.contains(key) || !matchesType<T>(jsonObj[key]))
         {
             jsonObj[key] = defaultValue;
+            return defaultValue;
         }
+        return jsonObj[key].get<T>();
     }
 
-    void ensureContainsFloat(string key, float defaultValue)
+    template <typename T>
+    void set(const std::string& key, const T& value)
     {
-        if (!jsonObj.contains(key) || !jsonObj[key].is_number_float())
-        {
-            jsonObj[key] = defaultValue;
-        }
-    }
-
-    void ensureContainsString(string key, string defaultValue)
-    {
-        if (!jsonObj.contains(key) || !jsonObj[key].is_string())
-        {
-            jsonObj[key] = defaultValue;
-        }
+        jsonObj[key] = value;
     }
 
     static uint64_t simpleHash(const std::string& str);

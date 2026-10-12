@@ -51,6 +51,7 @@ public:
     static double userScrollModifier;
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
+    static bool fullscreen;
 
 public:
     // Menu navigation state (preserved across scene transitions)

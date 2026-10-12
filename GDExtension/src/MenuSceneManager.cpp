@@ -1,7 +1,9 @@
 #include "MenuSceneManager.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
 #include "MenuTree.hpp"
+#include "SettingsFile.hpp"
 #include "SongDatabase.hpp"
+#include <godot_cpp/classes/display_server.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -141,6 +143,27 @@ void MenuSceneManager::buildMenuTree()
             GraphiteGlobals::difficulty = 0;
             GraphiteGlobals::currentSongFileName = "AutoCalibration/AudioCalibration.tjau";
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
+        }
+        else if (actionData == ACT_FullscreenToggle)
+        {
+            DisplayServer* displayServer = DisplayServer::get_singleton();
+            if (displayServer)
+            {
+                displayServer->window_set_mode(GraphiteGlobals::fullscreen ? DisplayServer::WINDOW_MODE_FULLSCREEN : DisplayServer::WINDOW_MODE_WINDOWED);
+            }
+
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<bool>("Fullscreen", GraphiteGlobals::fullscreen);
+            mainSettingsFile.save();
+        }
+        else if (actionData == ACT_PlaybackSpeedUp || actionData == ACT_PlaybackSpeedDown || actionData == ACT_ScrollSpeedUp || actionData == ACT_ScrollSpeedDown)
+        {
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<double>("PlaybackRate", GraphiteGlobals::playbackRate);
+            mainSettingsFile.set<double>("ScrollSpeed", GraphiteGlobals::userScrollModifier);
+            mainSettingsFile.save();
         }
     };
 

@@ -122,6 +122,12 @@ int32_t MenuTree::createSettingsMenu()
     audio.actionData = ACT_AudioCalibration;
     node.items.push_back(audio);
 
+    MenuItem fullscreen;
+    fullscreen.type = MIT_Action;
+    fullscreen.actionData = ACT_FullscreenToggle;
+    fullscreen.labelProvider = []() { return std::string("Fullscreen: ") + (GraphiteGlobals::fullscreen ? "On" : "Off"); };
+    node.items.push_back(fullscreen);
+
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -539,15 +545,31 @@ void MenuTree::onEnter()
         {
             double delta = (item->actionData == ACT_PlaybackSpeedUp) ? PLAYBACK_SPEED_STEP : -PLAYBACK_SPEED_STEP;
             GraphiteGlobals::playbackRate = std::clamp(GraphiteGlobals::playbackRate + delta, PLAYBACK_SPEED_MIN, PLAYBACK_SPEED_MAX);
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
         }
         else if (item->actionData == ACT_ScrollSpeedUp || item->actionData == ACT_ScrollSpeedDown)
         {
             double delta = (item->actionData == ACT_ScrollSpeedUp) ? SCROLL_SPEED_STEP : -SCROLL_SPEED_STEP;
             GraphiteGlobals::userScrollModifier = std::clamp(GraphiteGlobals::userScrollModifier + delta, SCROLL_SPEED_MIN, SCROLL_SPEED_MAX);
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
         }
         else if (item->actionData == ACT_PlaybackSpeedInfo || item->actionData == ACT_ScrollSpeedInfo)
         {
             // display-only entries, no action
+        }
+        else if (item->actionData == ACT_FullscreenToggle)
+        {
+            GraphiteGlobals::fullscreen = !GraphiteGlobals::fullscreen;
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
         }
         else if (item->actionData >= 0)
         {

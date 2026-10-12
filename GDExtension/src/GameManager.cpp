@@ -5,6 +5,7 @@
 #include "InputThreadFunctions.hpp"
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
+#include <godot_cpp/classes/display_server.hpp>
 
 void GameManager::_bind_methods()
 {
@@ -24,36 +25,36 @@ void GameManager::_ready()
     RhythmAudio::RhythmAudioSettings settings{};
     SettingsFile audioSettingsFile("audio_settings.json");
     audioSettingsFile.load();
-    audioSettingsFile.ensureContainsString("backendMode", "");
-    audioSettingsFile.ensureContainsString("audioMonoStereo", "stereo");
-    audioSettingsFile.ensureContainsInteger("ASIO_sampleRate", 0);
-    audioSettingsFile.ensureContainsInteger("ASIO_bufferSizeInSamples", 0);
-    audioSettingsFile.ensureContainsString("ASIO_cardToUse", "");
-    audioSettingsFile.ensureContainsInteger("ASIO_leftChannel", 0);
-    audioSettingsFile.ensureContainsInteger("ASIO_rightChannel", 1);
-    audioSettingsFile.save();
+    settings.audioMonoStereo = audioSettingsFile.get<std::string>("audioMonoStereo", "stereo");
+    settings.ASIO_sampleRate = audioSettingsFile.get<uint32_t>("ASIO_sampleRate", 0);
+    settings.ASIO_bufferSizeInSamples = audioSettingsFile.get<uint32_t>("ASIO_bufferSizeInSamples", 0);
+    settings.ASIO_cardToUse = audioSettingsFile.get<std::string>("ASIO_cardToUse", "");
+    settings.ASIO_leftChannel = audioSettingsFile.get<int32_t>("ASIO_leftChannel", 0);
+    settings.ASIO_rightChannel = audioSettingsFile.get<int32_t>("ASIO_rightChannel", 1);
 
     // Populate C++ RhythmAudioSettings from JSON
-    std::string backendMode = audioSettingsFile.jsonObj.value("backendMode", "");
+    std::string backendMode = audioSettingsFile.get<std::string>("backendMode", "");
     if (backendMode == "ASIO")
     {
         settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
     }
-    settings.audioMonoStereo = audioSettingsFile.jsonObj.value("audioMonoStereo", "stereo");
-    settings.ASIO_sampleRate = audioSettingsFile.jsonObj.value("ASIO_sampleRate", 0);
-    settings.ASIO_bufferSizeInSamples = audioSettingsFile.jsonObj.value("ASIO_bufferSizeInSamples", 0);
-    settings.ASIO_cardToUse = audioSettingsFile.jsonObj.value("ASIO_cardToUse", "");
-    settings.ASIO_leftChannel = audioSettingsFile.jsonObj.value("ASIO_leftChannel", 0);
-    settings.ASIO_rightChannel = audioSettingsFile.jsonObj.value("ASIO_rightChannel", 1);
+    audioSettingsFile.save();
     GraphiteGlobals::audioEngine.emplace(settings);
 
-    SettingsFile offsetSettingsFile("offset_settings.json");
-    offsetSettingsFile.load();
-    offsetSettingsFile.ensureContainsInteger("AudioOffset", 0);
-    offsetSettingsFile.ensureContainsInteger("VisualOffset", 0);
-    offsetSettingsFile.save();
-    GraphiteGlobals::audioOffset = offsetSettingsFile.jsonObj.value("AudioOffset", 0);
-    GraphiteGlobals::visualOffset = offsetSettingsFile.jsonObj.value("VisualOffset", 0);
+    SettingsFile mainSettingsFile("main_settings.json");
+    mainSettingsFile.load();
+    GraphiteGlobals::audioOffset = mainSettingsFile.get<int64_t>("AudioOffset", 0);
+    GraphiteGlobals::visualOffset = mainSettingsFile.get<int64_t>("VisualOffset", 0);
+    GraphiteGlobals::fullscreen = mainSettingsFile.get<bool>("Fullscreen", false);
+    GraphiteGlobals::playbackRate = mainSettingsFile.get<double>("PlaybackRate", 1.0);
+    GraphiteGlobals::userScrollModifier = mainSettingsFile.get<double>("ScrollSpeed", 1.0);
+    mainSettingsFile.save();
+
+    DisplayServer* displayServer = DisplayServer::get_singleton();
+    if (displayServer)
+    {
+        displayServer->window_set_mode(GraphiteGlobals::fullscreen ? DisplayServer::WINDOW_MODE_FULLSCREEN : DisplayServer::WINDOW_MODE_WINDOWED);
+    }
 
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueKaHitsound.ogg", -36, GraphiteGlobals::blueKaHitsoundHandle);
@@ -169,24 +170,20 @@ void GameManager::initializeInputEngine()
 
     SettingsFile inputSettingsFile("input_settings.json");
     inputSettingsFile.load();
-    inputSettingsFile.ensureContainsInteger("uncappedPolling", 0);
+
+    json defaultBindings = json::array();
+    defaultBindings.push_back({{"button", "z"}, {"action", "DrumRimLeft"}});
+    defaultBindings.push_back({{"button", "x"}, {"action", "DrumCenterLeft"}});
+    defaultBindings.push_back({{"button", "n"}, {"action", "DrumCenterRight"}});
+    defaultBindings.push_back({{"button", "m"}, {"action", "DrumRimRight"}});
+    defaultBindings.push_back({{"button", "enter"}, {"action", "Enter"}});
+    defaultBindings.push_back({{"button", "escape"}, {"action", "Back"}});
+
+    json bindings = inputSettingsFile.get<json>("bindings", defaultBindings);
+    bool uncappedPolling = inputSettingsFile.get<bool>("uncappedPolling", true);
     inputSettingsFile.save();
 
-    if (!inputSettingsFile.jsonObj.contains("bindings"))
-    {
-        json defaultBindings = json::array();
-        defaultBindings.push_back({{"button", "z"}, {"action", "DrumRimLeft"}});
-        defaultBindings.push_back({{"button", "x"}, {"action", "DrumCenterLeft"}});
-        defaultBindings.push_back({{"button", "n"}, {"action", "DrumCenterRight"}});
-        defaultBindings.push_back({{"button", "m"}, {"action", "DrumRimRight"}});
-        defaultBindings.push_back({{"button", "enter"}, {"action", "Enter"}});
-        defaultBindings.push_back({{"button", "escape"}, {"action", "Back"}});
-        inputSettingsFile.jsonObj["bindings"] = defaultBindings;
-    }
-
-    inputSettingsFile.save();
-
-    for (auto& bindingJson : inputSettingsFile.jsonObj["bindings"])
+    for (auto& bindingJson : bindings)
     {
         RhythmInput::RhythmInputBinding binding{};
         binding.button = bindingJson.value("button", "");
@@ -195,6 +192,6 @@ void GameManager::initializeInputEngine()
     }
 
     RhythmInput::RhythmInputSettings inputSettings{};
-    inputSettings.uncappedPolling = inputSettingsFile.jsonObj.value("uncappedPolling", 0) != 0;
+    inputSettings.uncappedPolling = uncappedPolling;
     GraphiteGlobals::inputEngine.emplace(gameActions, gameBindings, inputSettings);
 }

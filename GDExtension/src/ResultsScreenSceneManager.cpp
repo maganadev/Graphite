@@ -151,10 +151,10 @@ void ResultsScreenSceneManager::_ready()
         {
             GraphiteGlobals::visualOffset = -averageOff;
             UtilityFunctions::print("Visual offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new visual offset ", std::to_string(GraphiteGlobals::visualOffset).c_str(), " ps");
-            SettingsFile offsetSettingsFile("offset_settings.json");
-            offsetSettingsFile.load();
-            offsetSettingsFile.jsonObj["VisualOffset"] = GraphiteGlobals::visualOffset;
-            offsetSettingsFile.save();
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<int64_t>("VisualOffset", GraphiteGlobals::visualOffset);
+            mainSettingsFile.save();
             GraphiteGlobals::modVisualOffsetCalibration = false;
         }
 
@@ -162,10 +162,10 @@ void ResultsScreenSceneManager::_ready()
         {
             GraphiteGlobals::audioOffset = -averageOff;
             UtilityFunctions::print("Audio offset calibration: average off-time ", std::to_string(averageOff).c_str(), " ps, new audio offset ", std::to_string(GraphiteGlobals::audioOffset).c_str(), " ps");
-            SettingsFile offsetSettingsFile("offset_settings.json");
-            offsetSettingsFile.load();
-            offsetSettingsFile.jsonObj["AudioOffset"] = GraphiteGlobals::audioOffset;
-            offsetSettingsFile.save();
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<int64_t>("AudioOffset", GraphiteGlobals::audioOffset);
+            mainSettingsFile.save();
             GraphiteGlobals::modAudioOffsetCalibration = false;
         }
     }
