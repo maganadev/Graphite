@@ -25,6 +25,9 @@ enum ActionCode : int32_t
     ACT_PlaybackSpeedUp = -7,
     ACT_PlaybackSpeedDown = -8,
     ACT_PlaybackSpeedInfo = -9,
+    ACT_ScrollSpeedUp = -10,
+    ACT_ScrollSpeedDown = -11,
+    ACT_ScrollSpeedInfo = -12,
 };
 
 struct MenuItem
@@ -94,6 +97,8 @@ private:
     int32_t createMainMenu();
     int32_t createSettingsMenu();
     int32_t createPlaybackSpeedMenu();
+    int32_t createScrollSpeedMenu();
+    int32_t createStepperMenu(int32_t upAction, int32_t downAction, int32_t infoAction, double step, std::function<std::string()> labelProvider);
     int32_t createFolderSelect();
     int32_t createSortMode(int32_t parentId, const std::vector<int>& songSubset);
     int32_t createLevelMenu(int32_t parentId, const std::vector<int>& songSubset);

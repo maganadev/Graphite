@@ -12,10 +12,13 @@ namespace
     constexpr double PLAYBACK_SPEED_STEP = 0.05;
     constexpr double PLAYBACK_SPEED_MIN = 0.25;
     constexpr double PLAYBACK_SPEED_MAX = 4.0;
+    constexpr double SCROLL_SPEED_STEP = 0.05;
+    constexpr double SCROLL_SPEED_MIN = 0.25;
+    constexpr double SCROLL_SPEED_MAX = 4.0;
 
-    std::string formatPlaybackSpeed(double rate)
+    std::string formatSpeed(const std::string& name, double rate)
     {
-        return std::format("Current Playback Speed: {:.2f}", rate);
+        return std::format("Current {}: {:.2f}", name, rate);
     }
 } // namespace
 
@@ -93,25 +96,35 @@ int32_t MenuTree::createSettingsMenu()
 
 int32_t MenuTree::createPlaybackSpeedMenu()
 {
+    return createStepperMenu(ACT_PlaybackSpeedUp, ACT_PlaybackSpeedDown, ACT_PlaybackSpeedInfo, PLAYBACK_SPEED_STEP, []() { return formatSpeed("Playback Speed", GraphiteGlobals::playbackRate); });
+}
+
+int32_t MenuTree::createScrollSpeedMenu()
+{
+    return createStepperMenu(ACT_ScrollSpeedUp, ACT_ScrollSpeedDown, ACT_ScrollSpeedInfo, SCROLL_SPEED_STEP, []() { return formatSpeed("Scroll Speed", GraphiteGlobals::userScrollModifier); });
+}
+
+int32_t MenuTree::createStepperMenu(int32_t upAction, int32_t downAction, int32_t infoAction, double step, std::function<std::string()> labelProvider)
+{
     MenuNode node;
     node.parentNodeId = -1;
 
     MenuItem increase;
-    increase.label = std::format("+{:.2f}x", PLAYBACK_SPEED_STEP);
+    increase.label = std::format("+{:.2f}x", step);
     increase.type = MIT_Action;
-    increase.actionData = ACT_PlaybackSpeedUp;
+    increase.actionData = upAction;
     node.items.push_back(increase);
 
     MenuItem display;
     display.type = MIT_Action;
-    display.actionData = ACT_PlaybackSpeedInfo;
-    display.labelProvider = []() { return formatPlaybackSpeed(GraphiteGlobals::playbackRate); };
+    display.actionData = infoAction;
+    display.labelProvider = std::move(labelProvider);
     node.items.push_back(display);
 
     MenuItem decrease;
-    decrease.label = std::format("-{:.2f}x", PLAYBACK_SPEED_STEP);
+    decrease.label = std::format("-{:.2f}x", step);
     decrease.type = MIT_Action;
-    decrease.actionData = ACT_PlaybackSpeedDown;
+    decrease.actionData = downAction;
     node.items.push_back(decrease);
 
     MenuItem back;
@@ -311,6 +324,16 @@ int32_t MenuTree::createDifficultySelectForSong(int32_t parentId, int songIndex)
         node.items.push_back(speed);
     }
 
+    {
+        int32_t scrollNodeId = createScrollSpeedMenu();
+        MenuItem scroll;
+        scroll.label = "Scroll Speed";
+        scroll.type = MIT_Submenu;
+        scroll.targetNodeId = scrollNodeId;
+        scroll.actionData = ACT_PlayMusic;
+        node.items.push_back(scroll);
+    }
+
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -481,9 +504,14 @@ void MenuTree::onEnter()
             double delta = (item->actionData == ACT_PlaybackSpeedUp) ? PLAYBACK_SPEED_STEP : -PLAYBACK_SPEED_STEP;
             GraphiteGlobals::playbackRate = std::clamp(GraphiteGlobals::playbackRate + delta, PLAYBACK_SPEED_MIN, PLAYBACK_SPEED_MAX);
         }
-        else if (item->actionData == ACT_PlaybackSpeedInfo)
+        else if (item->actionData == ACT_ScrollSpeedUp || item->actionData == ACT_ScrollSpeedDown)
         {
-            // display-only entry, no action
+            double delta = (item->actionData == ACT_ScrollSpeedUp) ? SCROLL_SPEED_STEP : -SCROLL_SPEED_STEP;
+            GraphiteGlobals::userScrollModifier = std::clamp(GraphiteGlobals::userScrollModifier + delta, SCROLL_SPEED_MIN, SCROLL_SPEED_MAX);
+        }
+        else if (item->actionData == ACT_PlaybackSpeedInfo || item->actionData == ACT_ScrollSpeedInfo)
+        {
+            // display-only entries, no action
         }
         else if (item->actionData >= 0)
         {

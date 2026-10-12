@@ -33,6 +33,13 @@ void MenuSceneManager::_ready()
         slotLabels[i] = parent->get_node<Label>(NodePath(path));
     }
 
+    spacers.resize(SPACER_COUNT);
+    for (int32_t i = 0; i < SPACER_COUNT; i++)
+    {
+        String path = String("MenuElements/Spacer") + String::num_int64(i);
+        spacers[i] = parent->get_node<Control>(NodePath(path));
+    }
+
     buildMenuTree();
 }
 
@@ -186,6 +193,13 @@ void MenuSceneManager::rebuildVisibleWindow()
                 slotLabels[i]->set_text("");
             }
         }
+        for (Control* spacer : spacers)
+        {
+            if (spacer)
+            {
+                spacer->set_visible(false);
+            }
+        }
         return;
     }
 
@@ -199,18 +213,30 @@ void MenuSceneManager::rebuildVisibleWindow()
         selectedIndex = count - 1;
     }
 
+    std::vector<int32_t> slotIndices(VISIBLE_SLOTS, 0);
     for (int32_t i = 0; i < VISIBLE_SLOTS; i++)
     {
-        if (!slotLabels[i])
-        {
-            continue;
-        }
-
         int32_t idx = (selectedIndex - CENTER_SLOT + i) % count;
         if (idx < 0)
         {
             idx += count;
         }
-        slotLabels[i]->set_text(items[idx].c_str());
+        slotIndices[i] = idx;
+
+        if (slotLabels[i])
+        {
+            slotLabels[i]->set_text(items[idx].c_str());
+        }
+    }
+
+    for (int32_t i = 0; i < SPACER_COUNT; i++)
+    {
+        if (!spacers[i])
+        {
+            continue;
+        }
+
+        bool atLogicalEnd = count > 1 && slotIndices[i] == count - 1;
+        spacers[i]->set_visible(atLogicalEnd);
     }
 }

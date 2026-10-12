@@ -1,6 +1,7 @@
 #ifndef MenuSceneManager_hpp
 #define MenuSceneManager_hpp
 
+#include <godot_cpp/classes/control.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/sprite2d.hpp>
 #include <string>
@@ -37,8 +38,10 @@ private:
     std::vector<std::string> items;
     int32_t selectedIndex{0};
     std::vector<Label*> slotLabels;
+    std::vector<Control*> spacers;
     static constexpr int32_t VISIBLE_SLOTS = 9;
     static constexpr int32_t CENTER_SLOT = VISIBLE_SLOTS / 2;
+    static constexpr int32_t SPACER_COUNT = VISIBLE_SLOTS - 1;
 };
 
 #endif
