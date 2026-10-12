@@ -19,6 +19,7 @@ shader_parameter/wave_dir = Vector2(-1, 0.5)
 font_size = 120
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_im3oa"]
+bg_color = Color(0.61112785, 0.60908324, 0.5003366, 1)
 corner_radius_top_left = 1024
 corner_radius_top_right = 1024
 corner_radius_bottom_right = 1024
