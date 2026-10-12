@@ -1,0 +1,7 @@
+**.o
+**.ogg
+/.vscode/**
+/Demo/build/**
+/ThirdParty/**
+/UnitTesting/Testing/Temporary/**
+/UnitTesting/build/**

@@ -1,0 +1,191 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "WindowsNormalDebug",
+      "displayName": "Windows Normal Debug build",
+      "description": "Configure a Windows Debug build using MSYS2 UCRT64.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_PREFIX_PATH": "/ucrt64"
+      },
+      "binaryDir": "${sourceDir}/build/WindowsNormalDebug"
+    },
+    {
+      "name": "WindowsNormalRelease",
+      "displayName": "Windows Normal Release build",
+      "description": "Configure a Windows Release build using MSYS2 UCRT64.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_PREFIX_PATH": "/ucrt64"
+      },
+      "binaryDir": "${sourceDir}/build/WindowsNormalRelease"
+    },
+    {
+      "name": "LinuxNormalDebug",
+      "displayName": "Linux Normal Debug build",
+      "description": "Configure a Linux Debug build.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxNormalDebug"
+    },
+    {
+      "name": "LinuxNormalRelease",
+      "displayName": "Linux Normal Release build",
+      "description": "Configure a Linux Release build.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxNormalRelease"
+    },
+    {
+      "name": "LinuxASANDebug",
+      "displayName": "Linux AddressSanitizer Debug build",
+      "description": "Configure a Linux Debug build with AddressSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=address -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxASANDebug"
+    },
+    {
+      "name": "LinuxASANRelease",
+      "displayName": "Linux AddressSanitizer Release build",
+      "description": "Configure a Linux Release build with AddressSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=address -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxASANRelease"
+    },
+    {
+      "name": "LinuxTSANDebug",
+      "displayName": "Linux ThreadSanitizer Debug build",
+      "description": "Configure a Linux Debug build with ThreadSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxTSANDebug"
+    },
+    {
+      "name": "LinuxTSANRelease",
+      "displayName": "Linux ThreadSanitizer Release build",
+      "description": "Configure a Linux Release build with ThreadSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxTSANRelease"
+    },
+    {
+      "name": "LinuxUBSANDebug",
+      "displayName": "Linux UndefinedBehaviorSanitizer Debug build",
+      "description": "Configure a Linux Debug build with UndefinedBehaviorSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=undefined -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=undefined -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxUBSANDebug"
+    },
+    {
+      "name": "LinuxUBSANRelease",
+      "displayName": "Linux UndefinedBehaviorSanitizer Release build",
+      "description": "Configure a Linux Release build with UndefinedBehaviorSanitizer.",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_FLAGS": "-fsanitize=undefined -fno-omit-frame-pointer",
+        "CMAKE_C_FLAGS": "-fsanitize=undefined -fno-omit-frame-pointer"
+      },
+      "binaryDir": "${sourceDir}/build/LinuxUBSANRelease"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "WindowsNormalDebug",
+      "configurePreset": "WindowsNormalDebug"
+    },
+    {
+      "name": "WindowsNormalRelease",
+      "configurePreset": "WindowsNormalRelease"
+    },
+    {
+      "name": "LinuxNormalDebug",
+      "configurePreset": "LinuxNormalDebug"
+    },
+    {
+      "name": "LinuxNormalRelease",
+      "configurePreset": "LinuxNormalRelease"
+    },
+    {
+      "name": "LinuxASANDebug",
+      "configurePreset": "LinuxASANDebug"
+    },
+    {
+      "name": "LinuxASANRelease",
+      "configurePreset": "LinuxASANRelease"
+    },
+    {
+      "name": "LinuxTSANDebug",
+      "configurePreset": "LinuxTSANDebug"
+    },
+    {
+      "name": "LinuxTSANRelease",
+      "configurePreset": "LinuxTSANRelease"
+    },
+    {
+      "name": "LinuxUBSANDebug",
+      "configurePreset": "LinuxUBSANDebug"
+    },
+    {
+      "name": "LinuxUBSANRelease",
+      "configurePreset": "LinuxUBSANRelease"
+    }
+  ]
+}

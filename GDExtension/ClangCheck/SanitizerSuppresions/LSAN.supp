@@ -1,0 +1,4 @@
+# Suppress by the library function that initiated the leak
+leak:snd_pcm_open
+leak:PaAlsa_Initialize
+leak:Pa_Initialize

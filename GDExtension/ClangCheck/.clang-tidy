@@ -1,0 +1,16 @@
+Checks: >
+  -*,
+  cppcoreguidelines-init-variables,
+  modernize-use-nullptr,
+  bugprone-unhandled-exception-at-new,
+  misc-definitions-in-headers,
+  readability-braces-around-statements,
+  readability-isolate-declaration
+
+WarningsAsErrors: '*'
+
+HeaderFilterRegex: '.*'
+
+CheckOptions:
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '0'
