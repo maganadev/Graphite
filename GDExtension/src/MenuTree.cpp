@@ -1,9 +1,23 @@
 #include "MenuTree.hpp"
 #include "GraphiteGlobals.hpp"
 #include "SongDatabase.hpp"
+#include <algorithm>
 #include <cstdint>
+#include <format>
 #include <string>
 #include <vector>
+
+namespace
+{
+    constexpr double PLAYBACK_SPEED_STEP = 0.05;
+    constexpr double PLAYBACK_SPEED_MIN = 0.25;
+    constexpr double PLAYBACK_SPEED_MAX = 4.0;
+
+    std::string formatPlaybackSpeed(double rate)
+    {
+        return std::format("Current Playback Speed: {:.2f}", rate);
+    }
+} // namespace
 
 void MenuTree::build(SongDatabase* db)
 {
@@ -82,21 +96,23 @@ int32_t MenuTree::createPlaybackSpeedMenu()
     MenuNode node;
     node.parentNodeId = -1;
 
-    auto addSpeed = [&](const std::string& label, double rate)
-    {
-        MenuItem item;
-        item.label = label;
-        item.type = MIT_Action;
-        item.actionData = ACT_PlaybackSpeed;
-        int32_t encodedRate = static_cast<int32_t>(rate * 100.0 + 0.5);
-        item.targetNodeId = encodedRate;
-        node.items.push_back(item);
-    };
+    MenuItem increase;
+    increase.label = std::format("+{:.2f}x", PLAYBACK_SPEED_STEP);
+    increase.type = MIT_Action;
+    increase.actionData = ACT_PlaybackSpeedUp;
+    node.items.push_back(increase);
 
-    addSpeed("0.5x (Slow)", 0.5);
-    addSpeed("0.75x (Medium)", 0.75);
-    addSpeed("1.0x (Normal)", 1.0);
-    addSpeed("1.5x (Fast)", 1.5);
+    MenuItem display;
+    display.type = MIT_Action;
+    display.actionData = ACT_PlaybackSpeedInfo;
+    display.labelProvider = []() { return formatPlaybackSpeed(GraphiteGlobals::playbackRate); };
+    node.items.push_back(display);
+
+    MenuItem decrease;
+    decrease.label = std::format("-{:.2f}x", PLAYBACK_SPEED_STEP);
+    decrease.type = MIT_Action;
+    decrease.actionData = ACT_PlaybackSpeedDown;
+    node.items.push_back(decrease);
 
     MenuItem back;
     back.label = "Back";
@@ -331,9 +347,9 @@ void MenuTree::navigateBack()
     {
         return;
     }
-    pendingSongIndex = -1;
     NavPosition prev = navStack.back();
     navStack.pop_back();
+    pendingSongIndex = prev.songIndex;
     navigateTo(prev.nodeId, prev.itemIndex);
     scrollOffset = prev.scrollOffset;
 }
@@ -371,6 +387,10 @@ std::string MenuTree::getCurrentItemLabel(int32_t index)
     if (index < 0 || index >= static_cast<int32_t>(node.items.size()))
     {
         return "";
+    }
+    if (node.items[index].labelProvider)
+    {
+        return node.items[index].labelProvider();
     }
     return node.items[index].label;
 }
@@ -425,6 +445,7 @@ void MenuTree::onEnter()
     pos.nodeId = currentNodeId;
     pos.itemIndex = currentItemIndex;
     pos.scrollOffset = scrollOffset;
+    pos.songIndex = pendingSongIndex;
 
     if (item->type == MIT_Submenu)
     {
@@ -437,7 +458,6 @@ void MenuTree::onEnter()
     }
     else if (item->type == MIT_Back)
     {
-        pendingSongIndex = -1;
         navigateBack();
     }
     else if (item->type == MIT_Action)
@@ -456,12 +476,14 @@ void MenuTree::onEnter()
                 onAction(item->actionData);
             }
         }
-        else if (item->actionData == ACT_PlaybackSpeed)
+        else if (item->actionData == ACT_PlaybackSpeedUp || item->actionData == ACT_PlaybackSpeedDown)
         {
-            GraphiteGlobals::playbackRate = static_cast<double>(item->targetNodeId) / 100.0;
-            int32_t savedSongIndex = pendingSongIndex;
-            navigateBack();
-            pendingSongIndex = savedSongIndex;
+            double delta = (item->actionData == ACT_PlaybackSpeedUp) ? PLAYBACK_SPEED_STEP : -PLAYBACK_SPEED_STEP;
+            GraphiteGlobals::playbackRate = std::clamp(GraphiteGlobals::playbackRate + delta, PLAYBACK_SPEED_MIN, PLAYBACK_SPEED_MAX);
+        }
+        else if (item->actionData == ACT_PlaybackSpeedInfo)
+        {
+            // display-only entry, no action
         }
         else if (item->actionData >= 0)
         {

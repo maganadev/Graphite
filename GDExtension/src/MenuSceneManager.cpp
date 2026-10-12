@@ -147,26 +147,24 @@ void MenuSceneManager::_process(double delta)
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumRimLeft].timesPressedSinceLastFrame > 0)
     {
         tree.moveUp();
-        rebuildVisibleWindow();
     }
 
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumRimRight].timesPressedSinceLastFrame > 0)
     {
         tree.moveDown();
-        rebuildVisibleWindow();
     }
 
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterLeft].timesPressedSinceLastFrame > 0 || RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::DrumCenterRight].timesPressedSinceLastFrame > 0)
     {
         tree.onEnter();
-        rebuildVisibleWindow();
     }
 
     if (RhythmInput::RhythmInputEngine::gameActions[GameActionIndices::Back].timesPressedSinceLastFrame > 0)
     {
         tree.navigateBack();
-        rebuildVisibleWindow();
     }
+
+    rebuildVisibleWindow();
 }
 
 void MenuSceneManager::rebuildVisibleWindow()

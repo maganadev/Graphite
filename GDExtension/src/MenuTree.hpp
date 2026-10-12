@@ -22,15 +22,18 @@ enum ActionCode : int32_t
     ACT_PlaySong = -4,
     ACT_VisualCalibration = -5,
     ACT_AudioCalibration = -6,
-    ACT_PlaybackSpeed = -7,
+    ACT_PlaybackSpeedUp = -7,
+    ACT_PlaybackSpeedDown = -8,
+    ACT_PlaybackSpeedInfo = -9,
 };
 
 struct MenuItem
 {
     std::string label;
     MenuItemType type;
-    int32_t targetNodeId; // for MIT_Submenu: node to navigate to
-    int32_t actionData;   // for MIT_Action: song index or negative action code
+    int32_t targetNodeId;                       // for MIT_Submenu: node to navigate to
+    int32_t actionData;                         // for MIT_Action: song index or negative action code
+    std::function<std::string()> labelProvider; // if set, overrides label
 };
 
 struct MenuNode
@@ -45,6 +48,7 @@ struct NavPosition
     int32_t nodeId;
     int32_t itemIndex;
     int32_t scrollOffset;
+    int32_t songIndex = -1;
 };
 
 class MenuTree
