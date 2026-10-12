@@ -94,6 +94,8 @@ public:
     std::function<void(int32_t)> onAction;
 
 private:
+    void insertBackItems(MenuNode& node);
+
     int32_t createMainMenu();
     int32_t createSettingsMenu();
     int32_t createPlaybackSpeedMenu();

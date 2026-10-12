@@ -469,7 +469,7 @@ std::vector<int> SongDatabase::getSongsByGroup(const std::vector<int>& subset, c
     return result;
 }
 
-std::vector<std::string> SongDatabase::getLevelGroups(const std::vector<int>& subset)
+std::vector<int> SongDatabase::getLevels(const std::vector<int>& subset)
 {
     uint16_t levels = 0;
     for (int idx : subset)
@@ -479,15 +479,15 @@ std::vector<std::string> SongDatabase::getLevelGroups(const std::vector<int>& su
             levels |= songs[idx].availableLevels;
         }
     }
-    std::vector<std::string> groups;
+    std::vector<int> result;
     for (int l = 10; l >= 1; l--)
     {
         if (levels & (1 << (l - 1)))
         {
-            groups.push_back("Level " + std::to_string(l));
+            result.push_back(l);
         }
     }
-    return groups;
+    return result;
 }
 
 std::vector<std::string> SongDatabase::getTitleGroups(const std::vector<int>& subset)

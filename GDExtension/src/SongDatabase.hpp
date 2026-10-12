@@ -67,8 +67,8 @@ public:
     // Get songs from `subset` that have the given level.
     std::vector<int> getSongsByLevel(const std::vector<int>& subset, uint8_t level);
 
-    // Get level group labels available in `subset` (descending: Level 10..1).
-    std::vector<std::string> getLevelGroups(const std::vector<int>& subset);
+    // Get the levels available in `subset` (descending: 10..1).
+    std::vector<int> getLevels(const std::vector<int>& subset);
 
     // Get unique title group labels from `subset`.
     std::vector<std::string> getTitleGroups(const std::vector<int>& subset);

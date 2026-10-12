@@ -15,6 +15,7 @@ namespace
     constexpr double SCROLL_SPEED_STEP = 0.05;
     constexpr double SCROLL_SPEED_MIN = 0.25;
     constexpr double SCROLL_SPEED_MAX = 4.0;
+    constexpr int32_t BACK_ITEM_INTERVAL = 10;
 
     std::string formatSpeed(const std::string& name, double rate)
     {
@@ -38,9 +39,44 @@ void MenuTree::build(SongDatabase* db)
 
 int32_t MenuTree::addNode(MenuNode node)
 {
+    insertBackItems(node);
     int32_t id = static_cast<int32_t>(nodes.size());
     nodes.push_back(node);
     return id;
+}
+
+void MenuTree::insertBackItems(MenuNode& node)
+{
+    if (node.items.empty() || node.items.back().type != MIT_Back)
+    {
+        return;
+    }
+
+    std::vector<MenuItem> entries = std::move(node.items);
+    entries.pop_back();
+
+    node.items.clear();
+    node.items.reserve(entries.size() + entries.size() / BACK_ITEM_INTERVAL + 1);
+
+    for (size_t i = 0; i < entries.size(); i++)
+    {
+        node.items.push_back(entries[i]);
+        if (static_cast<int32_t>(i + 1) % BACK_ITEM_INTERVAL == 0)
+        {
+            MenuItem back;
+            back.label = "Back";
+            back.type = MIT_Back;
+            node.items.push_back(back);
+        }
+    }
+
+    if (node.items.empty() || node.items.back().type != MIT_Back)
+    {
+        MenuItem back;
+        back.label = "Back";
+        back.type = MIT_Back;
+        node.items.push_back(back);
+    }
 }
 
 int32_t MenuTree::createMainMenu()
@@ -221,15 +257,15 @@ int32_t MenuTree::createLevelMenu(int32_t parentId, const std::vector<int>& song
     node.parentNodeId = parentId;
     node.songSubset = songSubset;
 
-    std::vector<std::string> groups = database->getLevelGroups(songSubset);
-    for (size_t i = 0; i < groups.size(); i++)
+    std::vector<int> levels = database->getLevels(songSubset);
+    for (int level : levels)
     {
-        int levelNum = 10 - static_cast<int>(i);
-        std::vector<int> filtered = database->getSongsByLevel(songSubset, static_cast<uint8_t>(levelNum));
-        int32_t listId = createSongList(-1, filtered, groups[i]);
+        std::vector<int> filtered = database->getSongsByLevel(songSubset, static_cast<uint8_t>(level));
+        std::string label = "Level " + std::to_string(level);
+        int32_t listId = createSongList(-1, filtered, label);
 
         MenuItem item;
-        item.label = groups[i];
+        item.label = label;
         item.type = MIT_Submenu;
         item.targetNodeId = listId;
         node.items.push_back(item);
