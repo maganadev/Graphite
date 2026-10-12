@@ -4,6 +4,7 @@
 #include "SettingsFile.hpp"
 #include "SongDatabase.hpp"
 #include <godot_cpp/classes/display_server.hpp>
+#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -163,6 +164,20 @@ void MenuSceneManager::buildMenuTree()
             mainSettingsFile.load();
             mainSettingsFile.set<double>("PlaybackRate", GraphiteGlobals::playbackRate);
             mainSettingsFile.set<double>("ScrollSpeed", GraphiteGlobals::userScrollModifier);
+            mainSettingsFile.save();
+        }
+        else if (actionData == ACT_FpsCapToggle)
+        {
+            Engine* engine = Engine::get_singleton();
+            if (engine)
+            {
+                engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? static_cast<int32_t>(GraphiteGlobals::fpsCap) : 0);
+            }
+
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<double>("FpsCap", GraphiteGlobals::fpsCap);
+            mainSettingsFile.set<bool>("FpsCapEnabled", GraphiteGlobals::fpsCapEnabled);
             mainSettingsFile.save();
         }
     };

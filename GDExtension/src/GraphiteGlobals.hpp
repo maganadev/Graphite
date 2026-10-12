@@ -52,6 +52,8 @@ public:
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
     static bool fullscreen;
+    static double fpsCap;
+    static bool fpsCapEnabled;
 
 public:
     // Menu navigation state (preserved across scene transitions)

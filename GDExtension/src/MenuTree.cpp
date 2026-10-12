@@ -128,6 +128,12 @@ int32_t MenuTree::createSettingsMenu()
     fullscreen.labelProvider = []() { return std::string("Fullscreen: ") + (GraphiteGlobals::fullscreen ? "On" : "Off"); };
     node.items.push_back(fullscreen);
 
+    MenuItem fpsCap;
+    fpsCap.type = MIT_Action;
+    fpsCap.actionData = ACT_FpsCapToggle;
+    fpsCap.labelProvider = []() { return std::string("FPS Cap: ") + (GraphiteGlobals::fpsCapEnabled ? "On" : "Off"); };
+    node.items.push_back(fpsCap);
+
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -566,6 +572,14 @@ void MenuTree::onEnter()
         else if (item->actionData == ACT_FullscreenToggle)
         {
             GraphiteGlobals::fullscreen = !GraphiteGlobals::fullscreen;
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
+        }
+        else if (item->actionData == ACT_FpsCapToggle)
+        {
+            GraphiteGlobals::fpsCapEnabled = !GraphiteGlobals::fpsCapEnabled;
             if (onAction)
             {
                 onAction(item->actionData);

@@ -6,6 +6,7 @@
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
 #include <godot_cpp/classes/display_server.hpp>
+#include <godot_cpp/classes/engine.hpp>
 
 void GameManager::_bind_methods()
 {
@@ -48,12 +49,20 @@ void GameManager::_ready()
     GraphiteGlobals::fullscreen = mainSettingsFile.get<bool>("Fullscreen", false);
     GraphiteGlobals::playbackRate = mainSettingsFile.get<double>("PlaybackRate", 1.0);
     GraphiteGlobals::userScrollModifier = mainSettingsFile.get<double>("ScrollSpeed", 1.0);
+    GraphiteGlobals::fpsCap = mainSettingsFile.get<double>("FpsCap", 60.0);
+    GraphiteGlobals::fpsCapEnabled = mainSettingsFile.get<bool>("FpsCapEnabled", false);
     mainSettingsFile.save();
 
     DisplayServer* displayServer = DisplayServer::get_singleton();
     if (displayServer)
     {
         displayServer->window_set_mode(GraphiteGlobals::fullscreen ? DisplayServer::WINDOW_MODE_FULLSCREEN : DisplayServer::WINDOW_MODE_WINDOWED);
+    }
+
+    Engine* engine = Engine::get_singleton();
+    if (engine)
+    {
+        engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? static_cast<int32_t>(GraphiteGlobals::fpsCap) : 0);
     }
 
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
