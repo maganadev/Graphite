@@ -52,7 +52,7 @@ public:
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
     static bool fullscreen;
-    static double fpsCap;
+    static int32_t fpsCap;
     static bool fpsCapEnabled;
     static bool vsync;
 

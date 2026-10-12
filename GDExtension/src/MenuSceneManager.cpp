@@ -171,12 +171,12 @@ void MenuSceneManager::buildMenuTree()
             Engine* engine = Engine::get_singleton();
             if (engine)
             {
-                engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? static_cast<int32_t>(GraphiteGlobals::fpsCap) : 0);
+                engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? GraphiteGlobals::fpsCap : 0);
             }
 
             SettingsFile mainSettingsFile("main_settings.json");
             mainSettingsFile.load();
-            mainSettingsFile.set<double>("FpsCap", GraphiteGlobals::fpsCap);
+            mainSettingsFile.set<int32_t>("FpsCap", GraphiteGlobals::fpsCap);
             mainSettingsFile.set<bool>("FpsCapEnabled", GraphiteGlobals::fpsCapEnabled);
             mainSettingsFile.save();
         }

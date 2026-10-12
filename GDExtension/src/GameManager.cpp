@@ -49,7 +49,7 @@ void GameManager::_ready()
     GraphiteGlobals::fullscreen = mainSettingsFile.get<bool>("Fullscreen", false);
     GraphiteGlobals::playbackRate = mainSettingsFile.get<double>("PlaybackRate", 1.0);
     GraphiteGlobals::userScrollModifier = mainSettingsFile.get<double>("ScrollSpeed", 1.0);
-    GraphiteGlobals::fpsCap = mainSettingsFile.get<double>("FpsCap", 60.0);
+    GraphiteGlobals::fpsCap = mainSettingsFile.get<int32_t>("FpsCap", 240);
     GraphiteGlobals::fpsCapEnabled = mainSettingsFile.get<bool>("FpsCapEnabled", false);
     GraphiteGlobals::vsync = mainSettingsFile.get<bool>("Vsync", true);
     mainSettingsFile.save();
@@ -64,7 +64,7 @@ void GameManager::_ready()
     Engine* engine = Engine::get_singleton();
     if (engine)
     {
-        engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? static_cast<int32_t>(GraphiteGlobals::fpsCap) : 0);
+        engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? GraphiteGlobals::fpsCap : 0);
     }
 
     GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
