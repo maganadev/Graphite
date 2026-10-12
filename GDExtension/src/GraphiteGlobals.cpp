@@ -8,6 +8,7 @@ bool GraphiteGlobals::modVisualOffsetCalibration{false};
 bool GraphiteGlobals::fullscreen{false};
 double GraphiteGlobals::fpsCap{60.0};
 bool GraphiteGlobals::fpsCapEnabled{false};
+bool GraphiteGlobals::vsync{true};
 double GraphiteGlobals::playbackRate{1.0};
 double GraphiteGlobals::userScrollModifier{1.0};
 int32_t GraphiteGlobals::difficulty{0};

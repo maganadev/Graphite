@@ -54,6 +54,7 @@ public:
     static bool fullscreen;
     static double fpsCap;
     static bool fpsCapEnabled;
+    static bool vsync;
 
 public:
     // Menu navigation state (preserved across scene transitions)

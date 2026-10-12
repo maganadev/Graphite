@@ -180,6 +180,19 @@ void MenuSceneManager::buildMenuTree()
             mainSettingsFile.set<bool>("FpsCapEnabled", GraphiteGlobals::fpsCapEnabled);
             mainSettingsFile.save();
         }
+        else if (actionData == ACT_VsyncToggle)
+        {
+            DisplayServer* displayServer = DisplayServer::get_singleton();
+            if (displayServer)
+            {
+                displayServer->window_set_vsync_mode(GraphiteGlobals::vsync ? DisplayServer::VSYNC_ENABLED : DisplayServer::VSYNC_DISABLED);
+            }
+
+            SettingsFile mainSettingsFile("main_settings.json");
+            mainSettingsFile.load();
+            mainSettingsFile.set<bool>("Vsync", GraphiteGlobals::vsync);
+            mainSettingsFile.save();
+        }
     };
 
     tree.build(&database);

@@ -134,6 +134,12 @@ int32_t MenuTree::createSettingsMenu()
     fpsCap.labelProvider = []() { return std::string("FPS Cap: ") + (GraphiteGlobals::fpsCapEnabled ? "On" : "Off"); };
     node.items.push_back(fpsCap);
 
+    MenuItem vsync;
+    vsync.type = MIT_Action;
+    vsync.actionData = ACT_VsyncToggle;
+    vsync.labelProvider = []() { return std::string("Vsync: ") + (GraphiteGlobals::vsync ? "On" : "Off"); };
+    node.items.push_back(vsync);
+
     MenuItem back;
     back.label = "Back";
     back.type = MIT_Back;
@@ -580,6 +586,14 @@ void MenuTree::onEnter()
         else if (item->actionData == ACT_FpsCapToggle)
         {
             GraphiteGlobals::fpsCapEnabled = !GraphiteGlobals::fpsCapEnabled;
+            if (onAction)
+            {
+                onAction(item->actionData);
+            }
+        }
+        else if (item->actionData == ACT_VsyncToggle)
+        {
+            GraphiteGlobals::vsync = !GraphiteGlobals::vsync;
             if (onAction)
             {
                 onAction(item->actionData);

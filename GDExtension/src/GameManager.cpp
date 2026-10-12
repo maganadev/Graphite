@@ -51,12 +51,14 @@ void GameManager::_ready()
     GraphiteGlobals::userScrollModifier = mainSettingsFile.get<double>("ScrollSpeed", 1.0);
     GraphiteGlobals::fpsCap = mainSettingsFile.get<double>("FpsCap", 60.0);
     GraphiteGlobals::fpsCapEnabled = mainSettingsFile.get<bool>("FpsCapEnabled", false);
+    GraphiteGlobals::vsync = mainSettingsFile.get<bool>("Vsync", true);
     mainSettingsFile.save();
 
     DisplayServer* displayServer = DisplayServer::get_singleton();
     if (displayServer)
     {
         displayServer->window_set_mode(GraphiteGlobals::fullscreen ? DisplayServer::WINDOW_MODE_FULLSCREEN : DisplayServer::WINDOW_MODE_WINDOWED);
+        displayServer->window_set_vsync_mode(GraphiteGlobals::vsync ? DisplayServer::VSYNC_ENABLED : DisplayServer::VSYNC_DISABLED);
     }
 
     Engine* engine = Engine::get_singleton();

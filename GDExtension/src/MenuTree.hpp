@@ -30,6 +30,7 @@ enum ActionCode : int32_t
     ACT_ScrollSpeedInfo = -12,
     ACT_FullscreenToggle = -13,
     ACT_FpsCapToggle = -14,
+    ACT_VsyncToggle = -15,
 };
 
 struct MenuItem
