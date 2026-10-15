@@ -27,8 +27,8 @@ void GameManager::_ready()
     SettingsFile audioSettingsFile("audio_settings.json");
     audioSettingsFile.load();
     settings.audioMonoStereo = audioSettingsFile.get<std::string>("audioMonoStereo", "stereo");
-    settings.ASIO_sampleRate = audioSettingsFile.get<uint32_t>("ASIO_sampleRate", 0);
-    settings.ASIO_bufferSizeInSamples = audioSettingsFile.get<uint32_t>("ASIO_bufferSizeInSamples", 0);
+    settings.ASIO_sampleRate = audioSettingsFile.get<uint32_t>("ASIO_sampleRate", 48000);
+    settings.ASIO_bufferSizeInSamples = audioSettingsFile.get<uint32_t>("ASIO_bufferSizeInSamples", 1024);
     settings.ASIO_cardToUse = audioSettingsFile.get<std::string>("ASIO_cardToUse", "");
     settings.ASIO_leftChannel = audioSettingsFile.get<int32_t>("ASIO_leftChannel", 0);
     settings.ASIO_rightChannel = audioSettingsFile.get<int32_t>("ASIO_rightChannel", 1);
@@ -192,7 +192,7 @@ void GameManager::initializeInputEngine()
     defaultBindings.push_back({{"button", "escape"}, {"action", "Back"}});
 
     json bindings = inputSettingsFile.get<json>("bindings", defaultBindings);
-    bool uncappedPolling = inputSettingsFile.get<bool>("uncappedPolling", true);
+    bool highPriorityInputThread = inputSettingsFile.get<bool>("HighPriorityInputThread", true);
     inputSettingsFile.save();
 
     for (auto& bindingJson : bindings)
@@ -204,6 +204,6 @@ void GameManager::initializeInputEngine()
     }
 
     RhythmInput::RhythmInputSettings inputSettings{};
-    inputSettings.uncappedPolling = uncappedPolling;
+    inputSettings.highPriorityInputThread = highPriorityInputThread;
     GraphiteGlobals::inputEngine.emplace(gameActions, gameBindings, inputSettings);
 }
