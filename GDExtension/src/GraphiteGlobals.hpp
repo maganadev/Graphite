@@ -49,7 +49,7 @@ public:
     static bool modAudioOffsetCalibration;
 
 public:
-//Settings
+    // Settings
     static bool fpsCapEnabled;
     static bool fullscreen;
     static bool vsync;
