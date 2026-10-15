@@ -56,7 +56,21 @@ sources += [s for s in rhythmInputSources if os.path.basename(str(s)) not in rhy
 sources = [s for s in sources if "Demo" not in str(s) and "UnitTesting" not in str(s) and "Example" not in str(s)]
 
 env.Append(LIBPATH=["C:/msys64/ucrt64/lib"])
-env.Append(LIBS=["libportaudio", "winmm", "ole32", "uuid", "vorbisfile", "vorbis", "ogg", "samplerate", "setupapi"])
+env.Append(LIBS=["winmm", "ole32", "uuid", "advapi32", "vorbisfile", "vorbis", "ogg", "samplerate", "setupapi"])
+
+# Native ASIO backend (Windows only, via the Steinberg ASIO SDK)
+if env["platform"] == "windows":
+    asioSdkDir = os.path.abspath("../RhythmAudio/ThirdParty/ASIOSDK")
+    env.Append(CPPPATH=[
+        os.path.join(asioSdkDir, "common"),
+        os.path.join(asioSdkDir, "host"),
+        os.path.join(asioSdkDir, "host", "pc"),
+    ])
+    sources += [
+        os.path.join(asioSdkDir, "common", "asio.cpp"),
+        os.path.join(asioSdkDir, "host", "asiodrivers.cpp"),
+        os.path.join(asioSdkDir, "host", "pc", "asiolist.cpp"),
+    ]
 
 if env["target"] in ["editor", "template_debug"]:
     try:

@@ -121,13 +121,20 @@ target_include_directories(${LIBNAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../RhythmInput/RhythmInput
 )
 
-# Find and link portaudio, vorbis, samplerate
-find_package(PkgConfig)
-if(PkgConfig_FOUND)
-    pkg_check_modules(PortAudio IMPORTED_TARGET portaudio-2.0)
-    if(PortAudio_FOUND)
-        target_link_libraries(${LIBNAME} PRIVATE PkgConfig::PortAudio)
-    endif()
+# Native ASIO backend (Windows only, via the Steinberg ASIO SDK)
+if(WIN32)
+    set(ASIO_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../RhythmAudio/ThirdParty/ASIOSDK")
+    target_sources(${LIBNAME} PRIVATE
+        ${ASIO_SDK_DIR}/common/asio.cpp
+        ${ASIO_SDK_DIR}/host/asiodrivers.cpp
+        ${ASIO_SDK_DIR}/host/pc/asiolist.cpp
+    )
+    target_include_directories(${LIBNAME} PRIVATE
+        ${ASIO_SDK_DIR}/common
+        ${ASIO_SDK_DIR}/host
+        ${ASIO_SDK_DIR}/host/pc
+    )
+    target_link_libraries(${LIBNAME} PRIVATE winmm ole32 uuid advapi32)
 endif()
 
 set_target_properties(${LIBNAME}

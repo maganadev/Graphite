@@ -3,7 +3,6 @@
 # pacman -S mingw-w64-ucrt-x86_64-clang-tools-extra
 # pacman -S mingw-w64-ucrt-x86_64-libvorbis
 # pacman -S mingw-w64-ucrt-x86_64-libsamplerate
-# pacman -S mingw-w64-ucrt-x86_64-portaudio
 # pacman -S mingw-w64-ucrt-x86_64-cmake
 # pacman -S mingw-w64-ucrt-x86_64-gtest
 #
@@ -24,7 +23,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DRELEASE")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Vorbis REQUIRED IMPORTED_TARGET vorbisfile)
 pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate)
-pkg_check_modules(PortAudio REQUIRED IMPORTED_TARGET portaudio-2.0)
 find_package(GTest REQUIRED)
 
 # Unit tests with Google Test
