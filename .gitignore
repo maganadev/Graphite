@@ -8,9 +8,7 @@
 .kilo/**
 .nomedia
 .vscode/**
-GodotProject/FinalBuild/Graphite.console.exe
-GodotProject/FinalBuild/Graphite.exe
-GodotProject/FinalBuild/Graphite.pck
+GodotProject/FinalBuild/**
 GodotProject/Songs/**
 GodotProject/TJAtoTJAU/TJAtoTJAU.exe
 GodotProject/TJAtoTJAU/TJAtoTJAU.pdb
@@ -24,3 +22,4 @@ json.hpp
 
 #Whitelist
 !GodotProject/Songs/.gdignore
+!GodotProject/FinalBuild/.gdignore
