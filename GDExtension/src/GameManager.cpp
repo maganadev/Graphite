@@ -67,17 +67,17 @@ void GameManager::_ready()
         engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? GraphiteGlobals::fpsCap : 0);
     }
 
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueKaHitsound.ogg", -36, GraphiteGlobals::blueKaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueFukaHitsound.ogg", -36, GraphiteGlobals::blueFukaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueChouHitsound.ogg", -36, GraphiteGlobals::blueChouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayBlueAdLibHitsound.ogg", -36, GraphiteGlobals::blueAdLibHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedRyouHitsound.ogg", -36, GraphiteGlobals::redRyouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedKaHitsound.ogg", -36, GraphiteGlobals::redKaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedFukaHitsound.ogg", -36, GraphiteGlobals::redFukaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedChouHitsound.ogg", -36, GraphiteGlobals::redChouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayRedAdLibHitsound.ogg", -36, GraphiteGlobals::redAdLibHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("GameplayGreenNoteComplete.ogg", -36, GraphiteGlobals::greenNoteCompleteHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueKaHitsound.ogg", -36, GraphiteGlobals::blueKaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueFukaHitsound.ogg", -36, GraphiteGlobals::blueFukaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueChouHitsound.ogg", -36, GraphiteGlobals::blueChouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueAdLibHitsound.ogg", -36, GraphiteGlobals::blueAdLibHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedRyouHitsound.ogg", -36, GraphiteGlobals::redRyouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedKaHitsound.ogg", -36, GraphiteGlobals::redKaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedFukaHitsound.ogg", -36, GraphiteGlobals::redFukaHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedChouHitsound.ogg", -36, GraphiteGlobals::redChouHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedAdLibHitsound.ogg", -36, GraphiteGlobals::redAdLibHitsoundHandle);
+    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayGreenNoteComplete.ogg", -36, GraphiteGlobals::greenNoteCompleteHitsoundHandle);
 
     UtilityFunctions::print("GraphiteGlobals::blueRyouHitsoundHandle: ", std::to_string(GraphiteGlobals::blueRyouHitsoundHandle).c_str());
 

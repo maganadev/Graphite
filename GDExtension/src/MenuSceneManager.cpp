@@ -132,7 +132,7 @@ void MenuSceneManager::buildMenuTree()
             GraphiteGlobals::modVisualOffsetCalibration = true;
             GraphiteGlobals::modAudioOffsetCalibration = false;
             GraphiteGlobals::difficulty = 0;
-            GraphiteGlobals::currentSongFileName = "AutoCalibration/VisualCalibration.tjau";
+            GraphiteGlobals::currentSongFileName = "OutsideAssets/AutoCalibration/VisualCalibration.tjau";
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
         }
         else if (actionData == ACT_AudioCalibration)
@@ -142,7 +142,7 @@ void MenuSceneManager::buildMenuTree()
             GraphiteGlobals::modVisualOffsetCalibration = false;
             GraphiteGlobals::modAudioOffsetCalibration = true;
             GraphiteGlobals::difficulty = 0;
-            GraphiteGlobals::currentSongFileName = "AutoCalibration/AudioCalibration.tjau";
+            GraphiteGlobals::currentSongFileName = "OutsideAssets/AutoCalibration/AudioCalibration.tjau";
             get_tree()->change_scene_to_file("res://Scenes/GameplayScene.tscn");
         }
         else if (actionData == ACT_FullscreenToggle)
