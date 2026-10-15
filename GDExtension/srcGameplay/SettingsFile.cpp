@@ -12,7 +12,16 @@ void SettingsFile::load()
     std::ifstream file(filepath);
     if (file.is_open() && file.good())
     {
-        jsonObj = json::parse(file);
+        jsonObj = json::parse(file, nullptr, false);
+        if (jsonObj.is_discarded())
+        {
+            jsonObj = json::object();
+        }
+    }
+
+    if (!jsonObj.is_object())
+    {
+        jsonObj = json::object();
     }
 
     // Instantiate hash if it does not exist
