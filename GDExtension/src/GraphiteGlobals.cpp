@@ -9,6 +9,7 @@ bool GraphiteGlobals::fullscreen{false};
 int32_t GraphiteGlobals::fpsCap{240};
 bool GraphiteGlobals::fpsCapEnabled{false};
 bool GraphiteGlobals::vsync{true};
+std::string GraphiteGlobals::songFolder{"Songs"};
 double GraphiteGlobals::playbackRate{1.0};
 double GraphiteGlobals::userScrollModifier{1.0};
 int32_t GraphiteGlobals::difficulty{0};

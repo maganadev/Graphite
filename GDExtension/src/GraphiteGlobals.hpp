@@ -37,10 +37,6 @@ public:
     static uint64_t audioTrackHandle;
 
 public:
-    static int64_t audioOffset;
-    static int64_t visualOffset;
-
-public:
     // Loading into gameplay state
     static int32_t difficulty;
     static std::string currentSongFileName;
@@ -51,10 +47,16 @@ public:
     static double userScrollModifier;
     static bool modVisualOffsetCalibration;
     static bool modAudioOffsetCalibration;
-    static bool fullscreen;
-    static int32_t fpsCap;
+
+public:
+//Settings
     static bool fpsCapEnabled;
+    static bool fullscreen;
     static bool vsync;
+    static int32_t fpsCap;
+    static int64_t audioOffset;
+    static int64_t visualOffset;
+    static std::string songFolder;
 
 public:
     // Menu navigation state (preserved across scene transitions)

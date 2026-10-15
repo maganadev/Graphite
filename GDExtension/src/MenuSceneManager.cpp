@@ -91,7 +91,7 @@ void MenuSceneManager::restoreMenuState()
 
 void MenuSceneManager::buildMenuTree()
 {
-    database.loadOrBuild("Songs");
+    database.loadOrBuild(GraphiteGlobals::songFolder);
 
     tree.onPlaySong = [this](int32_t songIndex) -> void
     {

@@ -52,6 +52,7 @@ void GameManager::_ready()
     GraphiteGlobals::fpsCap = mainSettingsFile.get<int32_t>("FpsCap", 240);
     GraphiteGlobals::fpsCapEnabled = mainSettingsFile.get<bool>("FpsCapEnabled", false);
     GraphiteGlobals::vsync = mainSettingsFile.get<bool>("Vsync", true);
+    GraphiteGlobals::songFolder = mainSettingsFile.get<std::string>("SongFolder", "Songs");
     mainSettingsFile.save();
 
     DisplayServer* displayServer = DisplayServer::get_singleton();
