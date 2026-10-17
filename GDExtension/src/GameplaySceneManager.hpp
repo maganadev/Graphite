@@ -62,7 +62,7 @@ private:
     struct ReadyContext
     {
         std::string songFileName;
-        Chart chart;
+        Chart* chart{nullptr};
         std::string wavePath;
     };
 

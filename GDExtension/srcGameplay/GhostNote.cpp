@@ -12,12 +12,12 @@ GhostNote::~GhostNote()
 {
 }
 
-void GhostNote::updatePosition(int64_t correctedSongPositionPs)
+void GhostNote::updatePosition(int64_t correctedSongPositionPs, double userScrollModifier)
 {
     if (prefab)
     {
         int64_t timeDelta = startTimePicoseconds - correctedSongPositionPs;
-        double x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * GraphiteGlobals::userScrollModifier);
+        double x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * userScrollModifier);
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
 }

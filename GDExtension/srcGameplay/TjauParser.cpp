@@ -1,6 +1,5 @@
 #include "TjauParser.hpp"
 
-#include "../src/GraphiteGlobals.hpp"
 #include "Barline.hpp"
 #include "BigBlueNote.hpp"
 #include "BigGhostNote.hpp"
@@ -267,6 +266,7 @@ struct ParserState
     std::vector<int> greenNoteValues;
     int greenNoteIndex;
     PendingNote pendingNote;
+    double playbackRate{1.0};
 
     ParserState() : measureNum(4), measureDen(4), scroll(1.0), gogo(false), barlineVisible(true), measureIndex(0), greenNoteIndex(0)
     {
@@ -365,17 +365,17 @@ static Fraction MeasureDurationSeconds(ParserState& st, int divisions)
     return beats;
 }
 
-static void AddNoteToCourse(Course& course, char type, const Fraction& startTimeSec, const Fraction& stopTimeSec, const Fraction& bpm, int greenNoteHits, double scrollMultiplier)
+static void AddNoteToCourse(Course& course, char type, const Fraction& startTimeSec, const Fraction& stopTimeSec, const Fraction& bpm, int greenNoteHits, double scrollMultiplier, double playbackRate)
 {
     int64_t startPs = FractionToPicoseconds(startTimeSec);
     int64_t stopPs = FractionToPicoseconds(stopTimeSec);
     double scrollBpm = FractionToDouble(bpm);
 
-    if (GraphiteGlobals::playbackRate != 1.0)
+    if (playbackRate != 1.0)
     {
-        startPs = static_cast<int64_t>(static_cast<double>(startPs) / GraphiteGlobals::playbackRate);
-        stopPs = static_cast<int64_t>(static_cast<double>(stopPs) / GraphiteGlobals::playbackRate);
-        scrollBpm *= GraphiteGlobals::playbackRate;
+        startPs = static_cast<int64_t>(static_cast<double>(startPs) / playbackRate);
+        stopPs = static_cast<int64_t>(static_cast<double>(stopPs) / playbackRate);
+        scrollBpm *= playbackRate;
     }
 
     switch (type)
@@ -518,10 +518,10 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
         barline->startTimePicoseconds = FractionToPicoseconds(st.time);
         barline->scrollBPM = measure.lastBpm;
         barline->scrollMultiplier = st.scroll;
-        if (GraphiteGlobals::playbackRate != 1.0)
+        if (st.playbackRate != 1.0)
         {
-            barline->startTimePicoseconds = static_cast<int64_t>(static_cast<double>(barline->startTimePicoseconds) / GraphiteGlobals::playbackRate);
-            barline->scrollBPM *= GraphiteGlobals::playbackRate;
+            barline->startTimePicoseconds = static_cast<int64_t>(static_cast<double>(barline->startTimePicoseconds) / st.playbackRate);
+            barline->scrollBPM *= st.playbackRate;
         }
         course.barlineNotes.push_back(barline);
     }
@@ -540,13 +540,13 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
             {
                 if (st.pendingNote.active)
                 {
-                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
+                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier, st.playbackRate);
                     st.pendingNote.active = false;
                 }
             }
             else if (c == '9' && st.pendingNote.active && st.pendingNote.type == '9')
             {
-                AddNoteToCourse(course, '9', st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
+                AddNoteToCourse(course, '9', st.pendingNote.startTime, st.time, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier, st.playbackRate);
                 st.pendingNote.active = false;
             }
             else
@@ -559,7 +559,7 @@ static void ProcessMeasureBuffer(std::vector<Token>& buffer, ParserState& st, Co
                 case '4':
                 case 'g':
                 case 'G':
-                    AddNoteToCourse(course, c, st.time, st.time, st.bpm, 0, st.scroll);
+                    AddNoteToCourse(course, c, st.time, st.time, st.bpm, 0, st.scroll, st.playbackRate);
                     break;
                 case '5':
                 case '6':
@@ -636,7 +636,7 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
                 // Flush any pending note spanning across the course end
                 if (st.pendingNote.active)
                 {
-                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
+                    AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier, st.playbackRate);
                     st.pendingNote.active = false;
                 }
                 return idx + 1;
@@ -707,7 +707,7 @@ static int ParseCourseBody(const std::vector<std::string>& lines, int idx, Parse
     // Flush any pending note at end of course body
     if (st.pendingNote.active)
     {
-        AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier);
+        AddNoteToCourse(course, st.pendingNote.type, st.pendingNote.startTime, st.pendingNote.startTime, st.pendingNote.bpm, st.pendingNote.greenNoteHits, st.pendingNote.scrollMultiplier, st.playbackRate);
         st.pendingNote.active = false;
     }
     return idx;
@@ -804,7 +804,6 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
         }
     }
 
-    outChart = Chart();
     outChart.title = meta.title;
     outChart.wave = meta.wave;
     outChart.defaultBpm = meta.bpm.toFractionString();
@@ -894,6 +893,7 @@ bool parseTjauContent(const std::string& content, Chart& outChart, std::string& 
             ParserState st;
             st.bpm = meta.bpm;
             st.greenNoteValues = pendingBalloon;
+            st.playbackRate = outChart.playbackRate;
 
             idx = ParseCourseBody(lines, idx, st, course);
             outChart.courses.push_back(course);

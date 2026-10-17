@@ -36,6 +36,8 @@ public:
     int64_t hitWindowRyou{46000000000};
     int64_t hitWindowChou{20000000000};
     bool gameplayActive{false};
+    double playbackRate{1.0};
+    double userScrollModifier{1.0};
 };
 
 #endif

@@ -99,18 +99,31 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
 {
     ctx.songFileName = GraphiteGlobals::currentSongFileName;
 
-    // Parse the clean UTF-8 .tjau chart directly with the in-engine loader.
+    // Wipe any contents left over from a previous run; the parser appends to the
+    // chart it is given rather than resetting it.
+    *ctx.chart = Chart();
+
+    // Capture the current mod settings into the chart proxies before parsing so
+    // the parser and gameplay read them from the chart instead of the globals.
+    ctx.chart->playbackRate = GraphiteGlobals::playbackRate;
+    ctx.chart->userScrollModifier = GraphiteGlobals::userScrollModifier;
+    if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
+    {
+        ctx.chart->playbackRate = 1.0;
+    }
+
+    // Parse the clean UTF-8 .tjau chart directly into the shared chart object.
     std::string parseError;
-    if (!parseTjauFile(ctx.songFileName, ctx.chart, parseError))
+    if (!parseTjauFile(ctx.songFileName, *ctx.chart, parseError))
     {
         UtilityFunctions::print("Failed to parse chart file: ", ctx.songFileName.c_str(), " | ", parseError.c_str());
         return false;
     }
 
     int32_t courseIndex = -1;
-    for (int32_t i = 0; i < static_cast<int32_t>(ctx.chart.courses.size()); ++i)
+    for (int32_t i = 0; i < static_cast<int32_t>(ctx.chart->courses.size()); ++i)
     {
-        if (ctx.chart.courses[i].courseNumber == GraphiteGlobals::difficulty)
+        if (ctx.chart->courses[i].courseNumber == GraphiteGlobals::difficulty)
         {
             courseIndex = i;
             break;
@@ -121,9 +134,9 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
         UtilityFunctions::print("Course not found: ", std::to_string(GraphiteGlobals::difficulty).c_str());
         return false;
     }
-    ctx.chart.activeCourseIndex = courseIndex;
+    ctx.chart->activeCourseIndex = courseIndex;
 
-    const Course& measuresCourse = ctx.chart.courses[courseIndex];
+    const Course& measuresCourse = ctx.chart->courses[courseIndex];
     UtilityFunctions::print("Measures for course ", std::to_string(GraphiteGlobals::difficulty).c_str(), ": ", std::to_string(measuresCourse.measures.size()).c_str());
     for (const Measure& measure : measuresCourse.measures)
     {
@@ -136,13 +149,13 @@ void GameplaySceneManager::calculateOffsets(const ReadyContext& ctx)
 {
     int64_t unfilteredVisualOffset = GraphiteGlobals::visualOffset;
     int64_t unfilteredAudioOffset = GraphiteGlobals::audioOffset;
-    if (GraphiteGlobals::playbackRate != 1.0)
+    if (ctx.chart->playbackRate != 1.0)
     {
-        unfilteredAudioOffset += static_cast<int64_t>(static_cast<double>(ctx.chart.defaultOffsetPicoseconds) / GraphiteGlobals::playbackRate);
+        unfilteredAudioOffset += static_cast<int64_t>(static_cast<double>(ctx.chart->defaultOffsetPicoseconds) / ctx.chart->playbackRate);
     }
     else
     {
-        unfilteredAudioOffset += ctx.chart.defaultOffsetPicoseconds;
+        unfilteredAudioOffset += ctx.chart->defaultOffsetPicoseconds;
     }
     int64_t unfilteredJudgementOffset = 0;
 
@@ -245,25 +258,22 @@ bool GameplaySceneManager::loadNoteScenes()
 
 bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
 {
-    //  Build the chart under write guard so judgment thread can't read it before it's ready
-    LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
-    *guard.objRef = ctx.chart;
-    if (guard.objRef->activeCourseIndex < 0)
+    if (ctx.chart->activeCourseIndex < 0)
     {
-        UtilityFunctions::print("Failed to find course in chart after move");
+        UtilityFunctions::print("Failed to find course in chart");
         return false;
     }
 
-    Course* courseInChart = &guard.objRef->courses[guard.objRef->activeCourseIndex];
+    Course* courseInChart = &ctx.chart->courses[ctx.chart->activeCourseIndex];
 
     // Increase hit windows if calibration mods are enabled
     if (GraphiteGlobals::modVisualOffsetCalibration || GraphiteGlobals::modAudioOffsetCalibration)
     {
-        guard.objRef->hitWindowAboutToBeOutOfRange *= 2;
-        guard.objRef->hitWindowFuka *= 2;
-        guard.objRef->hitWindowKa *= 2;
-        guard.objRef->hitWindowRyou *= 2;
-        guard.objRef->hitWindowChou *= 2;
+        ctx.chart->hitWindowAboutToBeOutOfRange *= 2;
+        ctx.chart->hitWindowFuka *= 2;
+        ctx.chart->hitWindowKa *= 2;
+        ctx.chart->hitWindowRyou *= 2;
+        ctx.chart->hitWindowChou *= 2;
     }
 
     // Make scrolling notes slower if audio offset calibration mod is enabled
@@ -453,7 +463,7 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
     size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->barlineNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
     UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
 
-    ctx.wavePath = guard.objRef->wave;
+    ctx.wavePath = ctx.chart->wave;
     return true;
 }
 
@@ -470,7 +480,7 @@ bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
     GraphiteGlobals::audioEngine.value().flushDeletedAudio();
 
     // Load new song
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, GraphiteGlobals::audioTrackHandle, GraphiteGlobals::playbackRate))
+    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, GraphiteGlobals::audioTrackHandle, ctx.chart->playbackRate))
     {
         UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
         return false;
@@ -485,12 +495,8 @@ bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
 
 void GameplaySceneManager::markGameplayActive(const ReadyContext& ctx)
 {
-    //  Signal that gameplay is active
-    {
-        LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
-        guard.objRef->gameplayActive = true;
-        UtilityFunctions::print("Loaded song: ", guard.objRef->title.c_str(), " | Wave: ", ctx.wavePath.c_str());
-    }
+    ctx.chart->gameplayActive = true;
+    UtilityFunctions::print("Loaded song: ", ctx.chart->title.c_str(), " | Wave: ", ctx.wavePath.c_str());
 }
 
 void GameplaySceneManager::_ready()
@@ -498,6 +504,9 @@ void GameplaySceneManager::_ready()
     ReadyContext ctx;
 
     grabObjects();
+
+    LFProtectObjWriteGuardLooping<Chart> guard(GraphiteGlobals::currentChart, true);
+    ctx.chart = guard.objRef;
 
     if (!loadChart(ctx))
     {
@@ -564,50 +573,51 @@ void GameplaySceneManager::updateNotePositions(const ProcessContext& ctx, const 
 {
     const Course* course = &chart->courses[chart->activeCourseIndex];
     int64_t correctedPositionPs = ctx.trackPositionPs - effectiveVisualOffset;
+    double userScrollModifier = chart->userScrollModifier;
 
     for (RedNote* note : course->redNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BlueNote* note : course->blueNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (YellowNote* note : course->yellowNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (GreenNote* note : course->greenNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (GhostNote* note : course->ghostNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (Barline* note : course->barlineNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BigRedNote* note : course->bigRedNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BigBlueNote* note : course->bigBlueNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BigYellowNote* note : course->bigYellowNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BigGreenNote* note : course->bigGreenNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
     for (BigGhostNote* note : course->bigGhostNotes)
     {
-        note->updatePosition(correctedPositionPs);
+        note->updatePosition(correctedPositionPs, userScrollModifier);
     }
 }
 

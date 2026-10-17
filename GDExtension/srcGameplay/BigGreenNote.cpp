@@ -11,7 +11,7 @@ BigGreenNote::~BigGreenNote()
 {
 }
 
-void BigGreenNote::updatePosition(int64_t correctedSongPositionPs)
+void BigGreenNote::updatePosition(int64_t correctedSongPositionPs, double userScrollModifier)
 {
     if (prefab)
     {
@@ -19,7 +19,7 @@ void BigGreenNote::updatePosition(int64_t correctedSongPositionPs)
         if (correctedSongPositionPs < startTimePicoseconds)
         {
             int64_t timeDelta = startTimePicoseconds - correctedSongPositionPs;
-            x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * GraphiteGlobals::userScrollModifier);
+            x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * userScrollModifier);
         }
         else if (correctedSongPositionPs <= endTimePicoseconds)
         {
@@ -28,7 +28,7 @@ void BigGreenNote::updatePosition(int64_t correctedSongPositionPs)
         else
         {
             int64_t timeDelta = startTimePicoseconds - endTimePicoseconds;
-            x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * GraphiteGlobals::userScrollModifier);
+            x = HITZONE_CENTER_X + (static_cast<double>(timeDelta) * SCROLL_SPEED_FACTOR * scrollBPM * scrollMultiplier * userScrollModifier);
         }
         prefab->set_position(godot::Vector2(x, LANE_Y));
     }
