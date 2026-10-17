@@ -40,11 +40,6 @@ public:
     double playbackRate{1.0};
     double userScrollModifier{1.0};
 
-    // Current combo count. Written by the judgement thread and read by the
-    // gameplay thread, so it is atomic. Mutable so it can be updated through the
-    // const chart pointer held by judgement readers.
-    mutable std::atomic<int32_t> combo{0};
-
     // Chart is not copyable/movable because of the atomic members, so this is
     // used to wipe the chart back to a clean state between runs.
     void reset()
@@ -66,7 +61,6 @@ public:
         gameplayActive = false;
         playbackRate = 1.0;
         userScrollModifier = 1.0;
-        combo.store(0, std::memory_order_release);
     }
 };
 

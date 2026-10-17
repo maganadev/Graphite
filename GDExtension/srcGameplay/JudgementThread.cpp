@@ -9,7 +9,7 @@ std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
 std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
-void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
+void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNote*>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -39,19 +39,6 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
                 lane.markMostRecentAsCompleted();
             }
 
-            // Add to combo
-            if (!HittableNote::isSpamNote((*noteVariant)->getNoteType()))
-            {
-                if (grading == NoteGradings::Early_Fuka || grading == NoteGradings::Late_Fuka)
-                {
-                    chart->combo.store(0, std::memory_order_release);
-                }
-                else
-                {
-                    chart->combo.fetch_add(1, std::memory_order_release);
-                }
-            }
-
             outGrading = grading;
             return;
         }
@@ -60,7 +47,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
     }
 }
 
-void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart)
+void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNote*>& lane, int64_t songPositionPs, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
@@ -80,9 +67,6 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
             else
             {
                 (*noteVariant)->handleStrikeAndGetCompleted(NoteGradings::Late_OutOfRange, offtime);
-
-                // A missed note breaks the combo.
-                chart->combo.store(0, std::memory_order_release);
             }
             lane.markMostRecentAsCompleted();
         }

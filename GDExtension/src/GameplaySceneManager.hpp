@@ -1,6 +1,7 @@
 #ifndef GameplaySceneManager_hpp
 #define GameplaySceneManager_hpp
 
+#include "CompletionList.hpp"
 #include "Course.hpp"
 #include "GameManager.hpp"
 #include "JudgementThread.hpp"
@@ -85,7 +86,7 @@ private:
     bool handleKeyPresses();
     void updateNotePositions(const ProcessContext& ctx, const Chart* chart);
     void updateHitCounter(const ProcessContext& ctx, const Chart* chart);
-    void updateComboCounter(const Chart* chart);
+    void updateComboCounter();
     void removeJudgedNotes(const Chart* chart);
     void allJudgedCheck();
 
@@ -103,6 +104,8 @@ private:
     int64_t effectiveVisualOffset{0};
     int64_t effectiveAudioOffset{0};
     int64_t effectiveJudgementOffset{0};
+    int32_t combo{0};
+    CompletionList<HittableNote*> comboNoteList;
     bool resultsScreenTriggered{false};
     Node2D* hitCounter{nullptr};
     Label* hitSpamCounterLabel{nullptr};

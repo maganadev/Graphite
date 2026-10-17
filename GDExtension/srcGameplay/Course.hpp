@@ -21,8 +21,6 @@
 #include <string>
 #include <vector>
 
-typedef HittableNote* HittableNoteVariant;
-
 struct Measure
 {
     int measureIndex{0};
@@ -60,18 +58,18 @@ public:
     // Tacked-on information for the game to use during play
     //
     ////////////////////////////////////////////////////////////
-    CompletionList<HittableNoteVariant> laneCombined;
-    CompletionList<HittableNoteVariant> hitSpamNoteList;
+    CompletionList<HittableNote*> laneCombined;
+    CompletionList<HittableNote*> hitSpamNoteList;
 
     void populateLanes()
     {
-        laneCombined = CompletionList<HittableNoteVariant>();
-        hitSpamNoteList = CompletionList<HittableNoteVariant>();
+        laneCombined = CompletionList<HittableNote*>();
+        hitSpamNoteList = CompletionList<HittableNote*>();
 
-        std::vector<HittableNoteVariant> laneNotes;
-        std::vector<HittableNoteVariant> hitSpamNotes;
+        std::vector<HittableNote*> laneNotes;
+        std::vector<HittableNote*> hitSpamNotes;
 
-        auto addNote = [&laneNotes, &hitSpamNotes](HittableNoteVariant note)
+        auto addNote = [&laneNotes, &hitSpamNotes](HittableNote* note)
         {
             laneNotes.push_back(note);
             if (HittableNote::isSpamNote(note->getNoteType()))
@@ -113,8 +111,8 @@ public:
             addNote(note);
         }
 
-        std::sort(laneNotes.begin(), laneNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
-        std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNoteVariant& a, const HittableNoteVariant& b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
+        std::sort(laneNotes.begin(), laneNotes.end(), [](const HittableNote* a, const HittableNote* b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
+        std::sort(hitSpamNotes.begin(), hitSpamNotes.end(), [](const HittableNote* a, const HittableNote* b) { return a->startTimePicoseconds < b->startTimePicoseconds; });
 
         for (auto* note : laneNotes)
         {

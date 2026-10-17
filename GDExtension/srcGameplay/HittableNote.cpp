@@ -22,6 +22,20 @@ Lanes HittableNote::getLane(NoteTypes noteType)
     }
 }
 
+bool HittableNote::isOneShotNote(NoteTypes noteType)
+{
+    switch (noteType)
+    {
+    case NoteTypes::RedNoteSmall:
+    case NoteTypes::RedNoteLarge:
+    case NoteTypes::BlueNoteSmall:
+    case NoteTypes::BlueNoteLarge:
+        return true;
+    default:
+        return false;
+    }
+}
+
 bool HittableNote::isSpamNote(NoteTypes noteType)
 {
     switch (noteType)

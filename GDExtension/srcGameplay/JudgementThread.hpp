@@ -22,8 +22,8 @@ struct InputTimingMessage
 class JudgementThread
 {
 public:
-    static void gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
-    static void gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart);
+    static void gradeNoteIfNoteExists(CompletionList<HittableNote*>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
+    static void gradeAllAbandonedNotes(CompletionList<HittableNote*>& lane, int64_t songPositionPs, const Chart* chart);
 
     // Thread lifecycle
     static void start();

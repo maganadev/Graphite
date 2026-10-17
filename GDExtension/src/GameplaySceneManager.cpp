@@ -466,6 +466,22 @@ bool GameplaySceneManager::buildChartObject(ReadyContext& ctx)
 
     courseInChart->populateLanes();
 
+    // Build the combo completion list. It reuses the time-sorted lane list from
+    // populateLanes but keeps only the notes that count toward combo (spam notes
+    // do not). This lets _process derive the combo by walking only the notes that
+    // have been judged since the last frame instead of the whole song.
+    combo = 0;
+    comboNoteList = CompletionList<HittableNote*>();
+    for (size_t i = 0; i < courseInChart->laneCombined.size(); ++i)
+    {
+        HittableNote* note = courseInChart->laneCombined.getAt(i);
+        if (HittableNote::isOneShotNote(note->getNoteType()))
+        {
+            comboNoteList.push_back(note);
+        }
+    }
+    comboNoteList.resetCompletionStates();
+
     size_t totalNotes = courseInChart->redNotes.size() + courseInChart->blueNotes.size() + courseInChart->yellowNotes.size() + courseInChart->greenNotes.size() + courseInChart->ghostNotes.size() + courseInChart->barlineNotes.size() + courseInChart->bigRedNotes.size() + courseInChart->bigBlueNotes.size() + courseInChart->bigYellowNotes.size() + courseInChart->bigGreenNotes.size() + courseInChart->bigGhostNotes.size();
     UtilityFunctions::print("Spawned ", std::to_string(totalNotes).c_str(), " notes for course: ", std::to_string(GraphiteGlobals::difficulty).c_str());
 
@@ -671,14 +687,45 @@ void GameplaySceneManager::updateHitCounter(const ProcessContext& ctx, const Cha
     }
 }
 
-void GameplaySceneManager::updateComboCounter(const Chart* chart)
+void GameplaySceneManager::updateComboCounter()
 {
+    // Walk the combo completion list every frame. The judgement thread grades
+    // notes in time order, so we only account for the notes that became graded
+    // since the last frame. Graded notes are unlinked from the list (completion
+    // list "complete" logic), which keeps the per-frame work proportional to the
+    // notes graded that frame rather than the length of the song.
+    comboNoteList.pointToFirstUncompleted();
+
+    HittableNote** noteVariant = comboNoteList.getNextUncompleted();
+    while (noteVariant != nullptr)
+    {
+        // Stop at the first note the judgement thread has not graded yet; every
+        // note after it is ungraded too.
+        if (!(*noteVariant)->finishedJudging.load(std::memory_order_acquire))
+        {
+            break;
+        }
+
+        // A Fuka judgement or a miss breaks the combo; anything else extends it.
+        const NoteGradings recordedGrading = (*noteVariant)->grading;
+        if (recordedGrading == NoteGradings::Early_Fuka || recordedGrading == NoteGradings::Late_Fuka || recordedGrading == NoteGradings::Late_OutOfRange)
+        {
+            combo = 0;
+        }
+        else
+        {
+            ++combo;
+        }
+
+        comboNoteList.markMostRecentAsCompleted();
+        noteVariant = comboNoteList.getNextUncompleted();
+    }
+
     if (!comboCounterLabel)
     {
         return;
     }
 
-    int32_t combo = chart->combo.load(std::memory_order_relaxed);
     if (combo < 10)
     {
         comboCounterLabel->set_text("");
@@ -963,7 +1010,7 @@ void GameplaySceneManager::_process(double delta)
 
         updateNotePositions(ctx, chartGuard.objRef);
         updateHitCounter(ctx, chartGuard.objRef);
-        updateComboCounter(chartGuard.objRef);
+        updateComboCounter();
         removeJudgedNotes(chartGuard.objRef);
     }
 
