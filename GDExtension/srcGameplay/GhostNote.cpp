@@ -41,3 +41,8 @@ int64_t GhostNote::getSpamHitsCount() const
 {
     std::terminate();
 }
+
+NoteTypes GhostNote::getNoteType() const
+{
+    return NoteTypes::GhostNoteSmall;
+}

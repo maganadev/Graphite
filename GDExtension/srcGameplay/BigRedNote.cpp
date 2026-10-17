@@ -126,3 +126,8 @@ int64_t BigRedNote::getSpamHitsCount() const
 {
     std::terminate();
 }
+
+NoteTypes BigRedNote::getNoteType() const
+{
+    return NoteTypes::RedNoteLarge;
+}

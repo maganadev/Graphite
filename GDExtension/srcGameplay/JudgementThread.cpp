@@ -9,13 +9,19 @@ std::thread JudgementThread::thread{};
 std::atomic<bool> JudgementThread::requestShutdown{false};
 std::atomic<int64_t> JudgementThread::judgementOffset{0};
 
-void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
+void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart)
 {
     lane.pointToFirstUncompleted();
 
     auto* noteVariant = lane.getNextUncompleted();
     while (noteVariant != nullptr)
     {
+        if (HittableNote::getLane((*noteVariant)->getNoteType()) != targetLane)
+        {
+            noteVariant = lane.getNextUncompleted();
+            break;
+        }
+
         NoteGradings grading{NoteGradings::Ungraded};
         int64_t offtime = 0;
         (*noteVariant)->getWhatGradingWouldBe(songPositionPs, chart, grading, offtime);
@@ -34,7 +40,7 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
             }
 
             // Add to combo
-            if (!(*noteVariant)->isSpamNote())
+            if (!HittableNote::isSpamNote((*noteVariant)->getNoteType()))
             {
                 if (grading == NoteGradings::Early_Fuka || grading == NoteGradings::Late_Fuka)
                 {
@@ -67,7 +73,7 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
 
         if (grading == NoteGradings::Late_OutOfRange)
         {
-            if ((*noteVariant)->isSpamNote())
+            if (HittableNote::isSpamNote((*noteVariant)->getNoteType()))
             {
                 (*noteVariant)->finishedJudging.store(true, std::memory_order_release);
             }
@@ -148,11 +154,10 @@ void JudgementThread::threadBehavior()
 
             Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
-            CompletionList<HittableNoteVariant>& lane = (laneIndex == static_cast<size_t>(Lanes::Red)) ? course->laneRed : course->laneBlue;
-            NoteGradings outGrading = NoteGradings::Ungraded;
-            gradeNoteIfNoteExists(lane, songPositionPs, outGrading, chartGuard.objRef);
-
             const bool isRed = (laneIndex == static_cast<size_t>(Lanes::Red));
+            const Lanes targetLane = isRed ? Lanes::Red : Lanes::Blue;
+            NoteGradings outGrading = NoteGradings::Ungraded;
+            gradeNoteIfNoteExists(course->laneCombined, targetLane, songPositionPs, outGrading, chartGuard.objRef);
             uint64_t hitsoundHandle = 0;
             if (isRed)
             {
@@ -252,8 +257,7 @@ void JudgementThread::threadBehavior()
 
             Course* course = const_cast<Course*>(&chartGuard.objRef->courses[chartGuard.objRef->activeCourseIndex]);
 
-            gradeAllAbandonedNotes(course->laneRed, songPositionPs, chartGuard.objRef);
-            gradeAllAbandonedNotes(course->laneBlue, songPositionPs, chartGuard.objRef);
+            gradeAllAbandonedNotes(course->laneCombined, songPositionPs, chartGuard.objRef);
         }
     }
 }

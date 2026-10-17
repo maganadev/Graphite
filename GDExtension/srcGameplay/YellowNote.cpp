@@ -71,7 +71,7 @@ int64_t YellowNote::getSpamHitsCount() const
     return spamHits.load(std::memory_order_acquire);
 }
 
-bool YellowNote::isSpamNote() const
+NoteTypes YellowNote::getNoteType() const
 {
-    return true;
+    return NoteTypes::YellowNoteSmall;
 }

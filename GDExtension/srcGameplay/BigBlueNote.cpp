@@ -126,3 +126,8 @@ int64_t BigBlueNote::getSpamHitsCount() const
 {
     std::terminate();
 }
+
+NoteTypes BigBlueNote::getNoteType() const
+{
+    return NoteTypes::BlueNoteLarge;
+}

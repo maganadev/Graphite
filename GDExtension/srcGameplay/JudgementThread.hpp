@@ -13,12 +13,6 @@
 
 class Chart;
 
-enum class Lanes : size_t
-{
-    Red = 0,
-    Blue = 1,
-};
-
 struct InputTimingMessage
 {
     uint64_t timestamp;
@@ -28,7 +22,7 @@ struct InputTimingMessage
 class JudgementThread
 {
 public:
-    static void gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
+    static void gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>& lane, Lanes targetLane, int64_t songPositionPs, NoteGradings& outGrading, const Chart* chart);
     static void gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>& lane, int64_t songPositionPs, const Chart* chart);
 
     // Thread lifecycle

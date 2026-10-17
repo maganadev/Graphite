@@ -126,3 +126,8 @@ int64_t RedNote::getSpamHitsCount() const
 {
     std::terminate();
 }
+
+NoteTypes RedNote::getNoteType() const
+{
+    return NoteTypes::RedNoteSmall;
+}

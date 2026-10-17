@@ -1,6 +1,13 @@
 #ifndef RhythmEnums_hpp
 #define RhythmEnums_hpp
+#include <cstddef>
 #include <cstdint>
+
+enum class Lanes : size_t
+{
+    Red = 0,
+    Blue = 1,
+};
 
 enum class DrumButtons : uint8_t
 {
@@ -14,11 +21,14 @@ enum class NoteTypes : uint8_t
 {
     RedNoteSmall,
     BlueNoteSmall,
-    YellowNote,
-    GreenNote,
+    YellowNoteSmall,
+    GreenNoteSmall,
+    GhostNoteSmall,
     RedNoteLarge,
     BlueNoteLarge,
-    GhostNote,
+    YellowNoteLarge,
+    GreenNoteLarge,
+    GhostNoteLarge,
     Barline,
 };
 

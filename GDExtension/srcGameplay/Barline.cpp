@@ -41,3 +41,8 @@ int64_t Barline::getSpamHitsCount() const
 {
     std::terminate();
 }
+
+NoteTypes Barline::getNoteType() const
+{
+    return NoteTypes::Barline;
+}

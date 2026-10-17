@@ -82,7 +82,7 @@ int64_t BigGreenNote::getSpamHitsCount() const
     return remainingSpamHits.load(std::memory_order_acquire);
 }
 
-bool BigGreenNote::isSpamNote() const
+NoteTypes BigGreenNote::getNoteType() const
 {
-    return true;
+    return NoteTypes::GreenNoteLarge;
 }
