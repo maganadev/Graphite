@@ -27,10 +27,25 @@ void JudgementThread::gradeNoteIfNoteExists(CompletionList<HittableNoteVariant>&
 
         if (NoteGradings::Early_Fuka <= grading && grading <= NoteGradings::Late_Fuka)
         {
+            // Mark the note as completed if it was hit
             if ((*noteVariant)->handleStrikeAndGetCompleted(grading, offtime))
             {
                 lane.markMostRecentAsCompleted();
             }
+
+            // Add to combo
+            if (!(*noteVariant)->isSpamNote())
+            {
+                if (grading == NoteGradings::Early_Fuka || grading == NoteGradings::Late_Fuka)
+                {
+                    chart->combo.store(0, std::memory_order_release);
+                }
+                else
+                {
+                    chart->combo.fetch_add(1, std::memory_order_release);
+                }
+            }
+
             outGrading = grading;
             return;
         }
@@ -59,6 +74,9 @@ void JudgementThread::gradeAllAbandonedNotes(CompletionList<HittableNoteVariant>
             else
             {
                 (*noteVariant)->handleStrikeAndGetCompleted(NoteGradings::Late_OutOfRange, offtime);
+
+                // A missed note breaks the combo.
+                chart->combo.store(0, std::memory_order_release);
             }
             lane.markMostRecentAsCompleted();
         }

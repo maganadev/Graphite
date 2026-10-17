@@ -85,6 +85,7 @@ private:
     bool handleKeyPresses();
     void updateNotePositions(const ProcessContext& ctx, const Chart* chart);
     void updateHitCounter(const ProcessContext& ctx, const Chart* chart);
+    void updateComboCounter(const Chart* chart);
     void removeJudgedNotes(const Chart* chart);
     void allJudgedCheck();
 
@@ -105,6 +106,7 @@ private:
     bool resultsScreenTriggered{false};
     Node2D* hitCounter{nullptr};
     Label* hitSpamCounterLabel{nullptr};
+    Label* comboCounterLabel{nullptr};
     Node2D* p1NotesParent{nullptr};
     Node2D* p1BarlinesParent{nullptr};
 };

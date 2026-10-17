@@ -93,6 +93,12 @@ void GameplaySceneManager::grabObjects()
     {
         UtilityFunctions::print("Failed to find P1BarlinesParent node");
     }
+
+    comboCounterLabel = Object::cast_to<Label>(get_node_or_null("../ComboCounter"));
+    if (comboCounterLabel == nullptr)
+    {
+        UtilityFunctions::print("Failed to find ComboCounter node");
+    }
 }
 
 bool GameplaySceneManager::loadChart(ReadyContext& ctx)
@@ -101,7 +107,7 @@ bool GameplaySceneManager::loadChart(ReadyContext& ctx)
 
     // Wipe any contents left over from a previous run; the parser appends to the
     // chart it is given rather than resetting it.
-    *ctx.chart = Chart();
+    ctx.chart->reset();
 
     // Capture the current mod settings into the chart proxies before parsing so
     // the parser and gameplay read them from the chart instead of the globals.
@@ -665,6 +671,24 @@ void GameplaySceneManager::updateHitCounter(const ProcessContext& ctx, const Cha
     }
 }
 
+void GameplaySceneManager::updateComboCounter(const Chart* chart)
+{
+    if (!comboCounterLabel)
+    {
+        return;
+    }
+
+    int32_t combo = chart->combo.load(std::memory_order_relaxed);
+    if (combo < 10)
+    {
+        comboCounterLabel->set_text("");
+    }
+    else
+    {
+        comboCounterLabel->set_text(String::num_int64(combo));
+    }
+}
+
 void GameplaySceneManager::removeJudgedNotes(const Chart* chart)
 {
     const Course* course = &chart->courses[chart->activeCourseIndex];
@@ -939,6 +963,7 @@ void GameplaySceneManager::_process(double delta)
 
         updateNotePositions(ctx, chartGuard.objRef);
         updateHitCounter(ctx, chartGuard.objRef);
+        updateComboCounter(chartGuard.objRef);
         removeJudgedNotes(chartGuard.objRef);
     }
 

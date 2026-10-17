@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dueyonk6p51if"]
+[gd_scene load_steps=9 format=3 uid="uid://dueyonk6p51if"]
 
 [ext_resource type="Shader" uid="uid://c64eajnahx4rx" path="res://Shaders/Background.gdshader" id="1_im3oa"]
 
@@ -74,6 +74,9 @@ shader = SubResource("Shader_eq42f")
 shader_parameter/circle_color = Color(0.7019608, 0.5019608, 0, 1)
 shader_parameter/radius = 0.5
 
+[sub_resource type="LabelSettings" id="LabelSettings_eq42f"]
+font_size = 100
+
 [node name="GameplayScene" type="Node2D"]
 
 [node name="ShaderBackground" type="ColorRect" parent="."]
@@ -148,3 +151,13 @@ offset_top = 288.0
 offset_right = 520.0
 offset_bottom = 484.0
 color = Color(0.7019608, 0.5019608, 0, 1)
+
+[node name="ComboCounter" type="Label" parent="."]
+offset_left = -35.0
+offset_top = 288.0
+offset_right = 454.0
+offset_bottom = 484.0
+text = "0"
+label_settings = SubResource("LabelSettings_eq42f")
+horizontal_alignment = 2
+vertical_alignment = 1
