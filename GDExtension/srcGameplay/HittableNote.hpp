@@ -35,6 +35,7 @@ public:
 
     static Lanes getLane(NoteTypes noteType);
     static bool isSpamNote(NoteTypes noteType);
+    static bool isOneShotNote(NoteTypes noteType);
 };
 
 #endif
