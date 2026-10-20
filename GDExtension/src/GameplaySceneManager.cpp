@@ -498,19 +498,21 @@ bool GameplaySceneManager::loadAndPlayAudio(const ReadyContext& ctx)
     }
 
     // Free any old existing song
-    GraphiteGlobals::audioEngine.value().freeAudioTrack(GraphiteGlobals::audioTrackHandle);
+    GraphiteGlobals::logAudioResult(GraphiteGlobals::audioEngine.value().freeAudioTrack(GraphiteGlobals::audioTrackHandle), "freeAudioTrack");
     GraphiteGlobals::audioEngine.value().flushDeletedAudio();
 
     // Load new song
-    if (!GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, GraphiteGlobals::audioTrackHandle, ctx.chart->playbackRate))
+    RhythmAudio::RhythmAudioResult createResult = GraphiteGlobals::audioEngine.value().createAudioTrack(audioFilePath.string(), -36, GraphiteGlobals::audioTrackHandle, ctx.chart->playbackRate);
+    if (createResult != RhythmAudio::RhythmAudioResult::OK)
     {
+        GraphiteGlobals::logAudioResult(createResult, "createAudioTrack");
         UtilityFunctions::print("Failed to load audio track: ", audioFilePath.string().c_str());
         return false;
     }
 
     // Play the audio track
-    GraphiteGlobals::audioEngine.value().playAudioTrack(GraphiteGlobals::audioTrackHandle);
-    GraphiteGlobals::audioEngine.value().setTimedAudioTrack(GraphiteGlobals::audioTrackHandle);
+    GraphiteGlobals::logAudioResult(GraphiteGlobals::audioEngine.value().playAudioTrack(GraphiteGlobals::audioTrackHandle), "playAudioTrack");
+    GraphiteGlobals::logAudioResult(GraphiteGlobals::audioEngine.value().setTimedAudioTrack(GraphiteGlobals::audioTrackHandle), "setTimedAudioTrack");
 
     return true;
 }
@@ -564,9 +566,10 @@ void GameplaySceneManager::getFrameTime(ProcessContext& ctx)
 {
     ctx.cpuTimePs = TimingOSSingletons::cpuTimer.GetValue();
     uint64_t outHandle = 0;
-    if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(ctx.cpuTimePs, ctx.trackPositionPs, outHandle))
+    RhythmAudio::RhythmAudioResult positionResult = GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(ctx.cpuTimePs, ctx.trackPositionPs, outHandle);
+    if (positionResult != RhythmAudio::RhythmAudioResult::OK && positionResult != RhythmAudio::RhythmAudioResult::TRACK_POSITION_UNAVAILABLE)
     {
-        // TODO : Handle audio track position retrieval failure
+        GraphiteGlobals::logAudioResult(positionResult, "getPositionForAudioTrack");
     }
 }
 

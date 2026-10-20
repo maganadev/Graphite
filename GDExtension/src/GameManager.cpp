@@ -39,6 +39,12 @@ void GameManager::_ready()
     {
         settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
     }
+
+    // Record the ASIO cards available on this machine so the settings file
+    // lists the valid values for ASIO_cardToUse.
+    std::vector<std::string> availableAsioCards = RhythmAudio::getAvailableAudioCardNames(RhythmAudio::AudioBackendMode::ASIO);
+    audioSettingsFile.set("ASIO_availableCards", availableAsioCards);
+
     audioSettingsFile.save();
     GraphiteGlobals::audioEngine.emplace(settings);
 
@@ -68,24 +74,31 @@ void GameManager::_ready()
         engine->set_max_fps(GraphiteGlobals::fpsCapEnabled ? GraphiteGlobals::fpsCap : 0);
     }
 
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueRyouHitsound.ogg", -36, GraphiteGlobals::blueRyouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueKaHitsound.ogg", -36, GraphiteGlobals::blueKaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueFukaHitsound.ogg", -36, GraphiteGlobals::blueFukaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueChouHitsound.ogg", -36, GraphiteGlobals::blueChouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayBlueAdLibHitsound.ogg", -36, GraphiteGlobals::blueAdLibHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedRyouHitsound.ogg", -36, GraphiteGlobals::redRyouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedKaHitsound.ogg", -36, GraphiteGlobals::redKaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedFukaHitsound.ogg", -36, GraphiteGlobals::redFukaHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedChouHitsound.ogg", -36, GraphiteGlobals::redChouHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayRedAdLibHitsound.ogg", -36, GraphiteGlobals::redAdLibHitsoundHandle);
-    GraphiteGlobals::audioEngine.value().createAudioTrack("OutsideAssets/GameplayGreenNoteComplete.ogg", -36, GraphiteGlobals::greenNoteCompleteHitsoundHandle);
+    auto loadHitsound = [](const char* filePath, uint64_t& handle)
+    {
+        RhythmAudio::RhythmAudioResult result = GraphiteGlobals::audioEngine.value().createAudioTrack(filePath, -36, handle);
+        GraphiteGlobals::logAudioResult(result, filePath);
+    };
+    loadHitsound("OutsideAssets/GameplayBlueRyouHitsound.ogg", GraphiteGlobals::blueRyouHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayBlueKaHitsound.ogg", GraphiteGlobals::blueKaHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayBlueFukaHitsound.ogg", GraphiteGlobals::blueFukaHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayBlueChouHitsound.ogg", GraphiteGlobals::blueChouHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayBlueAdLibHitsound.ogg", GraphiteGlobals::blueAdLibHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayRedRyouHitsound.ogg", GraphiteGlobals::redRyouHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayRedKaHitsound.ogg", GraphiteGlobals::redKaHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayRedFukaHitsound.ogg", GraphiteGlobals::redFukaHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayRedChouHitsound.ogg", GraphiteGlobals::redChouHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayRedAdLibHitsound.ogg", GraphiteGlobals::redAdLibHitsoundHandle);
+    loadHitsound("OutsideAssets/GameplayGreenNoteComplete.ogg", GraphiteGlobals::greenNoteCompleteHitsoundHandle);
 
     UtilityFunctions::print("GraphiteGlobals::blueRyouHitsoundHandle: ", std::to_string(GraphiteGlobals::blueRyouHitsoundHandle).c_str());
 
     JudgementThread::start();
 
     RhythmAudio::RhythmAudioStats stats{};
-    GraphiteGlobals::audioEngine.value().getEngineStats(stats);
+    RhythmAudio::RhythmAudioResult statsResult = GraphiteGlobals::audioEngine.value().getEngineStats(stats);
+    GraphiteGlobals::logAudioResult(statsResult, "getEngineStats");
+    GraphiteGlobals::logAudioResult(stats.lastError, "audioEngine initialization");
     UtilityFunctions::print("--- Engine Stats ---");
     UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
     UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
@@ -109,7 +122,8 @@ void GameManager::_exit_tree()
     {
         if (handle != 0)
         {
-            GraphiteGlobals::audioEngine.value().freeAudioTrack(handle);
+            RhythmAudio::RhythmAudioResult result = GraphiteGlobals::audioEngine.value().freeAudioTrack(handle);
+            GraphiteGlobals::logAudioResult(result, "freeAudioTrack");
             handle = 0;
         }
     };

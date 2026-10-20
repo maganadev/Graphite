@@ -103,8 +103,13 @@ void JudgementThread::threadBehavior()
             // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
-            if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle))
+            RhythmAudio::RhythmAudioResult positionResult = GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(msg.timestamp, songPositionPs, outHandle);
+            if (positionResult != RhythmAudio::RhythmAudioResult::OK)
             {
+                if (positionResult != RhythmAudio::RhythmAudioResult::TRACK_POSITION_UNAVAILABLE)
+                {
+                    GraphiteGlobals::logAudioResult(positionResult, "getPositionForAudioTrack");
+                }
                 continue;
             }
 
@@ -198,7 +203,7 @@ void JudgementThread::threadBehavior()
 
             if (hitsoundHandle != 0 && !GraphiteGlobals::modVisualOffsetCalibration)
             {
-                GraphiteGlobals::audioEngine.value().playAudioTrack(hitsoundHandle);
+                GraphiteGlobals::logAudioResult(GraphiteGlobals::audioEngine.value().playAudioTrack(hitsoundHandle), "playAudioTrack");
             }
         }
 
@@ -220,8 +225,13 @@ void JudgementThread::threadBehavior()
             // Convert CPU picosecond timestamp to song position, bail if failed
             int64_t songPositionPs = 0;
             uint64_t outHandle = 0;
-            if (!GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle))
+            RhythmAudio::RhythmAudioResult positionResult = GraphiteGlobals::audioEngine.value().getPositionForAudioTrack(abandonedTimestamp, songPositionPs, outHandle);
+            if (positionResult != RhythmAudio::RhythmAudioResult::OK)
             {
+                if (positionResult != RhythmAudio::RhythmAudioResult::TRACK_POSITION_UNAVAILABLE)
+                {
+                    GraphiteGlobals::logAudioResult(positionResult, "getPositionForAudioTrack");
+                }
                 continue;
             }
 

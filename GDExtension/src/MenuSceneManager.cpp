@@ -121,7 +121,7 @@ void MenuSceneManager::buildMenuTree()
         }
     };
 
-    tree.onExit = [this]() -> void { UtilityFunctions::print("Exit requested"); };
+    tree.onExit = [this]() -> void { get_tree()->quit(); };
 
     tree.onAction = [this](int32_t actionData) -> void
     {

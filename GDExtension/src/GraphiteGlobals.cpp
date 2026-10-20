@@ -1,6 +1,17 @@
 #include "GraphiteGlobals.hpp"
 #include "../../RhythmAudio/RhythmAudio/RhythmAudioEngine.hpp"
 #include "../../RhythmInput/RhythmInput/RhythmInputEngine.hpp"
+#include <godot_cpp/variant/utility_functions.hpp>
+
+void GraphiteGlobals::logAudioResult(RhythmAudio::RhythmAudioResult result, const char* context)
+{
+    if (result == RhythmAudio::RhythmAudioResult::OK)
+    {
+        return;
+    }
+
+    godot::UtilityFunctions::print("RhythmAudio error [", context, "]: ", RhythmAudio::rhythmAudioResultToString(result));
+}
 
 LFProtectObj<Chart> GraphiteGlobals::currentChart{};
 bool GraphiteGlobals::modAudioOffsetCalibration{false};

@@ -71,7 +71,7 @@ bool BigGreenNote::handleStrikeAndGetCompleted(NoteGradings grading, int64_t pic
     {
         this->grading = grading;
         this->finishedJudging.store(true, std::memory_order_release);
-        GraphiteGlobals::audioEngine.value().playAudioTrack(GraphiteGlobals::greenNoteCompleteHitsoundHandle);
+        GraphiteGlobals::logAudioResult(GraphiteGlobals::audioEngine.value().playAudioTrack(GraphiteGlobals::greenNoteCompleteHitsoundHandle), "playAudioTrack");
         return true;
     }
     return false;

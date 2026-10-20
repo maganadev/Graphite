@@ -17,6 +17,10 @@ public:
     static std::optional<RhythmInput::RhythmInputEngine> inputEngine;
 
 public:
+    // Prints a RhythmAudio result to the Godot debug console when it is an error
+    static void logAudioResult(RhythmAudio::RhythmAudioResult result, const char* context);
+
+public:
     static uint64_t blueRyouHitsoundHandle;
     static uint64_t blueKaHitsoundHandle;
     static uint64_t blueFukaHitsoundHandle;
