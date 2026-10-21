@@ -12,7 +12,9 @@ GodotProject/FinalBuild/**
 GodotProject/Songs/**
 GodotProject/TJAtoTJAU/TJAtoTJAU.exe
 GodotProject/TJAtoTJAU/TJAtoTJAU.pdb
+GodotProject/linux/**
 GodotProject/main_settings.json
+GodotProject/windows/**
 Song.json
 Song.ogg
 Song.tja

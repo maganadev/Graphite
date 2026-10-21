@@ -33,12 +33,30 @@ void GameManager::_ready()
     settings.ASIO_leftChannel = audioSettingsFile.get<int32_t>("ASIO_leftChannel", 0);
     settings.ASIO_rightChannel = audioSettingsFile.get<int32_t>("ASIO_rightChannel", 1);
 
+    // Default to the backend that is compiled into this build for the current
+    // platform, then let the settings file override it only with a mode this
+    // build actually supports.
+#ifdef _WIN32
+    settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
+#elif defined(__linux__)
+    settings.backendMode = RhythmAudio::AudioBackendMode::PIPEWIRE;
+#else
+    settings.backendMode = RhythmAudio::AudioBackendMode::UNKNOWN;
+#endif
+
     // Populate C++ RhythmAudioSettings from JSON
     std::string backendMode = audioSettingsFile.get<std::string>("backendMode", "");
+#ifdef _WIN32
     if (backendMode == "ASIO")
     {
         settings.backendMode = RhythmAudio::AudioBackendMode::ASIO;
     }
+#elif defined(__linux__)
+    if (backendMode == "PIPEWIRE")
+    {
+        settings.backendMode = RhythmAudio::AudioBackendMode::PIPEWIRE;
+    }
+#endif
 
     // Record the ASIO cards available on this machine so the settings file
     // lists the valid values for ASIO_cardToUse.
@@ -47,6 +65,21 @@ void GameManager::_ready()
 
     audioSettingsFile.save();
     GraphiteGlobals::audioEngine.emplace(settings);
+
+    RhythmAudio::RhythmAudioStats stats{};
+    RhythmAudio::RhythmAudioResult statsResult = GraphiteGlobals::audioEngine.value().getEngineStats(stats);
+    GraphiteGlobals::logAudioResult(statsResult, "getEngineStats");
+    GraphiteGlobals::logAudioResult(stats.lastError, "audioEngine initialization");
+    UtilityFunctions::print("--- Engine Stats ---");
+    UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
+    UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
+    UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
+    UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
+    UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
+    UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
+    UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
+    UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
+    UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
 
     SettingsFile mainSettingsFile("main_settings.json");
     mainSettingsFile.load();
@@ -94,21 +127,6 @@ void GameManager::_ready()
     UtilityFunctions::print("GraphiteGlobals::blueRyouHitsoundHandle: ", std::to_string(GraphiteGlobals::blueRyouHitsoundHandle).c_str());
 
     JudgementThread::start();
-
-    RhythmAudio::RhythmAudioStats stats{};
-    RhythmAudio::RhythmAudioResult statsResult = GraphiteGlobals::audioEngine.value().getEngineStats(stats);
-    GraphiteGlobals::logAudioResult(statsResult, "getEngineStats");
-    GraphiteGlobals::logAudioResult(stats.lastError, "audioEngine initialization");
-    UtilityFunctions::print("--- Engine Stats ---");
-    UtilityFunctions::print("EngineState: ", std::to_string(stats.engineState).c_str());
-    UtilityFunctions::print("SampleRate: ", std::to_string(stats.sampleRate).c_str());
-    UtilityFunctions::print("BufferSize: ", std::to_string(stats.bufferSizeInSamples).c_str());
-    UtilityFunctions::print("Channels: ", std::to_string(stats.channels).c_str());
-    UtilityFunctions::print("BackendMode: ", std::to_string(static_cast<int>(stats.backendMode)).c_str());
-    UtilityFunctions::print("GlobalSampleCount: ", std::to_string(stats.globalSampleCount).c_str());
-    UtilityFunctions::print("TimingStdDev: ", std::to_string(stats.timingStdDev).c_str());
-    UtilityFunctions::print("SuggestedOutputLatency: ", std::to_string(stats.suggestedOutputLatency).c_str());
-    UtilityFunctions::print("ActualOutputLatency: ", std::to_string(stats.actualOutputLatency).c_str());
 }
 
 void GameManager::_exit_tree()

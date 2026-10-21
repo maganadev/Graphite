@@ -55,15 +55,21 @@ sources += [s for s in rhythmInputSources if os.path.basename(str(s)) not in rhy
 # Remove demo/test/main files from sources
 sources = [s for s in sources if "Demo" not in str(s) and "UnitTesting" not in str(s) and "Example" not in str(s)]
 
-# Platform-specific audio backends are added explicitly per-platform below.
-platformSpecificBackends = {"AudioBackendASIO.cpp", "AudioBackendPipewire.cpp"}
+# Platform-specific backends are added explicitly per-platform below.
+platformSpecificBackends = {
+    "AudioBackendASIO.cpp",
+    "AudioBackendPipewire.cpp",
+    "InputBackendWinRawInput.cpp",
+    "InputBackendEvdev.cpp",
+}
 sources = [s for s in sources if os.path.basename(str(s)) not in platformSpecificBackends]
 
-env.Append(LIBPATH=["C:/msys64/ucrt64/lib"])
-env.Append(LIBS=["winmm", "ole32", "uuid", "advapi32", "vorbisfile", "vorbis", "ogg", "samplerate", "setupapi"])
+env.Append(LIBS=["vorbisfile", "vorbis", "ogg", "samplerate"])
 
 # Native ASIO backend (Windows only, via the Steinberg ASIO SDK)
 if env["platform"] == "windows":
+    env.Append(LIBPATH=["C:/msys64/ucrt64/lib"])
+    env.Append(LIBS=["winmm", "ole32", "uuid", "advapi32", "setupapi"])
     asioSdkDir = os.path.abspath("../RhythmAudio/ThirdParty/ASIOSDK")
     env.Append(CPPPATH=[
         os.path.join(asioSdkDir, "common"),
@@ -75,13 +81,23 @@ if env["platform"] == "windows":
         os.path.join(asioSdkDir, "common", "asio.cpp"),
         os.path.join(asioSdkDir, "host", "asiodrivers.cpp"),
         os.path.join(asioSdkDir, "host", "pc", "asiolist.cpp"),
+        os.path.join(rhythmInputDir, "InputBackendWinRawInput.cpp"),
     ]
 
 # Native PipeWire backend (Linux only)
 if env["platform"] == "linux":
     sources += [
         os.path.join(rhythmAudioDir, "AudioBackendPipewire.cpp"),
+        os.path.join(rhythmInputDir, "InputBackendEvdev.cpp"),
     ]
+    try:
+        env.ParseConfig("pkg-config --cflags --libs libpipewire-0.3")
+    except OSError:
+        print_error("""libpipewire-0.3 development files not found via pkg-config.
+Install the PipeWire development package, e.g.:
+
+    sudo apt install libpipewire-0.3-dev libspa-0.2-dev""")
+        sys.exit(1)
 
 if env["target"] in ["editor", "template_debug"]:
     try:

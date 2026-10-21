@@ -1,5 +1,3 @@
-#include <Windows.h>
-#define DO_NOT_REORDER_ABOVE
 #include "BarlinePrefab.hpp"
 #include "BigBlueNotePrefab.hpp"
 #include "BigGhostNotePrefab.hpp"
