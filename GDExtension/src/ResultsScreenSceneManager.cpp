@@ -2,6 +2,9 @@
 #include "GameManager.hpp"
 #include "JudgementThread.hpp"
 #include "SettingsFile.hpp"
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
 #include <godot_cpp/classes/color_rect.hpp>
 #include <godot_cpp/classes/label.hpp>
 #include <godot_cpp/classes/node2d.hpp>
@@ -89,7 +92,6 @@ void ResultsScreenSceneManager::_ready()
             bucket = BAR_COUNT - 1;
         }
         histogram[bucket]++;
-        UtilityFunctions::print("Note rawOff=", std::to_string(rawOff).c_str(), " ps -> bucket=", bucket);
     };
 
     for (auto* note : course->redNotes)
@@ -109,10 +111,9 @@ void ResultsScreenSceneManager::_ready()
         countNote(note);
     }
 
-    // Calculate average off-time for calibration mods
-    int64_t totalOff = 0;
-    int64_t judgedCount = 0;
-    auto sumOff = [&](auto* note)
+    // Collect off-times for calibration mods, then discard outliers before averaging
+    std::vector<int64_t> offTimes;
+    auto collectOff = [&](auto* note)
     {
         if (!note || !note->finishedJudging.load(std::memory_order_acquire))
         {
@@ -123,29 +124,51 @@ void ResultsScreenSceneManager::_ready()
         {
             return;
         }
-        totalOff += off;
-        judgedCount++;
+        offTimes.push_back(off);
     };
     for (auto* note : course->redNotes)
     {
-        sumOff(note);
+        collectOff(note);
     }
     for (auto* note : course->blueNotes)
     {
-        sumOff(note);
+        collectOff(note);
     }
     for (auto* note : course->bigRedNotes)
     {
-        sumOff(note);
+        collectOff(note);
     }
     for (auto* note : course->bigBlueNotes)
     {
-        sumOff(note);
+        collectOff(note);
     }
 
-    if (judgedCount > 0)
+    if (!offTimes.empty())
     {
-        int64_t averageOff = totalOff / judgedCount;
+        auto meanOf = [](const std::vector<int64_t>& values)
+        {
+            int64_t sum = 0;
+            for (int64_t v : values)
+            {
+                sum += v;
+            }
+            return sum / static_cast<int64_t>(values.size());
+        };
+
+        // Sort the samples and keep only the middle 40%, discarding the lowest
+        // 30% and highest 30% as outliers
+        std::vector<int64_t> sorted = offTimes;
+        std::sort(sorted.begin(), sorted.end());
+
+        const size_t total = sorted.size();
+        const size_t trim = total * 3 / 10;
+        const size_t begin = trim;
+        const size_t end = total - trim;
+        std::vector<int64_t> filtered(sorted.begin() + begin, sorted.begin() + end);
+
+        int64_t averageOff = meanOf(filtered);
+
+        UtilityFunctions::print("Offset calibration: kept ", std::to_string(filtered.size()).c_str(), " of ", std::to_string(offTimes.size()).c_str(), " samples, average ", std::to_string(averageOff).c_str(), " ps");
 
         if (GraphiteGlobals::modVisualOffsetCalibration)
         {
@@ -214,7 +237,6 @@ void ResultsScreenSceneManager::_ready()
         double heightRatio = static_cast<double>(histogram[i]) / static_cast<double>(maxCount);
         double barHeight = heightRatio * MAX_HEIGHT;
         bar->set_offset(SIDE_BOTTOM, static_cast<float>(barHeight));
-        UtilityFunctions::print("Bar ", i, " count=", histogram[i], " height=", barHeight);
     }
 }
 

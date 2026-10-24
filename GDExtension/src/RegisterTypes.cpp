@@ -1,3 +1,4 @@
+#include "RegisterTypes.hpp"
 #include "BarlinePrefab.hpp"
 #include "BigBlueNotePrefab.hpp"
 #include "BigGhostNotePrefab.hpp"
@@ -12,7 +13,6 @@
 #include "GreenNotePrefab.hpp"
 #include "MenuSceneManager.hpp"
 #include "RedNotePrefab.hpp"
-#include "RegisterTypes.hpp"
 #include "ResultsScreenSceneManager.hpp"
 #include "YellowNotePrefab.hpp"
 #include <gdextension_interface.h>
